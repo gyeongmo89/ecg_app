@@ -1,317 +1,253 @@
-import 'dart:async';
-import 'dart:math';
+// 테스트2
+
+// import 'dart:js_util';
+
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/ecg/component/hr_chart.dart';
-import 'package:ecg_app/ecg/view/ecg_test.dart';
 import 'package:flutter/material.dart';
-// ECG 필요없는 부분 삭제 2023-12-05 16:01
 
-class EcgCard extends StatefulWidget {
-  final Widget cardioImage;
+class EcgCard extends StatelessWidget {
+  final Widget bleImage;
+  final Widget hrImage;
+  final Widget ecgImage;
+  final String bleStatus;
+  final Widget calenderImage;
 
-  const EcgCard({required this.cardioImage, super.key});
+  // final int heartRate;
+  // final int average;
+  // final int minimum;
+  // final int maximum;
 
-  @override
-  State<EcgCard> createState() => _EcgCardState();
-}
+  const EcgCard(
+      {required this.bleImage,
+      required this.hrImage,
+      required this.ecgImage,
+      required this.bleStatus,
+      required this.calenderImage,
+      // required this. name,
+      // required this. heartRate,
+      // required this. average,
+      // required this.  minimum,
+      // required this.  maximum,
 
-class _EcgCardState extends State<EcgCard> {
-  int heartRate = 75;
-  int avg = 75;
-  int min = 75;
-  int max = 75;
+      super.key});
 
-  // heartRate, avg, min, max 랜덤 값으로 설정하는 함수
-  void startUpdatingHeartRate() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          // Generate a random number between 70 and 110.
-          final random = Random();
-          heartRate = 80 + random.nextInt(20);
-          avg = 70 + random.nextInt(20);
-          min = 65 + random.nextInt(20);
-          max = 75 + random.nextInt(20);
-        });
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    startUpdatingHeartRate(); // heartRate, avg, min, max 랜덤 값으로 설정하는 함수
-  }
-
+// icon: Icon(Icons.edit_calendar_outlined),
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
-
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(14.0),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-// -------------------- 타이틀 --------------------
-              // Cardio 이미지
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: widget.cardioImage,
-                  ),
-                  SizedBox(
-                    width: deviceWidth / 9 / 4,
-                  ),
-                  const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Holmes Cardio",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: BODY_TEXT_COLOR,
-                            )),
-                        Text("Connected",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
-                            )),
-                      ]),
-                ],
+              ClipRRect(
+                // 이미지를 깎을 수 있다
+                borderRadius: BorderRadius.circular(12.0),
+                child: bleImage,
               ),
-              Container(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Container(
-                      height: 55,
-                      // height: deviceHeight / 9,
-                      width: 40,
-                      alignment: Alignment.center,
-                    ),
-                    Text(
-                      heartRate.toString(), // HR 랜덤값
-                      style: const TextStyle(
-                        fontSize: 40,
-                        color: BODY_TEXT_COLOR,
-                      ),
-                    ),
-                    const Text(
-                      " bpm",
-                      style: TextStyle(fontSize: 18, color: SUB_TEXT_COLOR),
-                    ),
-                  ],
+              const SizedBox(width: 10.0),
+              const Text(
+                "Connected",
+                style: TextStyle(
+                  fontSize: 20,
                 ),
               ),
+              SizedBox(
+                width: deviceWidth * 0.25,
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: calenderImage,
+              ),
+              const SizedBox(width: 10.0),
+              const Text(
+                "14 Day",
+                style: TextStyle(fontSize: 20),
+              ),
             ],
           ),
-// --------------------------------------------------
-//           SizedBox(height: deviceHeight/7),
-          SizedBox(height: deviceHeight / 67),
-          const Row(
-            children: [
-              Text("Recording Time  14:07"),
-            ],
+          const SizedBox(
+            height: 16,
           ),
-          SizedBox(height: deviceHeight / 67),
-// -------------------- Average, Minimum, Maximum --------------------
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ClipRRect(
+                // 이미지를 깎을 수 있다
+                borderRadius: BorderRadius.circular(12.0),
+                child: hrImage,
+              ),
+              const SizedBox(width: 10.0),
+              const Text(
+                "75",
+                style: TextStyle(fontSize: 20),
+              ),
+              const Text(
+                " bpm",
+                style: TextStyle(fontSize: 20, color: SUB_TEXT_COLOR),
+              )
+            ],
+          ),
+          const SizedBox(height: 16.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ClipRRect(
+                // 이미지를 깎을 수 있다
+                borderRadius: BorderRadius.circular(12.0),
+                child: ecgImage,
+              ),
+              const SizedBox(
+                width: 10.0,
+              ),
+              const Text("ECG Monitoring",
+                  style: TextStyle(
+                    fontSize: 20,
+                  )),
+            ],
+          ),
+          SizedBox(
+            height: deviceHeight / 70 * 2,
+          ),
+          Container(
+            width: deviceWidth,
+            height: deviceHeight / 6 * 2,
+            color: Colors.grey,
+          ),
+          SizedBox(
+            height: deviceHeight / 30 * 2,
+          ),
+//----------------------------------------------------------------------
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Average",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  )),
+              SizedBox(
+                width: 30,
+              ),
+              Text("Minimum",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  )),
+              SizedBox(
+                width: 30,
+              ),
+              Text("Maximum",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  )),
+            ],
+          ),
+
+          Divider(
+            thickness: 2,
+            height: 4,
+            color: PRIMARY_COLOR,
+          ),
+          // Divider(thickness: 2, height: 3, color: PRIMARY_COLOR,),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
                 children: [
-                  const Text(
-                    "AVG",
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: PRIMARY_COLOR2),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            avg.toString(), //
-                            style: const TextStyle(
-                              fontSize: 44.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        "bpm",
-                        style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(
-                  height: 45.0,
-                  child: VerticalDivider(
-                    color: PRIMARY_COLOR2,
-                    thickness: 1.0,
-                  )),
-              Column(
-                children: [
-                  const Text(
-                    "MIN",
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: PRIMARY_COLOR2),
-                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        min.toString(), //
-                        style: const TextStyle(
-                          fontSize: 44.0,
+                        "75",
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
                         "bpm",
                         style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                          fontSize: 18,
+                          color: SUB_TEXT_COLOR,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(
-                  height: 45.0,
-                  child: VerticalDivider(
-                    color: PRIMARY_COLOR2,
-                    thickness: 1.0,
-                  )),
+              SizedBox(
+                width: 20.0,
+              ),
               Column(
                 children: [
-                  const Text(
-                    "MAX",
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        // color: PRIMARY_COLOR),
-                        color: PRIMARY_COLOR2),
-                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        max.toString(), //
-                        style: const TextStyle(
-                          fontSize: 44.0,
+                        "63",
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
                         "bpm",
                         style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                          fontSize: 18,
+                          color: SUB_TEXT_COLOR,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
+              SizedBox(
+                width: 20.0,
+              ),
+              Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        "98",
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        "bpm",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: SUB_TEXT_COLOR,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
-          SizedBox(height: deviceHeight / 47),
-// --------------------------------------------------
-
-// -------------------- BODY ECG --------------------
-          Container(
-            // height: deviceHeight/3.2,
-            height: deviceHeight / 4.3,
-            width: deviceWidth,
-            // height: 230.0,
-            // width: 380.0,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: const Color(0xFFE6EBF0),
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2.0,
-                )),
-            child: Column(
-              children: [
-                SizedBox(
-                  // height: deviceHeight,
-                  width: deviceWidth / 1.25,
-                  // height: 220.0,
-                  // width: 320.0,
-                  child: const Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text("ECG",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: BODY_TEXT_COLOR,
-                              )),
-                        ],
-                      ),
-                      EcgChart2(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-// --------------------------------------------------
-          SizedBox(
-            height: deviceHeight / 80 * 2,
-          ),
-// -------------------- BODY HR --------------------
-          Container(
-            // height: deviceHeight/3.2,
-            height: deviceHeight / 4.3,
-            width: deviceWidth,
-
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: const Color(0xFFE6EBF0),
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2.0,
-                )),
-            child: Column(
-              children: [
-                SizedBox(
-                  // height: 220.0,
-                  width: deviceWidth / 1.25,
-                  child: const Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text("HR",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: BODY_TEXT_COLOR,
-                              )),
-                        ],
-                      ),
-                      HrChart(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-// --------------------------------------------------
         ],
       ),
     );

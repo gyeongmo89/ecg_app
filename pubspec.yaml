@@ -38,28 +38,6 @@ dependencies:
   dio: ^5.3.3
   flutter_secure_storage: ^9.0.0
   omni_datetime_picker: ^1.0.9
-  datetime_picker_formfield_new: ^2.1.0
-  table_calendar: ^3.0.9
-  intl: ^0.18.1
-  drift: ^2.13.0
-  sqlite3_flutter_libs: ^0.5.0
-  path_provider: ^2.0.0
-  path: ^1.8.3
-  get_it: ^7.6.4
-  fl_chart: ^0.64.0
-  flutter_svg: ^2.0.9
-  http: ^1.1.0
-  flutter_blue_plus: ^1.29.5
-  permission_handler: ^11.0.1
-  provider: ^6.1.1
-  fluttertoast: ^8.2.4
-  syncfusion_flutter_charts: ^23.2.6
-  flutter_charts: ^0.5.2
-  firebase_messaging: ^14.7.10
-  firebase_core: ^2.24.2
-  flutter_local_notifications: ^16.3.0
-
-
 
 
 
@@ -74,9 +52,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-  drift_dev: ^2.13.0
-  build_runner: ^2.4.6
-  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -94,15 +69,12 @@ flutter:
     #- asset/img/misc/firstLoading.PNG
     - asset/img/misc/
     - asset/img/icon/
-    - asset/img/icon/app_icon.png
-    - asset/img/icon/favicon.svg
-    - asset/img/logo/HolmesAI_LOGO.png
-    - asset/img/logo/HolmesAI_LOGO.svg
-    - asset/img/misc/atPatch.png
-    - asset/img/misc/healthCare.png
-    - asset/img/misc/mountingPosition.PNG
-
-
+    - asset/img/logo/
+    - asset/img/misc/Cardio1.png
+    - asset/img/icon/ble.png
+    - asset/img/icon/ecgHeart.png
+    - asset/img/icon/hrHeart.png
+    - asset/img/icon/calender.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -145,7 +117,6 @@ flutter:
           weight: 300
         - asset: asset/fonts/kr/NotoSansKR-Light.ttf
           weight: 100
-
 
 
 
