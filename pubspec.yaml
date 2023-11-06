@@ -38,6 +38,15 @@ dependencies:
   dio: ^5.3.3
   flutter_secure_storage: ^9.0.0
   omni_datetime_picker: ^1.0.9
+  datetime_picker_formfield_new: ^2.1.0
+  table_calendar: ^3.0.9
+  intl: ^0.18.1
+  drift: ^2.13.0
+  sqlite3_flutter_libs: ^0.5.0
+  path_provider: ^2.0.0
+  path: ^1.8.3
+  get_it: ^7.6.4
+
 
 
 
@@ -52,6 +61,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  drift_dev: ^2.13.0
+  build_runner: ^2.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

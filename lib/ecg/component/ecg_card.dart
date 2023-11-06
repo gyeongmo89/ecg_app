@@ -150,7 +150,7 @@ class EcgCard extends StatelessWidget {
             ],
           ),
 
-          Divider(
+          const Divider(
             thickness: 2,
             height: 4,
             color: PRIMARY_COLOR,

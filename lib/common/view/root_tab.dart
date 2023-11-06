@@ -1,7 +1,7 @@
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
-import 'package:ecg_app/symtom_note/view/symptom_note.dart';
+import 'package:ecg_app/symptom_note/view/symptom_note.dart';
 import 'package:ecg_app/user/view/test.dart';
 import 'package:ecg_app/user/view/test1.dart';
 import 'package:flutter/material.dart';
