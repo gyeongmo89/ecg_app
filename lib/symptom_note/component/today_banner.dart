@@ -20,6 +20,7 @@ class TodayBanner extends StatelessWidget {
 
     return Container(
       color: PRIMARY_COLOR2,
+      // color: PRIMARY_COLOR,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Row(

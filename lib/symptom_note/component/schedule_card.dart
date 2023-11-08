@@ -20,6 +20,7 @@ class ScheduleCard extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.0,
+          // color: PRIMARY_COLOR,
           color: PRIMARY_COLOR2,
         ),
         borderRadius: BorderRadius.circular(8.0),
@@ -62,6 +63,7 @@ class _Time extends StatelessWidget {
     const textStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: PRIMARY_COLOR2,
+      // color: PRIMARY_COLOR,
       fontSize: 16.0,
     );
 

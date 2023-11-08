@@ -330,6 +330,7 @@ class _SaveButton extends StatelessWidget {
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               primary: PRIMARY_COLOR2,
+              // primary:  PRIMARY_COLOR,
             ),
             child: Text("저장"),
           ),

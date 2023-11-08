@@ -17,8 +17,6 @@ class EcgMonitoringScreen extends StatelessWidget {
   //
   // }
 
-
-
 //09:03
   @override
   Widget build(BuildContext context) {
@@ -31,8 +29,9 @@ class EcgMonitoringScreen extends StatelessWidget {
       // name : "ECG",
 
       hrImage: Image.asset(
-        "asset/img/icon/hrHeart.png",
-        width: MediaQuery.of(context).size.width / 10,
+        // "asset/img/icon/hrHeart.png",
+        "asset/img/icon/heartGGG.gif",
+        width: MediaQuery.of(context).size.width / 6,
         fit: BoxFit.cover,
       ),
 
@@ -44,9 +43,14 @@ class EcgMonitoringScreen extends StatelessWidget {
       bleStatus: "Connected",
 
       calenderImage: Image.asset(
-      "asset/img/icon/calender.png",
-      width: MediaQuery.of(context).size.width / 10,
-      fit: BoxFit.cover,
+        "asset/img/icon/calender.png",
+        width: MediaQuery.of(context).size.width / 10,
+        fit: BoxFit.cover,
+      ),
+      cardioImage: Image.asset(
+        "asset/img/icon/Cardio1.png",
+        width: MediaQuery.of(context).size.width / 6,
+        fit: BoxFit.cover,
       ),
 
       // heartRate : 75,
