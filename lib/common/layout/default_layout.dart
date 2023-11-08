@@ -44,7 +44,7 @@ class DefaultLayout extends StatelessWidget {
     } else {
       return AppBar(
         backgroundColor: APPBAR_COLOR,
-        title: const Text("ECG App"),
+        title: const Text("Holmes AI Note"),
         actions: [
           IconButton(onPressed: (){},
             icon: const Icon(Icons.search),
@@ -56,32 +56,3 @@ class DefaultLayout extends StatelessWidget {
     }
   }
 }
-
-// return Scaffold(
-//   backgroundColor: backgroundColor ?? Colors.white, // 입력을 받지 않으면 기본색깔인 흰색으로
-//   body: Container(
-//     width: screenWidth,
-//     height: screenHeight,
-//     padding: EdgeInsets.symmetric(
-//       // 여백을 화면 크기에 따라 동적으로 설정합니다.
-//       horizontal: screenWidth * 0.05,
-//       vertical: screenHeight * 0.05,
-//     ),
-//     child: child,
-//   ),
-// );
-
-//-----------------------------------
-// return Scaffold(
-//   backgroundColor: Colors.white,
-//   body: Container(
-//     width: screenWidth,
-//     height: screenHeight,
-//     padding: EdgeInsets.symmetric(
-//       // 여백을 화면 크기에 따라 동적으로 설정합니다.
-//       horizontal: screenWidth * 0.05,
-//       vertical: screenHeight * 0.05,
-//     ),
-//     child: child,
-//   ),
-// );

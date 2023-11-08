@@ -46,6 +46,8 @@ dependencies:
   path_provider: ^2.0.0
   path: ^1.8.3
   get_it: ^7.6.4
+  fl_chart: ^0.64.0
+  flutter_svg: ^2.0.9
 
 
 
@@ -80,12 +82,19 @@ flutter:
     #- asset/img/misc/firstLoading.PNG
     - asset/img/misc/
     - asset/img/icon/
-    - asset/img/logo/
+    - asset/img/logo/HolmesAI PNG.png
+    - asset/img/logo/HolmesAI_LOGO.svg
     - asset/img/misc/Cardio1.png
     - asset/img/icon/ble.png
     - asset/img/icon/ecgHeart.png
     - asset/img/icon/hrHeart.png
     - asset/img/icon/calender.png
+    - asset/img/icon/heartGGG.gif
+    - asset/img/icon/Cardio1.png
+    - asset/img/logo/홈즈AI_파비콘_안1.svg
+    - asset/img/logo/홈즈AI_파비콘_안2.svg
+    - asset/img/logo/홈즈AI_파비콘_안3.svg
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -2,9 +2,18 @@ import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note.dart';
+import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
 import 'package:ecg_app/user/view/test.dart';
 import 'package:ecg_app/user/view/test1.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart';
+import 'package:ecg_app/database/drift_database.dart';
+import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+
 
 
 class RootTab extends StatefulWidget {
@@ -21,11 +30,12 @@ class _RootTabState extends State<RootTab>
 
   int index = 0; //처음엔 네비게이터 홈 으로 보이게 해야하므로
 
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    
+
     controller = TabController(length: 2, vsync: this);
     // length 는 children에 넣은 값들 여기선 ECG, Note 2개
     // vsync는 렌더링 엔진에서 필요 한것인데 컨트롤러 현재 스테이트를 넣어주면됨
@@ -50,13 +60,13 @@ class _RootTabState extends State<RootTab>
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
-      title: 'ECG App',
+      title: 'ECG Monitoring',
 
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: PRIMARY_COLOR,
+        selectedItemColor: PRIMARY_COLOR2,
         unselectedItemColor: SUB_TEXT_COLOR,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
+        selectedFontSize: 15,
+        unselectedFontSize: 15,
         type: BottomNavigationBarType.shifting, // shifting이 기본, 선택된 메뉴가 더 커보임
         // type: BottomNavigationBarType.fixed, // shifting이 기본, 선택된 메뉴가 더 커보임
         onTap: (int index){
@@ -87,7 +97,8 @@ class _RootTabState extends State<RootTab>
         controller: controller,
         children: const [
           EcgMonitoringScreen(),
-          SymptomNoteScreen(),
+          SymptomNote2(),
+          // SymptomNoteScreen(),
           // Test1(),
           // Center(child: Text('ECG')),
           // Center(child: Text('Note')),

@@ -1,3 +1,4 @@
+// symptom_note2.dart 합치기 시작
 import 'package:ecg_app/common/component/calendar.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -7,6 +8,11 @@ import 'package:ecg_app/symptom_note/component/schedule_card.dart';
 import 'package:ecg_app/symptom_note/component/today_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+
+// 나머지 코드에서는 Flutter.Column 또는 Drift.Column을 사용하실 수 있습니다.
+
+
 
 class SymptomNote2 extends StatefulWidget {
   const SymptomNote2({super.key});
@@ -65,6 +71,7 @@ class _SymptomNote2State extends State<SymptomNote2> {
           },
         );
       },
+      // backgroundColor: PRIMARY_COLOR,
       backgroundColor: PRIMARY_COLOR2,
       child: Icon(Icons.add),
     );
@@ -79,7 +86,7 @@ class _SymptomNote2State extends State<SymptomNote2> {
 }
 
 class _ScheduleList extends StatelessWidget {
-  // 내가 임의 코그 추가
+  // 내가 임의 코드 추가
   final DateTime selectedDate;
 
   const _ScheduleList({
@@ -169,3 +176,4 @@ class _ScheduleList extends StatelessWidget {
     );
   }
 }
+
