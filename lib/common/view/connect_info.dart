@@ -137,6 +137,7 @@ class ConnectionInfo extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => RootTab(),),
                       );
 
+
                     },
                     style: ElevatedButton.styleFrom(
                           primary: PRIMARY_COLOR2,

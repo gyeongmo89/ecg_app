@@ -29,11 +29,6 @@ const DEFAULT_COLORS = [
   "9C27B0",
 ];
 
-
-
-
-// 수정
-
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 

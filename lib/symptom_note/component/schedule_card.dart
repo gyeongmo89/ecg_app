@@ -94,7 +94,7 @@ class _Content extends StatelessWidget {
         child: Text(content));
   }
 }
-
+//---------------- 색상 ----------------
 class _Category extends StatelessWidget {
   final Color color;
   const _Category({required this.color, super.key});
@@ -111,3 +111,4 @@ class _Category extends StatelessWidget {
     );
   }
 }
+//--------------------------------

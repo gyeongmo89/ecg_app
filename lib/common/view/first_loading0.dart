@@ -9,7 +9,7 @@ class FirstLoading0 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 첫 페이지를 표시
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => ConnectionInfo(),

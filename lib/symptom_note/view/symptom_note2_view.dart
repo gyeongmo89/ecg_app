@@ -1,4 +1,3 @@
-// symptom_note2.dart 합치기 시작
 import 'package:ecg_app/common/component/calendar.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
