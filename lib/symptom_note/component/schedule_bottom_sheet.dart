@@ -1,21 +1,18 @@
-// import 'dart:js';
-// import 'dart:html';
-
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
-import 'package:ecg_app/model/category_color.dart';
 import 'package:ecg_app/symptom_note/component/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ecg_app/database/drift_database.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
   final int? scheduleId;
 
-  const ScheduleBottomSheet(
-      {required this.selectedDate, required this.scheduleId, super.key});
+  const ScheduleBottomSheet({
+      required this.selectedDate,
+      required this.scheduleId,
+      super.key});
 
   @override
   State<ScheduleBottomSheet> createState() => _ScheduleBottomSheetState();
@@ -37,7 +34,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(
-            FocusNode()); // GestureDetctor를 통해 텍스트 필드 입력후 그주변 눌렀을떄 값이 안사라짐
+            FocusNode()); // GestureDetctor를 통해 텍스트 필드 입력후 그주변 눌렀을때 값이 안사라짐
       },
       child: FutureBuilder<Schedule>(
           future: widget.scheduleId == null
@@ -67,7 +64,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 
             return SafeArea(
               child: Container(
-                height: MediaQuery.of(context).size.height / 2 + bottomInset,
+                // height: MediaQuery.of(context).size.height / 1.05 +
+                    height: MediaQuery.of(context).size.height / 1.9 +
+                    bottomInset, // 노트 입력 시트 크기 조정
                 color: Colors.white,
                 child: Padding(
                   padding: EdgeInsets.only(bottom: bottomInset),
@@ -85,6 +84,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // ----------- 시작/종료시간 -----------
                           _Time(
                             onStartSaved: (String? val) {
                               startTime = int.parse(val!);
@@ -96,18 +96,41 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             // null 값이면 엠티스티링을 넣겟다.
                             endInitialValue: endTime?.toString() ?? '',
                           ),
+                          // ---------------------------------
                           SizedBox(
                             height: 16.0,
                           ),
+                          // ----------- 시작/종료시간 -----------
+
+
+                      // Row(
+                      //       children: <Widget>[
+                      //         SizedBox(height: 40, width: 70,
+                      //         child:  Radio<RadioImage>(
+                      //           value: RadioImage.all,
+                      //             groupValue: _radioImage,
+                      //             onChanged: (RadioImage value){
+                      //             setState(() {
+                      //               _radioImage = value;
+                      //               print('라디오 테스트 : $value');
+                      //             });
+                      //             },
+                      //         ),)
+                      //       ],
+                      //     ),
+                          // 증상 라디오 버튼 추가 해야함 추가필요
+                          // 활동 라디오 버튼 추가 해야함 추가필요
                           _Content(
                             onSaved: (String? val) {
                               content = val;
                             },
                             initialValue: content ?? '',
                           ),
+                          // ---------------------------------
                           SizedBox(
                             height: 16.0,
                           ),
+                          // ----------- COlor -----------
                           FutureBuilder<List<CategoryColor>>(
                             future:
                                 GetIt.I<LocalDatabase>().getCategoryColors(),
@@ -130,6 +153,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                               );
                             },
                           ),
+                          // ---------------------------------
                           SizedBox(
                             height: 8.0,
                           ),
@@ -147,6 +171,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     );
   }
 
+// -------------- 아래부터는 수행함수 -------------------
+
+// -------------- 저장버튼 눌렀을때 로직 -------------------
   void onSavePressed() async {
     // formKey는 생성을 했는데, Form 위젯과 결합을 안했을때
     if (formKey.currentState == null) {
@@ -183,9 +210,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             content: Value(content!),
             colorID: Value(selectedColorId!),
           ),
-        );        // 업데이트
+        ); // 업데이트
       }
-
       print("SAVE 완료");
       Navigator.of(context).pop();
     } else {
@@ -194,6 +220,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   }
 }
 
+// ----------------------------------------------
+// ------------ 시작/종료시간 입력 --------------
 class _Time extends StatelessWidget {
   final FormFieldSetter<String> onStartSaved;
   final FormFieldSetter<String> onEndSaved;
@@ -231,8 +259,10 @@ class _Time extends StatelessWidget {
       ],
     );
   }
+// ----------------------------------------------
 }
 
+// ------------ 내용 입력 --------------
 class _Content extends StatelessWidget {
   final FormFieldSetter<String> onSaved;
   final String initialValue;
@@ -244,7 +274,7 @@ class _Content extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomTextField(
-        label: "내용",
+        label: "증상선택 (Radio 버튼으로 변경예정)",
         isTime: false,
         onSaved: onSaved,
         initialValue: initialValue,
@@ -252,7 +282,9 @@ class _Content extends StatelessWidget {
     );
   }
 }
+// ----------------------------------------------
 
+// ------------ Color 입력 --------------
 typedef ColorIdSetter = void Function(int id);
 
 class _ColorPicker extends StatelessWidget {
@@ -312,7 +344,9 @@ class _ColorPicker extends StatelessWidget {
     );
   }
 }
+// ----------------------------------------------
 
+// ------------ 저장버튼 --------------
 class _SaveButton extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -339,3 +373,5 @@ class _SaveButton extends StatelessWidget {
     );
   }
 }
+// ----------------------------------------------
+

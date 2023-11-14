@@ -118,10 +118,13 @@ class _EcgCardState extends State<EcgCard> {
           const SizedBox(height: 16.0),
 // -------------------- BODY ECG --------------------
           Container(
-            height: 230.0,
-            width: 380.0,
+
+            height: deviceHeight/3.2,
+            width: deviceWidth,
+            // height: 230.0,
+            // width: 380.0,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: BorderRadius.circular(25.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,
@@ -130,8 +133,10 @@ class _EcgCardState extends State<EcgCard> {
             child: Column(
               children: [
                 Container(
-                  height: 220.0,
-                  width: 320.0,
+                  // height: deviceHeight,
+                  width: deviceWidth/1.25,
+                  // height: 220.0,
+                  // width: 320.0,
                   child: const Column(
                     children: [
                       Row(
@@ -158,10 +163,10 @@ class _EcgCardState extends State<EcgCard> {
           ),
 // -------------------- BODY HR --------------------
           Container(
-            height: 230.0,
-            width: 380.0,
+            height: deviceHeight/3.2,
+            width: deviceWidth,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: BorderRadius.circular(25.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,
@@ -170,8 +175,8 @@ class _EcgCardState extends State<EcgCard> {
             child: Column(
               children: [
                 Container(
-                  height: 220.0,
-                  width: 320.0,
+                  // height: 220.0,
+                  width: deviceWidth/1.25,
                   child: const Column(
                     children: [
                       Row(
