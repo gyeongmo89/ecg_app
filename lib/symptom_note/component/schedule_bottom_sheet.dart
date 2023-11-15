@@ -1,18 +1,19 @@
+// 수정시작 2023-11-14 10:27
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:ecg_app/symptom_note/component/custom_text_field.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter/services.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
   final int? scheduleId;
 
-  const ScheduleBottomSheet({
-      required this.selectedDate,
-      required this.scheduleId,
-      super.key});
+  const ScheduleBottomSheet(
+      {required this.selectedDate, required this.scheduleId, super.key});
 
   @override
   State<ScheduleBottomSheet> createState() => _ScheduleBottomSheetState();
@@ -28,6 +29,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    double deviceHeight = MediaQuery.of(context).size.height;
+    double deviceWidth = MediaQuery.of(context).size.width;
     final bottomInset =
         MediaQuery.of(context).viewInsets.bottom; // viewInsets 시스템이 차지하는 부분
 
@@ -65,15 +68,17 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             return SafeArea(
               child: Container(
                 // height: MediaQuery.of(context).size.height / 1.05 +
-                    height: MediaQuery.of(context).size.height / 1.9 +
-                    bottomInset, // 노트 입력 시트 크기 조정
+                //     height: MediaQuery.of(context).size.height / 1.5 +
+                height: MediaQuery.of(context).size.height / 1.6 +
+                    //     height: MediaQuery.of(context).size.height / 1.9 +
+                    bottomInset, // 노트 입력 시트 사이즈 조정
                 color: Colors.white,
                 child: Padding(
                   padding: EdgeInsets.only(bottom: bottomInset),
                   child: Padding(
                     padding: const EdgeInsets.only(
-                      left: 8.0,
-                      right: 8.0,
+                      left: 16.0,
+                      right: 16.0,
                       top: 16.0,
                     ),
                     child: Form(
@@ -84,6 +89,23 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.edit_calendar_outlined),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text("노트작성",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: BODY_TEXT_COLOR,
+                                  )),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 4.0,
+                          ),
                           // ----------- 시작/종료시간 -----------
                           _Time(
                             onStartSaved: (String? val) {
@@ -98,28 +120,56 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           ),
                           // ---------------------------------
                           SizedBox(
-                            height: 16.0,
+                            height: 4.0,
+                          ),
+                          Divider(
+                            color: Colors.grey,
+                            thickness: 1.0,
+                          ),
+                          SizedBox(
+                            height: 4.0,
                           ),
                           // ----------- 시작/종료시간 -----------
 
-
-                      // Row(
-                      //       children: <Widget>[
-                      //         SizedBox(height: 40, width: 70,
-                      //         child:  Radio<RadioImage>(
-                      //           value: RadioImage.all,
-                      //             groupValue: _radioImage,
-                      //             onChanged: (RadioImage value){
-                      //             setState(() {
-                      //               _radioImage = value;
-                      //               print('라디오 테스트 : $value');
-                      //             });
-                      //             },
-                      //         ),)
-                      //       ],
-                      //     ),
-                          // 증상 라디오 버튼 추가 해야함 추가필요
-                          // 활동 라디오 버튼 추가 해야함 추가필요
+                          // Row(
+                          //       children: <Widget>[
+                          //         SizedBox(height: 40, width: 70,
+                          //         child:  Radio<RadioImage>(
+                          //           value: RadioImage.all,
+                          //             groupValue: _radioImage,
+                          //             onChanged: (RadioImage value){
+                          //             setState(() {
+                          //               _radioImage = value;
+                          //               print('라디오 테스트 : $value');
+                          //             });
+                          //             },
+                          //         ),)
+                          //       ],
+                          //     ),
+                          // 증상선택 버튼/ 증상 라디오 버튼 추가 해야함 추가필요
+                          // 활동선택 버튼/ 활동 라디오 버튼 추가 해야함 추가필요
+                          const _SymptomSelect(),
+                          const SizedBox(
+                            height: 4.0,
+                          ),
+                          const Divider(
+                            color: Colors.grey,
+                            thickness: 1.0,
+                          ),
+                          const SizedBox(
+                            height: 4.0,
+                          ),
+                          const _ActivitySelect(),
+                          const SizedBox(
+                            height: 4.0,
+                          ),
+                          const Divider(
+                            color: Colors.grey,
+                            thickness: 1.0,
+                          ),
+                          const SizedBox(
+                            height: 4.0,
+                          ),
                           _Content(
                             onSaved: (String? val) {
                               content = val;
@@ -127,35 +177,35 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             initialValue: content ?? '',
                           ),
                           // ---------------------------------
-                          SizedBox(
-                            height: 16.0,
+                          const SizedBox(
+                            height: 8.0,
                           ),
                           // ----------- COlor -----------
-                          FutureBuilder<List<CategoryColor>>(
-                            future:
-                                GetIt.I<LocalDatabase>().getCategoryColors(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData &&
-                                  selectedColorId == null &&
-                                  snapshot.data!.isNotEmpty) {
-                                selectedColorId = snapshot.data![0].id;
-                              }
-
-                              // print(snapshot.data);
-                              return _ColorPicker(
-                                colors: snapshot.hasData ? snapshot.data! : [],
-                                selectedColorId: selectedColorId,
-                                colorIdSetter: (int id) {
-                                  setState(() {
-                                    selectedColorId = id;
-                                  });
-                                },
-                              );
-                            },
-                          ),
+                          // FutureBuilder<List<CategoryColor>>(
+                          //   future:
+                          //       GetIt.I<LocalDatabase>().getCategoryColors(),
+                          //   builder: (context, snapshot) {
+                          //     if (snapshot.hasData &&
+                          //         selectedColorId == null &&
+                          //         snapshot.data!.isNotEmpty) {
+                          //       selectedColorId = snapshot.data![0].id;
+                          //     }
+                          //
+                          //     // print(snapshot.data);
+                          //     return _ColorPicker(
+                          //       colors: snapshot.hasData ? snapshot.data! : [],
+                          //       selectedColorId: selectedColorId,
+                          //       colorIdSetter: (int id) {
+                          //         setState(() {
+                          //           selectedColorId = id;
+                          //         });
+                          //       },
+                          //     );
+                          //   },
+                          // ),
                           // ---------------------------------
                           SizedBox(
-                            height: 8.0,
+                            height: 4.0,
                           ),
                           _SaveButton(
                             onPressed: onSavePressed,
@@ -222,13 +272,13 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 
 // ----------------------------------------------
 // ------------ 시작/종료시간 입력 --------------
-class _Time extends StatelessWidget {
+class _Time extends StatefulWidget {
   final FormFieldSetter<String> onStartSaved;
   final FormFieldSetter<String> onEndSaved;
   final String startInitialValue;
   final String endInitialValue;
 
-  const _Time(
+  _Time(
       {required this.onStartSaved,
       required this.onEndSaved,
       required this.startInitialValue,
@@ -236,31 +286,300 @@ class _Time extends StatelessWidget {
       super.key});
 
   @override
+  State<_Time> createState() => _TimeState();
+}
+
+class _TimeState extends State<_Time> {
+  // ------------------- TimePicker -------------------
+  // TimeOfDay _selectedTime = TimeOfDay.now();
+  TimeOfDay _startSelectedTime = TimeOfDay.now(); // 시작시간 선택을 위한 변수 추가
+  TimeOfDay _endSelectedTime = TimeOfDay.now();
+  // 버튼 수정시작
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: isStartTime ? _startSelectedTime : _endSelectedTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: PRIMARY_COLOR2,
+            colorScheme: ColorScheme.light(primary: PRIMARY_COLOR2),
+            buttonTheme: const ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+
+
+
+
+    if (picked != null) {
+      // 종료시간이 시작시간보다 이전인 경우 알림을 표시하고 함수를 종료
+      if (!isStartTime) {
+        final DateTime startDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          _startSelectedTime.hour,
+          _startSelectedTime.minute,
+        );
+        final DateTime endDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          picked.hour,
+          picked.minute,
+        );
+
+        if (endDateTime.isBefore(startDateTime)) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('알림'),
+                content: Text('종료시간은 시작시간 이후여야 합니다.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('확인'),
+                  ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+      } else {
+        // 추가: 시작시간이 종료시간 이후일 경우 알림
+        final DateTime startDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          picked.hour,
+          picked.minute,
+        );
+        final DateTime endDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          _endSelectedTime.hour,
+          _endSelectedTime.minute,
+        );
+
+        if (startDateTime.isAfter(endDateTime)) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('알림'),
+                content: Text('시작시간은 종료시간 이전이어야 합니다.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('확인'),
+                  ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+      }
+      setState(() {
+        if (isStartTime) {
+          _startSelectedTime = picked;
+        } else {
+          _endSelectedTime = picked;
+        }
+      });
+    }
+  }
+  // ----------------------------------------------------
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
+    double deviceHeight = MediaQuery.of(context).size.height;
+    double deviceWidth = MediaQuery.of(context).size.width;
+    return Column(
       children: [
-        Expanded(
-            child: CustomTextField(
-          label: "시작시간",
-          isTime: true,
-          onSaved: onStartSaved,
-          initialValue: startInitialValue,
-        )),
-        SizedBox(
-          width: 16.0,
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  _selectTime(context, true);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PRIMARY_COLOR2,
+                  // primary:  PRIMARY_COLOR,
+                ),
+                child: Text("시작시간"),
+              ),
+            ),
+            // Expanded(
+            //     child: CustomTextField(
+            //   label: "시작시간",
+            //   isTime: true,
+            //   onSaved: onStartSaved,
+            //   initialValue: startInitialValue,
+            // )),
+            SizedBox(
+              // width: 16.0,
+              width: deviceWidth / 5 / 4, // 시작시간 종료시간 버튼 간격
+            ),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  _selectTime(context, false); // 종료시간 설정
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PRIMARY_COLOR2,
+                  // primary:  PRIMARY_COLOR,
+                ),
+                child: Text("종료시간"),
+              ),
+            )
+            // Expanded(
+            //     child: CustomTextField(
+            //   label: "종료시간",
+            //   isTime: true,
+            //   onSaved: onEndSaved,
+            //   initialValue: endInitialValue,
+            // )),
+          ],
         ),
-        Expanded(
-            child: CustomTextField(
-          label: "종료시간",
-          isTime: true,
-          onSaved: onEndSaved,
-          initialValue: endInitialValue,
-        )),
+        const SizedBox(
+          height: 4.0,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              child: Text(
+                "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: BODY_TEXT_COLOR,
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 16.0,
+            ),
+            Container(
+              child: Text(
+                "${_endSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_endSelectedTime.hourOfPeriod.toString()}:${_endSelectedTime.minute.toString().padLeft(2, '0')}",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: BODY_TEXT_COLOR,
+                ),
+              ),
+            )
+          ],
+        )
       ],
     );
   }
-// ----------------------------------------------
 }
+
+// ------------ 증상 선택 --------------
+class _SymptomSelect extends StatefulWidget {
+  const _SymptomSelect({super.key});
+
+  @override
+  State<_SymptomSelect> createState() => _SymptomSelectState();
+}
+
+class _SymptomSelectState extends State<_SymptomSelect> {
+  String? selectedSymptom;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          child: ElevatedButton(
+            onPressed: () async {
+              final selectedSymptom = await showDialog<String?>(
+                context: context,
+                builder: (BuildContext context) {
+                  return SymptomSelectionDialog(
+                    onSymptomSelected: (symptom) {
+                      // 선택된 증상을 처리
+                      print('Selected Symptom: $symptom');
+                      setState(() {
+                        this.selectedSymptom = symptom;
+                      });
+                    },
+                  );
+                },
+              );
+              if (selectedSymptom != null) {
+                // 다이얼로그에서 선택된 증상을 처리
+                // 여기에서는 선택된 증상을 사용할 수 있음
+                setState(() {
+                  this.selectedSymptom = selectedSymptom;
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
+            child: Text("증상선택"),
+          ),
+        ),
+        if (selectedSymptom != null)
+          Text(
+            "$selectedSymptom", // 변수로 변경필요
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16.0,
+              color: BODY_TEXT_COLOR,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ----------------------------------------------
+// ------------ 활동 선택 --------------
+class _ActivitySelect extends StatelessWidget {
+  const _ActivitySelect({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+            child: ElevatedButton(
+                onPressed: () {},
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
+                child: Text("활동선택"))),
+        Container(
+          child: const Text(
+            textAlign: TextAlign.center,
+            "업무(비 육체적)", // 변수로 변경필요
+            style: TextStyle(
+              fontSize: 16.0,
+              color: BODY_TEXT_COLOR,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+// ----------------------------------------------
 
 // ------------ 내용 입력 --------------
 class _Content extends StatelessWidget {
@@ -269,12 +588,12 @@ class _Content extends StatelessWidget {
 
   const _Content(
       {required this.onSaved, required this.initialValue, super.key});
-
+// Icon(Icons.mark_unread_chat_alt_outlined)
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomTextField(
-        label: "증상선택 (Radio 버튼으로 변경예정)",
+        label: "기타설명",
         isTime: false,
         onSaved: onSaved,
         initialValue: initialValue,
@@ -363,7 +682,7 @@ class _SaveButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              primary: PRIMARY_COLOR2,
+              primary: SAVE_COLOR,
               // primary:  PRIMARY_COLOR,
             ),
             child: Text("저장"),
@@ -373,5 +692,100 @@ class _SaveButton extends StatelessWidget {
     );
   }
 }
-// ----------------------------------------------
 
+// ----------------------------------------------
+class SymptomSelectionDialog extends StatefulWidget {
+  final ValueChanged<String?> onSymptomSelected;
+
+  SymptomSelectionDialog({required this.onSymptomSelected});
+
+  @override
+  _SymptomSelectionDialogState createState() => _SymptomSelectionDialogState();
+}
+
+class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
+  String? selectedSymptom;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(8.0),
+        ),
+      ),
+      titlePadding: EdgeInsets.all(0.1), // title의 패딩 조절
+      title: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8.0),
+          topRight: Radius.circular(8.0),
+        ),
+        child: Container(
+          color: PRIMARY_COLOR2,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              '  증상 선택',
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            buildSymptomRadio('두근거림', '두근거림'),
+            buildSymptomRadio('불안감', '불안감'),
+            buildSymptomRadio('어지러움', '어지러움'),
+            buildSymptomRadio('흉통 또는 불편감', '흉통 또는 불편감'),
+            buildSymptomRadio('체감온도 변화', '체감온도 변화'),
+            buildSymptomRadio('호흡곤란', '호흡곤란'),
+            buildSymptomRadio('기타', '기타설명에 작성해 주세요.'),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: CANCEL_COLOR,
+          ),
+          child: Text('취소'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            widget.onSymptomSelected(selectedSymptom);
+            Navigator.pop(context, selectedSymptom);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: SAVE_COLOR,
+          ),
+          child: Text('저장'),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSymptomRadio(String title, String value) {
+    return Row(
+      children: [
+        Radio(
+          value: value,
+          groupValue: selectedSymptom,
+          activeColor: PRIMARY_COLOR2,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedSymptom = newValue;
+            });
+          },
+        ),
+        Text(title),
+      ],
+    );
+  }
+}

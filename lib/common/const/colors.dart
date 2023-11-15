@@ -21,3 +21,8 @@ const NEON_COLOR = Color(0xff8DF9F9);
 
 const TAB_BACKGROUND_COLOR = Color(0xff979797);
 
+// 저장버튼
+const SAVE_COLOR = Color(0xFF2C4A7D);
+// 취소버튼
+const CANCEL_COLOR = Color(0xFF662129);
+

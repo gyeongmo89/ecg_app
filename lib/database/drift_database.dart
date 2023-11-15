@@ -44,6 +44,9 @@ class LocalDatabase extends _$LocalDatabase {
   Future<int> updateScheduleById(int id, SchedulesCompanion data) =>
       (update(schedules)..where((tbl) => tbl.id.equals(id))).write(data);
 
+  // 모든 일정 데이터를 가져오는 메서드
+  Future<List<Schedule>> getAllSchedules() => select(schedules).get();
+
 
   // 색깔은 고정되어있어서 Future로 받을 수 있지만 내용은 아니다 그래서 Stream으로 함
   Stream<List<ScheduleWithColor>> watchSchedules(DateTime date) {
