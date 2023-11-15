@@ -1,7 +1,20 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:ecg_app/database/drift_database.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+void setupLocator() {
+  GetIt.I.registerLazySingleton(() => LocalDatabase());
+}
 
 void postDataToServer() async {
+
+  final localDatabase = GetIt.I<LocalDatabase>();
+  final allSchedules = await localDatabase.getAllSchedules();
+  print("모든 등록된 일정 프린트 : $allSchedules");
+
+
   // 데이터 생성
   List<Map<String, dynamic>> postData = [
     {
@@ -65,6 +78,8 @@ void postDataToServer() async {
 }
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // 이 부분을 추가합니다.
+  setupLocator(); // 앱 시작 시 GetIt을 설정합니다.
   // 앱 실행 시 데이터를 서버로 보내는 함수 호출
   postDataToServer();
 }

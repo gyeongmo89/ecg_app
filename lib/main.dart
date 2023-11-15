@@ -4,11 +4,9 @@ import 'package:ecg_app/common/view/first_loading.dart';
 import 'package:ecg_app/common/view/first_loading0.dart';
 import 'package:ecg_app/symptom_note/view/date_time.dart';
 import 'package:flutter/material.dart';
-
 import 'package:drift/drift.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -69,12 +67,12 @@ class _App extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: FirstLoading(),
-      home: const FirstLoading0(),
+      home: const FirstLoading0(), // Original
         // FirstLoading(),
       // const ConnectionInfo(),
-        // home: const DatePickerScreen(),
+      //   home: const DatePickerScreen(),
 
-      // home: const DatePickerScreen(),
+
 
 
     );

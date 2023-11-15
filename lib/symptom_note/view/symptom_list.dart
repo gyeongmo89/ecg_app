@@ -54,3 +54,10 @@ class _DatePickerScreenState extends State<DatePickerScreen> {
     }
   }
 }
+
+// void main() {
+//   runApp(const MaterialApp(
+//     debugShowCheckedModeBanner: false,
+//     home: DatePickerScreen(),
+//   ));
+// }
