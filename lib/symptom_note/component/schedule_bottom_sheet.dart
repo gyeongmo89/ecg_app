@@ -1,4 +1,5 @@
-// 수정시작 2023-11-14 10:27
+// 수정시작 2023-11-15 19:38 활동선택 시작 1
+
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -129,26 +130,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           SizedBox(
                             height: 4.0,
                           ),
-                          // ----------- 시작/종료시간 -----------
-
-                          // Row(
-                          //       children: <Widget>[
-                          //         SizedBox(height: 40, width: 70,
-                          //         child:  Radio<RadioImage>(
-                          //           value: RadioImage.all,
-                          //             groupValue: _radioImage,
-                          //             onChanged: (RadioImage value){
-                          //             setState(() {
-                          //               _radioImage = value;
-                          //               print('라디오 테스트 : $value');
-                          //             });
-                          //             },
-                          //         ),)
-                          //       ],
-                          //     ),
-                          // 증상선택 버튼/ 증상 라디오 버튼 추가 해야함 추가필요
-                          // 활동선택 버튼/ 활동 라디오 버튼 추가 해야함 추가필요
+                          // ----------- 증상선택 -----------
                           const _SymptomSelect(),
+                          // ---------------------------------
                           const SizedBox(
                             height: 4.0,
                           ),
@@ -159,7 +143,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           const SizedBox(
                             height: 4.0,
                           ),
+                          // ----------- 활동선택 -----------
                           const _ActivitySelect(),
+                          // ---------------------------------
                           const SizedBox(
                             height: 4.0,
                           ),
@@ -170,6 +156,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           const SizedBox(
                             height: 4.0,
                           ),
+                          // ----------- 기타설명 -----------
                           _Content(
                             onSaved: (String? val) {
                               content = val;
@@ -312,10 +299,6 @@ class _TimeState extends State<_Time> {
         );
       },
     );
-
-
-
-
 
     if (picked != null) {
       // 종료시간이 시작시간보다 이전인 경우 알림을 표시하고 함수를 종료
@@ -544,6 +527,15 @@ class _SymptomSelectState extends State<_SymptomSelect> {
               color: BODY_TEXT_COLOR,
             ),
           ),
+        if (selectedSymptom == null)
+          Text(
+            "증상을 선택해주세요.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16.0,
+              color: Colors.red, // 원하는 색상으로 변경 가능
+            ),
+          ),
       ],
     );
   }
@@ -551,8 +543,15 @@ class _SymptomSelectState extends State<_SymptomSelect> {
 
 // ----------------------------------------------
 // ------------ 활동 선택 --------------
-class _ActivitySelect extends StatelessWidget {
+class _ActivitySelect extends StatefulWidget {
   const _ActivitySelect({super.key});
+
+  @override
+  State<_ActivitySelect> createState() => _ActivitySelectState();
+}
+
+class _ActivitySelectState extends State<_ActivitySelect> {
+  String? selectedActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -560,21 +559,52 @@ class _ActivitySelect extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-            child: ElevatedButton(
-                onPressed: () {},
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
-                child: Text("활동선택"))),
-        Container(
-          child: const Text(
+          child: ElevatedButton(
+            onPressed: () async {
+              final selectedActivity = await showDialog<String?>(
+                context: context,
+                builder: (BuildContext context) {
+                  return ActivitySelectionDialog(
+                    onActivitySelected: (activity) {
+                      // 선택된 증상을 처리
+                      print('Selected Symptom: $activity');
+                      setState(() {
+                        this.selectedActivity = activity;
+                      });
+                    },
+                  );
+                },
+              );
+              if (selectedActivity != null) {
+                // 다이얼로그에서 선택된 증상을 처리
+                // 여기에서는 선택된 증상을 사용할 수 있음
+                setState(() {
+                  this.selectedActivity = selectedActivity;
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
+            child: Text("활동선택"),
+          ),
+        ),
+        if (selectedActivity != null)
+          Text(
+            "$selectedActivity", // 변수로 변경필요
             textAlign: TextAlign.center,
-            "업무(비 육체적)", // 변수로 변경필요
             style: TextStyle(
               fontSize: 16.0,
               color: BODY_TEXT_COLOR,
             ),
           ),
-        )
+        if (selectedActivity == null)
+          Text(
+            "활동을 선택해주세요.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16.0,
+              color: Colors.red, // 원하는 색상으로 변경 가능
+            ),
+          ),
       ],
     );
   }
@@ -693,7 +723,7 @@ class _SaveButton extends StatelessWidget {
   }
 }
 
-// ----------------------------------------------
+// ---------- Symptom 다이얼로그 ------------------------------
 class SymptomSelectionDialog extends StatefulWidget {
   final ValueChanged<String?> onSymptomSelected;
 
@@ -789,3 +819,102 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
     );
   }
 }
+// --------------------------------------------------------
+// ---------- Activity 다이얼로그 ------------------------------
+class ActivitySelectionDialog extends StatefulWidget {
+  final ValueChanged<String?> onActivitySelected;
+
+  ActivitySelectionDialog({required this.onActivitySelected});
+
+  @override
+  _ActivitySelectionDialogState createState() => _ActivitySelectionDialogState();
+}
+
+class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
+  String? selectedActivity;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(8.0),
+        ),
+      ),
+      titlePadding: EdgeInsets.all(0.1), // title의 패딩 조절
+      title: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8.0),
+          topRight: Radius.circular(8.0),
+        ),
+        child: Container(
+          color: PRIMARY_COLOR2,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              '  활동 선택',
+              style:
+              TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            buildActivityRadio('업무(육체활동)', '업무(육체활동)'),
+            buildActivityRadio('업무(비 육체적)', '업무(비 육체적)'),
+            buildActivityRadio('걷기', '걷기'),
+            buildActivityRadio('달리기', '달리기'),
+            buildActivityRadio('TV, 독서 등 평온', 'TV, 독서 등 평온'),
+            buildActivityRadio('집안일', '집안일'),
+            buildActivityRadio('과격한 운동', '과격한 운동'),
+            buildActivityRadio('기타', '기타설명에 작성해 주세요.'),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: CANCEL_COLOR,
+          ),
+          child: Text('취소'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            widget.onActivitySelected(selectedActivity);
+            Navigator.pop(context, selectedActivity);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: SAVE_COLOR,
+          ),
+          child: Text('저장'),
+        ),
+      ],
+    );
+  }
+
+  Widget buildActivityRadio(String title, String value) {
+    return Row(
+      children: [
+        Radio(
+          value: value,
+          groupValue: selectedActivity,
+          activeColor: PRIMARY_COLOR2,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedActivity = newValue;
+            });
+          },
+        ),
+        Text(title),
+      ],
+    );
+  }
+}
+// --------------------------------------------------------
