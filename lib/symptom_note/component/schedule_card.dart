@@ -5,13 +5,14 @@ class ScheduleCard extends StatelessWidget {
   final int startTime; // 분도 넣으려면 date time 으로 해야함
   final int endTime;
   final String content;
-  final Color color;
+
+  // final Color color;
 
   const ScheduleCard(
       {required this.startTime,
       required this.endTime,
       required this.content,
-      required this.color,
+      // required this.color,
       super.key});
 
   @override
@@ -44,7 +45,7 @@ class ScheduleCard extends StatelessWidget {
             SizedBox(
               width: 16.0,
             ),
-            _Category(color: color),
+            // _Category(color: color),
       ],
     ),
           ),
@@ -95,20 +96,20 @@ class _Content extends StatelessWidget {
   }
 }
 //---------------- 색상 ----------------
-class _Category extends StatelessWidget {
-  final Color color;
-  const _Category({required this.color, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      width: 16.0,
-      height: 16.0,
-    );
-  }
-}
+// class _Category extends StatelessWidget {
+//   final Color color;
+//   const _Category({required this.color, super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         color: color,
+//         shape: BoxShape.circle,
+//       ),
+//       width: 16.0,
+//       height: 16.0,
+//     );
+//   }
+// }
 //--------------------------------

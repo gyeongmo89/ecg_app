@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 const PRIMARY_COLOR = Color(0xFF22A45D);
 // 주색상2(캘린더)
 const PRIMARY_COLOR2 = Color(0xFF0DB2B2);
-
 // 글자 색상
 const BODY_TEXT_COLOR = Color(0xFF343A40);
 // 글자 보조색상

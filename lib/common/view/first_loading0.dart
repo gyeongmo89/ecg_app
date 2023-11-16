@@ -1,3 +1,4 @@
+// 수정 완료( 비동기 문제 해결 완료 )
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/view/connect_info.dart';
 import 'package:flutter/material.dart';
@@ -11,46 +12,26 @@ class FirstLoading0 extends StatefulWidget {
 }
 
 class _FirstLoading0State extends State<FirstLoading0> {
-  late BuildContext myContext;
+  // late BuildContext myContext;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    myContext = context;
-    Future.delayed(Duration(seconds: 2), () async{
-      await Navigator.of(myContext).pushReplacement(
-        MaterialPageRoute(builder: (context) => ConnectionInfo(),
-        ),
-      );
-      // if (myContext != null){
-      //   await Navigator.of(myContext).pushReplacement(
-      //     MaterialPageRoute(builder: (context) => ConnectionInfo(),
-      //     ),
-      //   );
-      // } else{
-      //   print(" myContext 가 null 입니다.");
-      // }
-    });
-  }
 
-
-
-  @override
-  Widget build(BuildContext context) {
-    // 첫 페이지를 표시
-    // Future.delayed(Duration(seconds: 2), () async {
-    //   await Navigator.of(context).pushReplacement(
     Future.delayed(Duration(seconds: 2), () async {
-      if (context != null) {
+      if (mounted) {
+        // Check if the state is mounted before navigation
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => ConnectionInfo(),
           ),
         );
-      } else {
-        print("Context가 null 입니다.");
       }
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
         body: Container(

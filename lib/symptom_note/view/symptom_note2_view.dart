@@ -162,10 +162,11 @@ class _ScheduleList extends StatelessWidget {
                           startTime: scheduleWithColor.schedule.startTime,
                           endTime: scheduleWithColor.schedule.endTime,
                           content: scheduleWithColor.schedule.content,
-                          color: Color(
-                            int.parse("FF${scheduleWithColor.categoryColor.hexCode}",
-                            radix: 16),
-                          ),
+
+                          // color: Color(
+                          //   int.parse("FF${scheduleWithColor.categoryColor.hexCode}",
+                          //   radix: 16),
+                          // ),
                         ),
                       ),
                     );
