@@ -36,19 +36,19 @@ void main() async{
 
   GetIt.I.registerSingleton<LocalDatabase>(database);     // I 는 인스턴스라는 뜻임, 어디에서든 데이터베이스 값을 가져올 수 있다.
 
-  final colors = await database.getCategoryColors();
+  // final colors = await database.getCategoryColors();
 
-  if(colors.isEmpty){   // rooping 하면서 색깔을 하나씩 넣어줌
-    for(String hexCode in DEFAULT_COLORS){
-      await database.createCategoryColor(
-        CategoryColorsCompanion(
-          // id 는 넣어줄 필요없음 autoincrement 해서,
-          hexCode: Value(hexCode), // Value라는 값으로 감싸줘야 한다.
-        ),
-
-      );
-    }
-  }
+  // if(colors.isEmpty){   // rooping 하면서 색깔을 하나씩 넣어줌
+  //   for(String hexCode in DEFAULT_COLORS){
+  //     await database.createCategoryColor(
+  //       CategoryColorsCompanion(
+  //         // id 는 넣어줄 필요없음 autoincrement 해서,
+  //         hexCode: Value(hexCode), // Value라는 값으로 감싸줘야 한다.
+  //       ),
+  //
+  //     );
+  //   }
+  // }
 
 
   runApp(

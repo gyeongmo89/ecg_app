@@ -49,35 +49,36 @@ class CustomTextField extends StatelessWidget {
       // onChanged는 필요없다 validator로 변환
       // },
       // null이 return 되면 에러가 없다, 에러가 있으면 에러를 String 값으로 리턴해준다.
-      validator: (String? val) {
-        if (val == null || val.isEmpty) {
-          return "값을 입력해 주세요";
-        }
-
-        if (isTime) {
-          int time = int.parse(val); // string값을 int로 바꿈., 값이 무조건 있으니까 !넣음
-
-          if (time < 0) {
-            return "0 이상의 숫자를 입력해주세요";
-          }
-          if (time > 24) {
-            return "24 이하의 숫자를 입력해주세요";
-          }
-        } else {
-          if(val.length > 500){   // 글자 500자 제한
-            return "500자 이하의 글자를 입력해주세요";
-          }
-        }
-
-        return null;
-      },
-
+      //--------- 2023-11-16 주석처리함 / 필수값 제외 ----
+      // validator: (String? val) {
+      //   if (val == null || val.isEmpty) {
+      //     return "기타 설명을 입력해 주세요";
+      //   }
+      //
+      //   if (isTime) {
+      //     int time = int.parse(val); // string값을 int로 바꿈., 값이 무조건 있으니까 !넣음
+      //
+      //     if (time < 0) {
+      //       return "0 이상의 숫자를 입력해주세요";
+      //     }
+      //     if (time > 24) {
+      //       return "24 이하의 숫자를 입력해주세요";
+      //     }
+      //   } else {
+      //     if(val.length > 100){   // 글자 100자 제한
+      //       return "100자 이하의 글자를 입력해주세요";
+      //     }
+      //   }
+      //
+      //   return null;
+      // },
+      //---------
       cursorColor: Colors.grey,
       maxLines: isTime ? 1 : null,
-      // null이면 자동 줄바꿈, 1은 라인 수ㄴ
+      // null이면 자동 줄바꿈, 1은 라인 수
       expands: !isTime,
       initialValue: initialValue, //
-      // maxLength: 500, // 글자 500자 제한
+      // maxLength: 100, // 글자 500자 제한
       // = isTime ? false : true 이랑 똑같음
       // keyboardType: TextInputType.number,
       keyboardType: isTime ? TextInputType.number : TextInputType.multiline,
