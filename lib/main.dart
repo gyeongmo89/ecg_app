@@ -63,7 +63,8 @@ class _App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        fontFamily: "NotoSans",
+        // fontFamily: "NotoSans",
+        fontFamily: "sunflower",
       ),
       debugShowCheckedModeBanner: false,
       // home: FirstLoading(),

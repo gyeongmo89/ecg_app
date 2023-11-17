@@ -101,7 +101,7 @@ class _ScheduleList extends StatelessWidget {
         // child: ListView.separated(
         child: StreamBuilder<List<Schedule>>(
             // stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
-            stream: GetIt.I<LocalDatabase>().watchSchedules(),
+            stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
             builder: (context, snapshot) {
               // print('-----------original data ------------');
               // print(snapshot.data);
@@ -116,7 +116,7 @@ class _ScheduleList extends StatelessWidget {
               //   print(selectedDate);
               //   print(schedules);
               // } // 애초에 (drift_database.dart에서 )필터링 해서 나오기때문에 주석처리
-              print(snapshot.data);
+              // print(snapshot.data);
               if(!snapshot.hasData) { // snapshot hasData 가 false 이면
                 return Center(child: CircularProgressIndicator());
               }
@@ -129,6 +129,7 @@ class _ScheduleList extends StatelessWidget {
 
 
               return ListView.separated(
+                  // itemCount: snapshot.data!.length,  // 스케쥴의 길이만큼 아이템 카드를 그린다. // 원래 이거 였는데 아래꺼로 하니까 정상적으로 해당날짜에 카드를 그려줌
                   itemCount: snapshot.data!.length,  // 스케쥴의 길이만큼 아이템 카드를 그린다.
                   separatorBuilder: (context, index) {
                     return SizedBox(
@@ -138,6 +139,7 @@ class _ScheduleList extends StatelessWidget {
                   itemBuilder: (context, index) {
                     // final scheduleWithColor = snapshot.data![index];
                     final schedule = snapshot.data![index];
+                    // final schedule = snapshot.data![index];  //원래 이거 였는데 위 에꺼로 하니까 정상적으로 해당날짜에 카드를 그려줌
 
                     return Dismissible( // 왼쪽, 오른쪽 스와이프하는 액션을 만들어 줄 수 있음.
                       key: ObjectKey(schedule.id),
@@ -156,7 +158,7 @@ class _ScheduleList extends StatelessWidget {
                             builder: (_) {
                               return ScheduleBottomSheet(
                                 selectedDate: selectedDate,
-                                scheduleId: schedule.id,
+                                scheduleId: schedule.id,  // 카드눌렀을때 이전정보 불러와야되니까 1
                               );
                             },
                           );
@@ -164,6 +166,7 @@ class _ScheduleList extends StatelessWidget {
                         child: ScheduleCard(
                           startTime: schedule.startTime,
                           endTime: schedule.endTime,
+                          symptom: schedule.symptom,
                           content: schedule.content,
 
                           // color: Color(
