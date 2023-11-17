@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -68,14 +70,21 @@ class _Time extends StatelessWidget {
       fontSize: 16.0,
     );
 
+    int startTimeHour = (startTime/60).floor().toInt();
+    int startTimMinute = startTime%60;
+
+    int endTimeHour = (endTime/60).floor().toInt();
+    int endTimMinute = endTime%60;
+
     return Column(
+
       children: [
         Text(
-          "${startTime.toString().padLeft(2, "0")}:00",
+          "${startTimeHour.toString().padLeft(2, "0")}:${startTimMinute.toString().padLeft(2, "0")}",
           style: textStyle,
         ),
         Text(
-          "${endTime.toString().padLeft(2, "0")}:00",
+          "${endTimeHour.toString().padLeft(2, "0")}:${endTimMinute.toString().padLeft(2, "0")}",
           style: textStyle.copyWith(
             fontSize: 12.0,
           ),

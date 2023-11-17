@@ -16,7 +16,6 @@ part 'drift_database.g.dart'; // g는 generated (자동으로 생성되었다는
 @DriftDatabase(
   tables: [
     Schedules, // 테이블명
-    CategoryColors, // 테이블명
   ],
 )
 class LocalDatabase extends _$LocalDatabase {

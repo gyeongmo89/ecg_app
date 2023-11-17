@@ -1,6 +1,4 @@
-// 수정시작 2023-11-15 19:38 활동선택 시작 1
-// 시간타입변경
-// 칼라 삭제
+// 수정시작 2023-11-17 11:06 / 시간타입 수정시작 1
 
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
@@ -425,6 +423,8 @@ class _TimeState extends State<_Time> {
         if (isStartTime) {
           _startSelectedTime = picked;
           widget.onStartSaved(_startSelectedTime.hour * 60 + _startSelectedTime.minute);
+
+          // widget.onStartSaved("${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}");
 
         } else {
           _endSelectedTime = picked;
