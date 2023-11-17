@@ -140,6 +140,18 @@ flutter:
           weight: 100
 
 
+    - family: sunFlower
+      fonts:
+        - asset: asset/fonts/Sunflower-Bold.ttf
+          weight: 700
+
+        - asset: asset/fonts/Sunflower-Medium.ttf
+          weight: 500
+
+        - asset: asset/fonts/Sunflower-Light.ttf
+          weight: 300
+
+
 
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic

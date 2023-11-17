@@ -31,8 +31,8 @@ class TodayBanner extends StatelessWidget {
               style: textStyle,
             ),
             StreamBuilder<List<Schedule>>(
-              // stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDay),
-                stream: GetIt.I<LocalDatabase>().watchSchedules(),
+              stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDay),
+                // stream: GetIt.I<LocalDatabase>().watchSchedules(),
 
               builder: (context, snapshot) {
                 int count = 0;

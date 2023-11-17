@@ -55,8 +55,23 @@ class LocalDatabase extends _$LocalDatabase {
   // 모든 일정 데이터를 가져오는 메서드
   Future<List<Schedule>> getAllSchedules() => select(schedules).get();
 
-  Stream<List<Schedule>> watchSchedules() =>
-      select(schedules).watch();
+  // Stream<List<Schedule>> watchSchedules(DateTime date) =>
+  //
+  //     select(schedules).watch();
+
+  Stream<List<Schedule>> watchSchedules(DateTime date){
+    // final query = select(schedules);
+    //     query.where((tbl) => tbl.date.equals(date));
+    // return query.watch();  //3줄이 아래 한줄과 같은 뜻임
+    return (select(schedules)..where((tbl) => tbl.date.equals(date))).watch();
+  }
+
+
+
+
+
+
+
 
 }
 

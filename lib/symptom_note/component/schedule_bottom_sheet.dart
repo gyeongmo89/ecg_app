@@ -14,9 +14,7 @@ class ScheduleBottomSheet extends StatefulWidget {
   final int? scheduleId;
 
   const ScheduleBottomSheet(
-      {required this.selectedDate,
-        required this.scheduleId,
-        super.key});
+      {required this.selectedDate, required this.scheduleId, super.key});
 
   @override
   State<ScheduleBottomSheet> createState() => _ScheduleBottomSheetState();
@@ -30,6 +28,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   String? symptom;
   String? activity;
   String? content;
+
   // int? selectedColorId;
 
   @override
@@ -47,8 +46,10 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       child: FutureBuilder<Schedule>(
           future: widget.scheduleId == null
               ? null
-              : GetIt.I<LocalDatabase>().getScheduleById(widget.scheduleId!),
+              : GetIt.I<LocalDatabase>()
+                  .getScheduleById(widget.scheduleId!), // 스케쥴 ID 하나 받아옴 //중요
           builder: (context, snapshot) {
+            print("snapshot Data : $snapshot.data");
             if (snapshot.hasError) {
               return Center(
                 child: Text("증상노트를 불러올 수 없습니다."),
@@ -121,12 +122,12 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             onEndSaved: (int? val) {
                               endTime = val;
                             },
-                            startInitialValue: startTime,
-                            // null 값이면 엠티스티링을 넣겟다.
-                            endInitialValue: endTime,
-                            // startInitialValue: startTime?.toString() ?? '',
+                            // startInitialValue: startTime,
                             // // null 값이면 엠티스티링을 넣겟다.
-                            // endInitialValue: endTime?.toString() ?? '',
+                            // endInitialValue: endTime,
+                            startInitialValue: startTime?.toString() ?? '',
+                            // null 값이면 엠티스티링을 넣겟다.
+                            endInitialValue: endTime?.toString() ?? '',
                             // ----------------
 
                             // onStartSaved: (String? val) {
@@ -152,7 +153,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           ),
                           // ----------- 증상선택 -----------
                           _SymptomSelect(
-                            symptomSaved: (String? val){
+                            symptomSaved: (String? val) {
                               symptom = val;
                             },
                           ),
@@ -169,7 +170,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           ),
                           // ----------- 활동선택 -----------
                           _ActivitySelect(
-                            activitySaved: (String? val){
+                            activitySaved: (String? val) {
                               activity = val;
                             },
                           ),
@@ -256,7 +257,6 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       print("Content : $content");
       print("----------------");
 
-
       if (widget.scheduleId == null) {
         print("데이터 생성");
         await GetIt.I<LocalDatabase>().createSchedule(
@@ -301,8 +301,9 @@ class _Time extends StatefulWidget {
   // final FormFieldSetter<String> onEndSaved;
   final FormFieldSetter<int?> onStartSaved;
   final FormFieldSetter<int?> onEndSaved;
-  final int? startInitialValue;
-  final int? endInitialValue;
+  final String startInitialValue;
+  final String endInitialValue;
+
   // final String startInitialValue;
   // final String endInitialValue;
 
@@ -321,7 +322,24 @@ class _TimeState extends State<_Time> {
   // ------------------- TimePicker -------------------
   TimeOfDay _startSelectedTime = TimeOfDay.now(); // 시작시간 선택을 위한 변수 추가
   TimeOfDay _endSelectedTime = TimeOfDay.now();
+  late String startInitialValue; // 필드로 추가
+  late String endInitialValue; // 필드로 추가
 
+  @override
+  void initState() {
+    super.initState();
+    startInitialValue = widget.startInitialValue;
+    endInitialValue = widget.endInitialValue;
+
+    checkStartInitialValue();
+  }
+
+  TimeOfDay convertToTimeOfDay(String value) {
+    List<String> timeComponents = value.split(':');
+    int hour = int.parse(timeComponents[0]);
+    int minute = int.parse(timeComponents[1]);
+    return TimeOfDay(hour: hour, minute: minute);
+  }
 
   // 버튼 수정시작
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
@@ -329,7 +347,6 @@ class _TimeState extends State<_Time> {
       context: context,
       initialTime: isStartTime ? _startSelectedTime : _endSelectedTime,
       builder: (BuildContext context, Widget? child) {
-
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: PRIMARY_COLOR2,
@@ -422,24 +439,41 @@ class _TimeState extends State<_Time> {
       setState(() {
         if (isStartTime) {
           _startSelectedTime = picked;
-          widget.onStartSaved(_startSelectedTime.hour * 60 + _startSelectedTime.minute);
+          widget.onStartSaved(
+              _startSelectedTime.hour * 60 + _startSelectedTime.minute);
 
           // widget.onStartSaved("${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}");
-
         } else {
           _endSelectedTime = picked;
-          widget.onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
+          widget
+              .onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
         }
       });
     }
   }
 
-
   // ----------------------------------------------------
+  void checkStartInitialValue() {
+    print(
+        ' = = =  = >startInitialValue: $startInitialValue, Type: ${startInitialValue.runtimeType}');
+  }
+
+  // TimeOfDay convertToTimeOfDay(String value) {
+  //   // value를 int로 변환 후 시간과 분으로 나누어 TimeOfDay 객체로 반환
+  //   int timeValue = int.parse(value);
+  //   int hour = timeValue ~/ 60; // 시간 계산
+  //   int minute = timeValue % 60; // 분 계산
+  //
+  //   return TimeOfDay(hour: hour, minute: minute);
+  // }
+
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
+    FormFieldSetter<int?> onStartSaved = widget.onStartSaved; // 내가 임의 추가
+    // TimeOfDay convertedTime = convertToTimeOfDay(startInitialValue);
+
     return Column(
       children: [
         Row(
@@ -453,7 +487,6 @@ class _TimeState extends State<_Time> {
                   backgroundColor: PRIMARY_COLOR2,
                   // primary:  PRIMARY_COLOR,
                 ),
-
                 child: Text("시작시간"),
               ),
             ),
@@ -493,19 +526,33 @@ class _TimeState extends State<_Time> {
           height: 4.0,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 중요
           children: [
             Container(
-              child: Text(
-                "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
-                // "${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
-                // "${_startSelectedTime.hourOfPeriod}:${_startSelectedTime.minute}",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: BODY_TEXT_COLOR,
+                // test 시작
+                child: startInitialValue.isEmpty
+                    ? Text(
+                        "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
+                      ) // 새로 추가할때
+                    : Text(
+                        "${int.parse(startInitialValue) <= 719 ? '오전' : '오후'} ${(int.parse(startInitialValue)~/60).toString().padLeft(2,"0")}:${(int.parse(startInitialValue)%60).toString().padLeft(2,"0")}",
+                      )
+                // : Text("스타트이니셜밸류: $startInitialValue") // 새로 추가할때
+
+                // ? Text("${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",) // 새로 추가할때
+                // : Text("${convertedTime.period == DayPeriod.am ? '오전' : '오후'} ${convertedTime.hourOfPeriod.toString().padLeft(2, '0')}:${convertedTime.minute.toString().padLeft(2, '0')}")
+
+                // :  Text("${startInitialValue.period == DayPeriod.am ? '오전' : '오후'} ${startInitialValue.hourOfPeriod.toString().padLeft(2, '0')}:${startInitialValue.minute.toString().padLeft(2, '0')}",) // 기존카드 눌렀을떄
+                // : Text("$startInitialValue"),
+
+                // child: Text(
+                //   "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
+                //   style: TextStyle(
+                //     fontSize: 16.0,
+                //     color: BODY_TEXT_COLOR,
+                //   ),
+                // ),
                 ),
-              ),
-            ),
             const SizedBox(
               width: 16.0,
             ),
@@ -530,9 +577,7 @@ class _TimeState extends State<_Time> {
 class _SymptomSelect extends StatefulWidget {
   final FormFieldSetter<String> symptomSaved;
 
-  const _SymptomSelect({
-    required this.symptomSaved,
-    super.key});
+  const _SymptomSelect({required this.symptomSaved, super.key});
 
   @override
   State<_SymptomSelect> createState() => _SymptomSelectState();
@@ -604,9 +649,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
 class _ActivitySelect extends StatefulWidget {
   final FormFieldSetter<String> activitySaved;
 
-  const _ActivitySelect({
-    required this.activitySaved,
-    super.key});
+  const _ActivitySelect({required this.activitySaved, super.key});
 
   @override
   State<_ActivitySelect> createState() => _ActivitySelectState();
@@ -681,6 +724,7 @@ class _Content extends StatelessWidget {
 
   const _Content(
       {required this.onSaved, required this.initialValue, super.key});
+
 // Icon(Icons.mark_unread_chat_alt_outlined)
   @override
   Widget build(BuildContext context) {
@@ -807,7 +851,8 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
           Radius.circular(8.0),
         ),
       ),
-      titlePadding: EdgeInsets.all(0.1), // title의 패딩 조절
+      titlePadding: EdgeInsets.all(0.1),
+      // title의 패딩 조절
       title: ClipRRect(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(8.0),
@@ -881,6 +926,7 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
     );
   }
 }
+
 // --------------------------------------------------------
 // ---------- Activity 다이얼로그 ------------------------------
 class ActivitySelectionDialog extends StatefulWidget {
@@ -889,7 +935,8 @@ class ActivitySelectionDialog extends StatefulWidget {
   ActivitySelectionDialog({required this.onActivitySelected});
 
   @override
-  _ActivitySelectionDialogState createState() => _ActivitySelectionDialogState();
+  _ActivitySelectionDialogState createState() =>
+      _ActivitySelectionDialogState();
 }
 
 class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
@@ -904,7 +951,8 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
           Radius.circular(8.0),
         ),
       ),
-      titlePadding: EdgeInsets.all(0.1), // title의 패딩 조절
+      titlePadding: EdgeInsets.all(0.1),
+      // title의 패딩 조절
       title: ClipRRect(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(8.0),
@@ -917,7 +965,7 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
             child: Text(
               '  활동 선택',
               style:
-              TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
         ),
