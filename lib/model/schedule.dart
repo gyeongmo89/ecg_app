@@ -25,8 +25,8 @@ class Schedules extends Table {
   // 기타설명
   TextColumn get content => text()();
 
-  // Category Color Table ID
-  IntColumn get colorID => integer()();
+  // // Category Color Table ID
+  // IntColumn get colorID => integer()();
 
   // 생성날짜
   DateTimeColumn get createAt => dateTime().clientDefault(
