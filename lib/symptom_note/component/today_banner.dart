@@ -30,8 +30,10 @@ class TodayBanner extends StatelessWidget {
               "${selectedDay.year}년 ${selectedDay.month}월 ${selectedDay.day}일",
               style: textStyle,
             ),
-            StreamBuilder<List<ScheduleWithColor>>(
-              stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDay),
+            StreamBuilder<List<Schedule>>(
+              // stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDay),
+                stream: GetIt.I<LocalDatabase>().watchSchedules(),
+
               builder: (context, snapshot) {
                 int count = 0;
 

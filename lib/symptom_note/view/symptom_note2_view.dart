@@ -99,8 +99,9 @@ class _ScheduleList extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 8.0),
         // child: ListView.builder(
         // child: ListView.separated(
-        child: StreamBuilder<List<ScheduleWithColor>>(
-            stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
+        child: StreamBuilder<List<Schedule>>(
+            // stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
+            stream: GetIt.I<LocalDatabase>().watchSchedules(),
             builder: (context, snapshot) {
               // print('-----------original data ------------');
               // print(snapshot.data);
@@ -135,14 +136,16 @@ class _ScheduleList extends StatelessWidget {
                     );
                   },
                   itemBuilder: (context, index) {
-                    final scheduleWithColor = snapshot.data![index];
+                    // final scheduleWithColor = snapshot.data![index];
+                    final schedule = snapshot.data![index];
 
                     return Dismissible( // 왼쪽, 오른쪽 스와이프하는 액션을 만들어 줄 수 있음.
-                      key: ObjectKey(scheduleWithColor.schedule.id),
+                      key: ObjectKey(schedule.id),
+
                       direction: DismissDirection.endToStart,
                       onDismissed: (DismissDirection direction){
                         // 삭제 쿼리
-                        GetIt.I<LocalDatabase>().removeSchedule(scheduleWithColor.schedule.id);
+                        GetIt.I<LocalDatabase>().removeSchedule(schedule.id);
                       },  // 스와이프 했을때 그 순간 이벤트를 받으려면 onDismissed
                       child: GestureDetector(
                         onTap: (){
@@ -153,15 +156,15 @@ class _ScheduleList extends StatelessWidget {
                             builder: (_) {
                               return ScheduleBottomSheet(
                                 selectedDate: selectedDate,
-                                scheduleId: scheduleWithColor.schedule.id,
+                                scheduleId: schedule.id,
                               );
                             },
                           );
                         },
                         child: ScheduleCard(
-                          startTime: scheduleWithColor.schedule.startTime,
-                          endTime: scheduleWithColor.schedule.endTime,
-                          content: scheduleWithColor.schedule.content,
+                          startTime: schedule.startTime,
+                          endTime: schedule.endTime,
+                          content: schedule.content,
 
                           // color: Color(
                           //   int.parse("FF${scheduleWithColor.categoryColor.hexCode}",
