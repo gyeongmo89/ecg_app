@@ -1,4 +1,5 @@
 // 수정시작 2023-11-17 11:06 / 시간타입 수정시작 1
+// 수정시작 2023-11-20 11:34 / 화면 업데이트 않되는것 수정 1
 
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
@@ -51,7 +52,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
           builder: (context, snapshot) {
             print("snapshot Data : $snapshot.data");
             if (snapshot.hasError) {
-              return Center(
+              return const Center(
                 child: Text("증상노트를 불러올 수 없습니다."),
               );
             }
@@ -59,7 +60,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             // FutureBuilder 처음 실행됐고, 로딩중일때
             if (snapshot.connectionState != ConnectionState.none &&
                 !snapshot.hasData) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
@@ -111,7 +112,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                                   )),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 4.0,
                           ),
                           // ----------- 시작/종료시간 -----------
@@ -129,16 +130,6 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             // null 값이면 엠티스티링을 넣겟다.
                             endInitialValue: endTime?.toString() ?? '',
                             // ----------------
-
-                            // onStartSaved: (String? val) {
-                            //   startTime = int.parse(val!);
-                            // },
-                            // onEndSaved: (String? val) {
-                            //   endTime = int.parse(val!);
-                            // },
-                            // startInitialValue: startTime?.toString() ?? '',
-                            // // null 값이면 엠티스티링을 넣겟다.
-                            // endInitialValue: endTime?.toString() ?? '',
                           ),
                           // ---------------------------------
                           const SizedBox(
@@ -196,31 +187,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           const SizedBox(
                             height: 8.0,
                           ),
-                          // ----------- COlor -----------
-                          // FutureBuilder<List<CategoryColor>>(
-                          //   future:
-                          //       GetIt.I<LocalDatabase>().getCategoryColors(),
-                          //   builder: (context, snapshot) {
-                          //     if (snapshot.hasData &&
-                          //         selectedColorId == null &&
-                          //         snapshot.data!.isNotEmpty) {
-                          //       selectedColorId = snapshot.data![0].id;
-                          //     }
-                          //
-                          //     // print(snapshot.data);
-                          //     return _ColorPicker(
-                          //       colors: snapshot.hasData ? snapshot.data! : [],
-                          //       selectedColorId: selectedColorId,
-                          //       colorIdSetter: (int id) {
-                          //         setState(() {
-                          //           selectedColorId = id;
-                          //         });
-                          //       },
-                          //     );
-                          //   },
-                          // ),
-                          // ---------------------------------
-                          SizedBox(
+
+                          const SizedBox(
                             height: 4.0,
                           ),
                           _SaveButton(
@@ -268,7 +236,6 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             symptom: Value(symptom!),
             activity: Value(activity!),
             content: Value(content!),
-            // colorID: Value(selectedColorId!),
           ),
         );
       } else {
@@ -282,7 +249,6 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             symptom: Value(symptom!),
             activity: Value(activity!),
             content: Value(content!),
-            // colorID: Value(selectedColorId!),
           ),
         ); // 업데이트
       }
@@ -294,24 +260,23 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   }
 }
 
-// ----------------------------------------------
+// -------------------------------------------
 // ------------ 시작/종료시간 입력 --------------
 class _Time extends StatefulWidget {
-  // final FormFieldSetter<String> onStartSaved;
-  // final FormFieldSetter<String> onEndSaved;
   final FormFieldSetter<int?> onStartSaved;
   final FormFieldSetter<int?> onEndSaved;
   final String startInitialValue;
   final String endInitialValue;
-
-  // final String startInitialValue;
-  // final String endInitialValue;
+  final bool startTimeStatus;
+  final bool endTimeStatus;
 
   _Time(
       {required this.onStartSaved,
       required this.onEndSaved,
       required this.startInitialValue,
       required this.endInitialValue,
+      this.startTimeStatus = false,
+      this.endTimeStatus = false,
       super.key});
 
   @override
@@ -322,16 +287,27 @@ class _TimeState extends State<_Time> {
   // ------------------- TimePicker -------------------
   TimeOfDay _startSelectedTime = TimeOfDay.now(); // 시작시간 선택을 위한 변수 추가
   TimeOfDay _endSelectedTime = TimeOfDay.now();
+  // late TimeOfDay _startSelectedTime; // 시작시간 선택을 위한 변수 추가
+  // late TimeOfDay _endSelectedTime;
   late String startInitialValue; // 필드로 추가
   late String endInitialValue; // 필드로 추가
+  late bool startTimeStatus;
+  late bool endTimeStatus;
 
   @override
   void initState() {
     super.initState();
+
     startInitialValue = widget.startInitialValue;
     endInitialValue = widget.endInitialValue;
+    startTimeStatus = false;
+    endTimeStatus = false;
 
     checkStartInitialValue();
+    print("startInitialValue => : $startInitialValue");
+    print("endInitialValue => : $endInitialValue");
+    print("_startSelectedTime => : $_startSelectedTime");
+    print("_endSelectedTime => : $_endSelectedTime");
   }
 
   TimeOfDay convertToTimeOfDay(String value) {
@@ -350,7 +326,7 @@ class _TimeState extends State<_Time> {
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: PRIMARY_COLOR2,
-            colorScheme: ColorScheme.light(primary: PRIMARY_COLOR2),
+            colorScheme: const ColorScheme.light(primary: PRIMARY_COLOR2),
             buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
             ),
@@ -383,14 +359,14 @@ class _TimeState extends State<_Time> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('알림'),
-                content: Text('종료시간은 시작시간 이후여야 합니다.'),
+                title: const Text('알림'),
+                content: const Text('종료시간은 시작시간 이후여야 합니다.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('확인'),
+                    child: const Text('확인'),
                   ),
                 ],
               );
@@ -420,14 +396,14 @@ class _TimeState extends State<_Time> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('알림'),
-                content: Text('시작시간은 종료시간 이전이어야 합니다.'),
+                title: const Text('알림'),
+                content: const Text('시작시간은 종료시간 이전이어야 합니다.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('확인'),
+                    child: const Text('확인'),
                   ),
                 ],
               );
@@ -437,41 +413,59 @@ class _TimeState extends State<_Time> {
         }
       }
       setState(() {
+        // 중요함
         if (isStartTime) {
           _startSelectedTime = picked;
+          // startInitialValue가 비어 있는 경우에만 TimePicker에서 선택한 값을 출력하도록 설정
+          // if (startInitialValue.isNotEmpty) {
+          //   if (startInitialValue != _startSelectedTime) {
+          //     startInitialValue = _startSelectedTime;
+          //   }
+          // }
+          startTimeStatus = true;
+          print(
+              "setState if isStartTime is True = > _startSelectedTime : $_startSelectedTime");
+          print(
+              "setState if isStartTime is True = > startInitialValue : $startInitialValue");
           widget.onStartSaved(
               _startSelectedTime.hour * 60 + _startSelectedTime.minute);
-
-          // widget.onStartSaved("${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}");
         } else {
           _endSelectedTime = picked;
+          endTimeStatus = true;
           widget
               .onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
         }
       });
+      // setState(() {
+      //   // 중요함
+      //   if (isStartTime) {
+      //     _startSelectedTime = picked;
+      //     widget.onStartSaved(
+      //         _startSelectedTime.hour * 60 + _startSelectedTime.minute);
+      //     print("setState if isStartTime is True = > _startSelectedTime : $_startSelectedTime");
+      //
+      //     // widget.onStartSaved("${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}");
+      //   } else {
+      //     _endSelectedTime = picked;
+      //     widget
+      //         .onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
+      //   }
+      // });
     }
   }
 
   // ----------------------------------------------------
   void checkStartInitialValue() {
     print(
-        ' = = =  = >startInitialValue: $startInitialValue, Type: ${startInitialValue.runtimeType}');
+        '=>startInitialValue: $startInitialValue, Type: ${startInitialValue.runtimeType}');
   }
-
-  // TimeOfDay convertToTimeOfDay(String value) {
-  //   // value를 int로 변환 후 시간과 분으로 나누어 TimeOfDay 객체로 반환
-  //   int timeValue = int.parse(value);
-  //   int hour = timeValue ~/ 60; // 시간 계산
-  //   int minute = timeValue % 60; // 분 계산
-  //
-  //   return TimeOfDay(hour: hour, minute: minute);
-  // }
 
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
     FormFieldSetter<int?> onStartSaved = widget.onStartSaved; // 내가 임의 추가
+
     // TimeOfDay convertedTime = convertToTimeOfDay(startInitialValue);
 
     return Column(
@@ -487,16 +481,9 @@ class _TimeState extends State<_Time> {
                   backgroundColor: PRIMARY_COLOR2,
                   // primary:  PRIMARY_COLOR,
                 ),
-                child: Text("시작시간"),
+                child: const Text("시작시간"),
               ),
             ),
-            // Expanded(
-            //     child: CustomTextField(
-            //   label: "시작시간",
-            //   isTime: true,
-            //   onSaved: onStartSaved,
-            //   initialValue: startInitialValue,
-            // )),
             SizedBox(
               // width: 16.0,
               width: deviceWidth / 5 / 4, // 시작시간 종료시간 버튼 간격
@@ -510,63 +497,112 @@ class _TimeState extends State<_Time> {
                   backgroundColor: PRIMARY_COLOR2,
                   // primary:  PRIMARY_COLOR,
                 ),
-                child: Text("종료시간"),
+                child: const Text("종료시간"),
               ),
             )
-            // Expanded(
-            //     child: CustomTextField(
-            //   label: "종료시간",
-            //   isTime: true,
-            //   onSaved: onEndSaved,
-            //   initialValue: endInitialValue,
-            // )),
           ],
         ),
         const SizedBox(
           height: 4.0,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 중요
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 중요함
           children: [
             Container(
-                // test 시작
-                child: startInitialValue.isEmpty
-                    ? Text(
-                        "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
-                      ) // 새로 추가할때
-                    : Text(
-                        "${int.parse(startInitialValue) <= 719 ? '오전' : '오후'} ${(int.parse(startInitialValue)~/60).toString().padLeft(2,"0")}:${(int.parse(startInitialValue)%60).toString().padLeft(2,"0")}",
-                      )
-                // : Text("스타트이니셜밸류: $startInitialValue") // 새로 추가할때
-
-                // ? Text("${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",) // 새로 추가할때
-                // : Text("${convertedTime.period == DayPeriod.am ? '오전' : '오후'} ${convertedTime.hourOfPeriod.toString().padLeft(2, '0')}:${convertedTime.minute.toString().padLeft(2, '0')}")
-
-                // :  Text("${startInitialValue.period == DayPeriod.am ? '오전' : '오후'} ${startInitialValue.hourOfPeriod.toString().padLeft(2, '0')}:${startInitialValue.minute.toString().padLeft(2, '0')}",) // 기존카드 눌렀을떄
-                // : Text("$startInitialValue"),
-
-                // child: Text(
-                //   "${_startSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}",
-                //   style: TextStyle(
-                //     fontSize: 16.0,
-                //     color: BODY_TEXT_COLOR,
-                //   ),
-                // ),
-                ),
+              // test 시작
+              child: () {
+                if (startInitialValue.toString().isEmpty) {
+                  {
+                    if (startTimeStatus == false) {
+                      return const Text(
+                        "시간을 등록해 주세요.",
+                      );
+                    } else {
+                      if (_startSelectedTime.period == DayPeriod.am) {
+                        return Text(
+                          '오전 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                        );
+                      } else {
+                        return Text(
+                          '오후 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                        );
+                      }
+                    }
+                  }
+                } else if (startTimeStatus == true) {
+                  {
+                    if (_startSelectedTime.period == DayPeriod.am) {
+                      return Text(
+                        '오전 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                      );
+                    } else {
+                      return Text(
+                        '오후 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                      );
+                    }
+                  }
+                } else {
+                  if (int.parse(startInitialValue) <= 719) {
+                    return Text(
+                      '오전 이니셜 ${(int.parse(startInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(startInitialValue) % 60).toString().padLeft(2, "0")}',
+                    );
+                  } else {
+                    return Text(
+                      '오후 이니셜 ${(int.parse(startInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(startInitialValue) % 60).toString().padLeft(2, "0")}',
+                    );
+                  }
+                }
+              }(),
+            ),
             const SizedBox(
               width: 16.0,
             ),
             Container(
-              child: Text(
-                "${_endSelectedTime.period == DayPeriod.am ? '오전' : '오후'} ${_endSelectedTime.hourOfPeriod.toString()}:${_endSelectedTime.minute.toString().padLeft(2, '0')}",
-                // "${_endSelectedTime.hourOfPeriod.toString()}:${_endSelectedTime.minute.toString().padLeft(2, '0')}",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: BODY_TEXT_COLOR,
-                ),
-              ),
-            )
-          ],
+              // test 시작
+              child: () {
+                if (endInitialValue.toString().isEmpty) {
+                  {
+                    if (endTimeStatus == false) {
+                      return const Text(
+                        "시간을 등록해 주세요.",
+                      );
+                    } else {
+                      if (_endSelectedTime.period == DayPeriod.am) {
+                        return Text(
+                          '오전 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                        );
+                      } else {
+                        return Text(
+                          '오후 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                        );
+                      }
+                    }
+                  }
+                } else if (endTimeStatus == true) {
+                  {
+                    if (_endSelectedTime.period == DayPeriod.am) {
+                      return Text(
+                        '오전 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                      );
+                    } else {
+                      return Text(
+                        '오후 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                      );
+                    }
+                  }
+                } else {
+                  if (int.parse(endInitialValue) <= 719) {
+                    return Text(
+                      '오전 이니셜 ${(int.parse(endInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(endInitialValue) % 60).toString().padLeft(2, "0")}',
+                    );
+                  } else {
+                    return Text(
+                      '오후 이니셜 ${(int.parse(endInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(endInitialValue) % 60).toString().padLeft(2, "0")}',
+                    );
+                  }
+                }
+              }(),
+            )          ],
         )
       ],
     );
@@ -618,20 +654,20 @@ class _SymptomSelectState extends State<_SymptomSelect> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
-            child: Text("증상선택"),
+            child: const Text("증상선택"),
           ),
         ),
         if (selectedSymptom != null)
           Text(
             "$selectedSymptom", // 변수로 변경필요
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
               color: BODY_TEXT_COLOR,
             ),
           ),
         if (selectedSymptom == null)
-          Text(
+          const Text(
             "증상을 선택해주세요.",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -690,20 +726,20 @@ class _ActivitySelectState extends State<_ActivitySelect> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
-            child: Text("활동선택"),
+            child: const Text("활동선택"),
           ),
         ),
         if (selectedActivity != null)
           Text(
             "$selectedActivity", // 변수로 변경필요
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
               color: BODY_TEXT_COLOR,
             ),
           ),
         if (selectedActivity == null)
-          Text(
+          const Text(
             "활동을 선택해주세요.",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -821,7 +857,7 @@ class _SaveButton extends StatelessWidget {
               primary: SAVE_COLOR,
               // primary:  PRIMARY_COLOR,
             ),
-            child: Text("저장"),
+            child: const Text("저장"),
           ),
         ),
       ],
@@ -846,22 +882,22 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       elevation: 5,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(8.0),
         ),
       ),
-      titlePadding: EdgeInsets.all(0.1),
+      titlePadding: const EdgeInsets.all(0.1),
       // title의 패딩 조절
       title: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8.0),
           topRight: Radius.circular(8.0),
         ),
         child: Container(
           color: PRIMARY_COLOR2,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
+          child: const Padding(
+            padding: EdgeInsets.all(10.0),
             child: Text(
               '  증상 선택',
               style:
@@ -892,7 +928,7 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: CANCEL_COLOR,
           ),
-          child: Text('취소'),
+          child: const Text('취소'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -902,7 +938,7 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: SAVE_COLOR,
           ),
-          child: Text('저장'),
+          child: const Text('저장'),
         ),
       ],
     );
@@ -946,22 +982,22 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       elevation: 5,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(8.0),
         ),
       ),
-      titlePadding: EdgeInsets.all(0.1),
+      titlePadding: const EdgeInsets.all(0.1),
       // title의 패딩 조절
       title: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8.0),
           topRight: Radius.circular(8.0),
         ),
         child: Container(
           color: PRIMARY_COLOR2,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
+          child: const Padding(
+            padding: EdgeInsets.all(10.0),
             child: Text(
               '  활동 선택',
               style:
@@ -993,7 +1029,7 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: CANCEL_COLOR,
           ),
-          child: Text('취소'),
+          child: const Text('취소'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -1003,7 +1039,7 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: SAVE_COLOR,
           ),
-          child: Text('저장'),
+          child: const Text('저장'),
         ),
       ],
     );
