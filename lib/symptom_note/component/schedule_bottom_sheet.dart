@@ -1,7 +1,12 @@
-// 신규 등록시 시작시간, 종료시간에 대한 정합성 완료
-// 수정시 종료시간은 정합성 수정필요
-// 수정시 시작시간 정합성 수정필요
-// 수정시 시작시간 정합성 수정부터 시작 1
+// 시간 정합성 아래 제외하고는 완료
+// 1. 카드 수정시 시작 정합성 -> 시작시간이 종료시간보다 이후로 설정 할때때 알람창 안뜸
+// 2. 카드 수정시 종료 정합성 -> 종료시간을 시작시간보다 이후지만 시작시간을 현재시간으로 판단해서 현재시간보다 이전이면 알람창 뜸 -> 설정된 시작시간을 기준으로 알람창이 떠야함
+// 3. 카드 신규 등록시 시작 정합성 -> 이상없음
+// 4. 카드 신규 등록시 종료 정합성 -> 수정시 종료 정합성이랑 같음.
+//-------------------------------------------------------
+// 시작시간, 증상선택, 활동선택 필수값일 때만 저장하도록 완료
+// 증상이 기타로 선택되었을 때는 기타설명 값이 필수로 입력해야지만 저장할 수 있도록 완료
+
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -207,7 +212,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 
 // -------------- 아래부터는 수행함수 -------------------
 
-// -------------- 저장버튼 눌렀을때 로직 -------------------
+// -------------- 저장버튼 눌렀을때 로직 -------------------수정 시작1
   void onSavePressed() async {
     // formKey는 생성을 했는데, Form 위젯과 결합을 안했을때
     // if (formKey.currentState == null) {
@@ -223,7 +228,54 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       print("symptom : $symptom");
       print("activity : $activity");
       print("Content : $content");
+      print("Content : ${(content).runtimeType}");
       print("----------------");
+
+      if (startTime == null || symptom == null || activity == null) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('알림'),
+              content: Text('필수 값을 입력해 주세요.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('확인'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+      // content 값이 null이고, symptom이 '기타'일 때 알림창 표시
+      if (content == "" && symptom == '기타') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('알림'),
+              content: Text('증상이 기타인 경우 기타 설명을 입력해 주세요.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('확인'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+
+
+
 
       if (widget.scheduleId == null) {
         print("데이터 생성");
@@ -247,7 +299,6 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             date: Value(widget.selectedDate),
             startTime: Value(startTime!),
             endTime: Value(endTime ?? startTime!),
-
             symptom: Value(symptom!),
             activity: Value(activity!),
             content: Value(content!),
@@ -350,24 +401,24 @@ class _TimeState extends State<_Time> {
       },
     );
 
-
-      if (picked != null) {
+    if (picked != null) {
 // 종료시간이 시작시간보다 이전인 경우 알림을 표시하고 함수를 종료
-        if (!isStartTime) {
-          final DateTime startDateTime = DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-            _startSelectedTime.hour,
-            _startSelectedTime.minute,
-          );
-          final DateTime endDateTime = DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-            picked.hour,
-            picked.minute,
-          );
+
+      if (!isStartTime) {
+        final DateTime startDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          _startSelectedTime.hour,
+          _startSelectedTime.minute,
+        );
+        final DateTime endDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          picked.hour,
+          picked.minute,
+        );
 
           if (endDateTime.isBefore(startDateTime)) {
             showDialog(
@@ -432,7 +483,6 @@ class _TimeState extends State<_Time> {
           }
         }
 
-
       setState(() {
         // 중요함
         if (isStartTime) {
@@ -490,6 +540,7 @@ class _TimeState extends State<_Time> {
               child: ElevatedButton(
                 onPressed: () {
                   _selectTime(context, false); // 종료시간 설정
+                  print("종료버튼 클릭");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: PRIMARY_COLOR2,
@@ -512,6 +563,7 @@ class _TimeState extends State<_Time> {
                 if (startInitialValue.toString().isEmpty) {
                   {
                     if (startTimeStatus == false) {
+                      // startTimeStatus = true; // 방금추가
                       return const Text(
                         "시간을 등록해 주세요.",
                       );
