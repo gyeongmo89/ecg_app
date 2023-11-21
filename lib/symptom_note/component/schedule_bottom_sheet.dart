@@ -1,6 +1,7 @@
-// 수정시작 2023-11-17 11:06 / 시간타입 수정시작 1
-// 수정시작 2023-11-20 11:34 / 화면 업데이트 않되는것 수정 1
-
+// 신규 등록시 시작시간, 종료시간에 대한 정합성 완료
+// 수정시 종료시간은 정합성 수정필요
+// 수정시 시작시간 정합성 수정필요
+// 수정시 시작시간 정합성 수정부터 시작 1
 import 'package:drift/drift.dart' show Value;
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -123,11 +124,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             onEndSaved: (int? val) {
                               endTime = val;
                             },
-                            // startInitialValue: startTime,
-                            // // null 값이면 엠티스티링을 넣겟다.
-                            // endInitialValue: endTime,
                             startInitialValue: startTime?.toString() ?? '',
-                            // null 값이면 엠티스티링을 넣겟다.
                             endInitialValue: endTime?.toString() ?? '',
                             // ----------------
                           ),
@@ -147,6 +144,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                             symptomSaved: (String? val) {
                               symptom = val;
                             },
+                            symptomInitialValue:
+                                symptom?.toString() ?? '증상을 선택해 주세요.',
                           ),
                           // ---------------------------------
                           const SizedBox(
@@ -161,10 +160,11 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           ),
                           // ----------- 활동선택 -----------
                           _ActivitySelect(
-                            activitySaved: (String? val) {
-                              activity = val;
-                            },
-                          ),
+                              activitySaved: (String? val) {
+                                activity = val;
+                              },
+                              activityInitialValue:
+                                  activity?.toString() ?? '활동을 선택해 주세요.'),
                           // ---------------------------------
                           const SizedBox(
                             height: 4.0,
@@ -210,9 +210,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 // -------------- 저장버튼 눌렀을때 로직 -------------------
   void onSavePressed() async {
     // formKey는 생성을 했는데, Form 위젯과 결합을 안했을때
-    if (formKey.currentState == null) {
-      return;
-    }
+    // if (formKey.currentState == null) {
+    //   return;
+    // }
 
     if (formKey.currentState!.validate()) {
       print("에러가 없습니다.");
@@ -231,8 +231,9 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
           // 데이터 생성
           SchedulesCompanion(
             date: Value(widget.selectedDate),
-            startTime: Value(startTime!),
-            endTime: Value(endTime!),
+            // startTime: Value(startTime!),
+            startTime: Value(startTime ?? 0),
+            endTime: Value(endTime ?? startTime!),
             symptom: Value(symptom!),
             activity: Value(activity!),
             content: Value(content!),
@@ -245,7 +246,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
           SchedulesCompanion(
             date: Value(widget.selectedDate),
             startTime: Value(startTime!),
-            endTime: Value(endTime!),
+            endTime: Value(endTime ?? startTime!),
+
             symptom: Value(symptom!),
             activity: Value(activity!),
             content: Value(content!),
@@ -287,8 +289,6 @@ class _TimeState extends State<_Time> {
   // ------------------- TimePicker -------------------
   TimeOfDay _startSelectedTime = TimeOfDay.now(); // 시작시간 선택을 위한 변수 추가
   TimeOfDay _endSelectedTime = TimeOfDay.now();
-  // late TimeOfDay _startSelectedTime; // 시작시간 선택을 위한 변수 추가
-  // late TimeOfDay _endSelectedTime;
   late String startInitialValue; // 필드로 추가
   late String endInitialValue; // 필드로 추가
   late bool startTimeStatus;
@@ -302,12 +302,6 @@ class _TimeState extends State<_Time> {
     endInitialValue = widget.endInitialValue;
     startTimeStatus = false;
     endTimeStatus = false;
-
-    checkStartInitialValue();
-    print("startInitialValue => : $startInitialValue");
-    print("endInitialValue => : $endInitialValue");
-    print("_startSelectedTime => : $_startSelectedTime");
-    print("_endSelectedTime => : $_endSelectedTime");
   }
 
   TimeOfDay convertToTimeOfDay(String value) {
@@ -315,6 +309,26 @@ class _TimeState extends State<_Time> {
     int hour = int.parse(timeComponents[0]);
     int minute = int.parse(timeComponents[1]);
     return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  String convertToAmPmFormat(String startInitialValue) {
+    int inputValue = int.parse(startInitialValue);
+    int hour = inputValue ~/ 60;
+    int minute = inputValue % 60;
+
+    String period = '오전';
+    if (hour >= 12) {
+      period = '오후';
+      if (hour != 12) {
+        hour -= 12;
+      }
+    }
+    // 시간이 0일 때 12로 변경
+    if (hour == 0) {
+      hour = 12;
+    }
+
+    return '$period ${(hour).toString().padLeft(2, '0')}:${(minute).toString().padLeft(2, '0')}';
   }
 
   // 버튼 수정시작
@@ -336,97 +350,94 @@ class _TimeState extends State<_Time> {
       },
     );
 
-    if (picked != null) {
-      // 종료시간이 시작시간보다 이전인 경우 알림을 표시하고 함수를 종료
-      if (!isStartTime) {
-        final DateTime startDateTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          _startSelectedTime.hour,
-          _startSelectedTime.minute,
-        );
-        final DateTime endDateTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          picked.hour,
-          picked.minute,
-        );
 
-        if (endDateTime.isBefore(startDateTime)) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('알림'),
-                content: const Text('종료시간은 시작시간 이후여야 합니다.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('확인'),
-                  ),
-                ],
-              );
-            },
+      if (picked != null) {
+// 종료시간이 시작시간보다 이전인 경우 알림을 표시하고 함수를 종료
+        if (!isStartTime) {
+          final DateTime startDateTime = DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            _startSelectedTime.hour,
+            _startSelectedTime.minute,
           );
-          return;
-        }
-      } else {
-        // 추가: 시작시간이 종료시간 이후일 경우 알림
-        final DateTime startDateTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          picked.hour,
-          picked.minute,
-        );
-        final DateTime endDateTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          _endSelectedTime.hour,
-          _endSelectedTime.minute,
-        );
+          final DateTime endDateTime = DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            picked.hour,
+            picked.minute,
+          );
 
-        if (startDateTime.isAfter(endDateTime)) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('알림'),
-                content: const Text('시작시간은 종료시간 이전이어야 합니다.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('확인'),
-                  ),
-                ],
-              );
-            },
+          if (endDateTime.isBefore(startDateTime)) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('알림'),
+                  content: const Text('종료시간은 시작시간 이후여야 합니다.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('확인'),
+                    ),
+                  ],
+                );
+              },
+            );
+            return;
+          }
+        } else {
+// 추가: 시작시간이 종료시간 이후일 경우 알림
+          final DateTime startDateTime = DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            picked.hour,
+            picked.minute,
           );
-          return;
+          final DateTime endDateTime = DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            _endSelectedTime.hour,
+            _endSelectedTime.minute,
+          );
+
+          if (endTimeStatus && startDateTime.isAfter(endDateTime)) {
+            print("startDateTime ----> $startDateTime");
+            print("startDateTime Type ----> ${startDateTime.runtimeType}");
+            print("endDateTime ----> $endDateTime");
+            print("endDateTime Type ----> ${endDateTime.runtimeType}");
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('알림'),
+                  content: const Text('시작시간은 종료시간 이전이어야 합니다.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('확인'),
+                    ),
+                  ],
+                );
+              },
+            );
+            return;
+          }
         }
-      }
+
+
       setState(() {
         // 중요함
         if (isStartTime) {
           _startSelectedTime = picked;
-          // startInitialValue가 비어 있는 경우에만 TimePicker에서 선택한 값을 출력하도록 설정
-          // if (startInitialValue.isNotEmpty) {
-          //   if (startInitialValue != _startSelectedTime) {
-          //     startInitialValue = _startSelectedTime;
-          //   }
-          // }
           startTimeStatus = true;
-          print(
-              "setState if isStartTime is True = > _startSelectedTime : $_startSelectedTime");
-          print(
-              "setState if isStartTime is True = > startInitialValue : $startInitialValue");
           widget.onStartSaved(
               _startSelectedTime.hour * 60 + _startSelectedTime.minute);
         } else {
@@ -436,28 +447,15 @@ class _TimeState extends State<_Time> {
               .onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
         }
       });
-      // setState(() {
-      //   // 중요함
-      //   if (isStartTime) {
-      //     _startSelectedTime = picked;
-      //     widget.onStartSaved(
-      //         _startSelectedTime.hour * 60 + _startSelectedTime.minute);
-      //     print("setState if isStartTime is True = > _startSelectedTime : $_startSelectedTime");
-      //
-      //     // widget.onStartSaved("${_startSelectedTime.hourOfPeriod.toString()}:${_startSelectedTime.minute.toString().padLeft(2, '0')}");
-      //   } else {
-      //     _endSelectedTime = picked;
-      //     widget
-      //         .onEndSaved(_endSelectedTime.hour * 60 + _endSelectedTime.minute);
-      //   }
-      // });
-    }
-  }
-
-  // ----------------------------------------------------
-  void checkStartInitialValue() {
-    print(
-        '=>startInitialValue: $startInitialValue, Type: ${startInitialValue.runtimeType}');
+    }else {
+        setState(() {
+          if (!isStartTime) {
+            _endSelectedTime = TimeOfDay(hour: 0, minute: 0);
+            endTimeStatus = false;
+            widget.onEndSaved(null); // 종료시간을 null로 설정
+          }
+        });
+      }
   }
 
   @override
@@ -481,7 +479,7 @@ class _TimeState extends State<_Time> {
                   backgroundColor: PRIMARY_COLOR2,
                   // primary:  PRIMARY_COLOR,
                 ),
-                child: const Text("시작시간"),
+                child: const Text("시작시간 ( 필수 )"),
               ),
             ),
             SizedBox(
@@ -520,11 +518,11 @@ class _TimeState extends State<_Time> {
                     } else {
                       if (_startSelectedTime.period == DayPeriod.am) {
                         return Text(
-                          '오전 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                          '오전 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
                         );
                       } else {
                         return Text(
-                          '오후 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                          '오후 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
                         );
                       }
                     }
@@ -533,24 +531,17 @@ class _TimeState extends State<_Time> {
                   {
                     if (_startSelectedTime.period == DayPeriod.am) {
                       return Text(
-                        '오전 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                        '오전 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
                       );
                     } else {
                       return Text(
-                        '오후 셀렉트 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
+                        '오후 ${_startSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_startSelectedTime.minute.toString().padLeft(2, '0')}',
                       );
                     }
                   }
                 } else {
-                  if (int.parse(startInitialValue) <= 719) {
-                    return Text(
-                      '오전 이니셜 ${(int.parse(startInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(startInitialValue) % 60).toString().padLeft(2, "0")}',
-                    );
-                  } else {
-                    return Text(
-                      '오후 이니셜 ${(int.parse(startInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(startInitialValue) % 60).toString().padLeft(2, "0")}',
-                    );
-                  }
+                  String result = convertToAmPmFormat(startInitialValue);
+                  return Text("$result ");
                 }
               }(),
             ),
@@ -569,11 +560,11 @@ class _TimeState extends State<_Time> {
                     } else {
                       if (_endSelectedTime.period == DayPeriod.am) {
                         return Text(
-                          '오전 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                          '오전 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
                         );
                       } else {
                         return Text(
-                          '오후 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                          '오후 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
                         );
                       }
                     }
@@ -582,27 +573,21 @@ class _TimeState extends State<_Time> {
                   {
                     if (_endSelectedTime.period == DayPeriod.am) {
                       return Text(
-                        '오전 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                        '오전 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
                       );
                     } else {
                       return Text(
-                        '오후 셀렉트 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
+                        '오후 ${_endSelectedTime.hourOfPeriod.toString().padLeft(2, '0')}:${_endSelectedTime.minute.toString().padLeft(2, '0')}',
                       );
                     }
                   }
                 } else {
-                  if (int.parse(endInitialValue) <= 719) {
-                    return Text(
-                      '오전 이니셜 ${(int.parse(endInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(endInitialValue) % 60).toString().padLeft(2, "0")}',
-                    );
-                  } else {
-                    return Text(
-                      '오후 이니셜 ${(int.parse(endInitialValue) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(endInitialValue) % 60).toString().padLeft(2, "0")}',
-                    );
-                  }
+                  String result = convertToAmPmFormat(endInitialValue);
+                  return Text(" $result ");
                 }
               }(),
-            )          ],
+            )
+          ],
         )
       ],
     );
@@ -612,8 +597,12 @@ class _TimeState extends State<_Time> {
 // ------------ 증상 선택 --------------
 class _SymptomSelect extends StatefulWidget {
   final FormFieldSetter<String> symptomSaved;
+  final String symptomInitialValue;
 
-  const _SymptomSelect({required this.symptomSaved, super.key});
+  const _SymptomSelect(
+      {required this.symptomSaved,
+      required this.symptomInitialValue,
+      super.key});
 
   @override
   State<_SymptomSelect> createState() => _SymptomSelectState();
@@ -621,6 +610,17 @@ class _SymptomSelect extends StatefulWidget {
 
 class _SymptomSelectState extends State<_SymptomSelect> {
   String? selectedSymptom;
+  // late String symptomInitialValue;
+  late bool symptomStatus = false;
+  late String symptomInitialValue;
+
+  @override
+  void initState() {
+    super.initState();
+    symptomStatus = false; // 초기에는 증상 선택 상태가 아님
+    symptomInitialValue = widget.symptomInitialValue;
+    print("♥ symptomInitialValue = > $symptomInitialValue");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -640,6 +640,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
                       widget.symptomSaved(symptom); //  부모 위젯에 선택된 증상 전달
                       setState(() {
                         this.selectedSymptom = symptom;
+                        symptomStatus = true; // 증상 선택 상태로 변경
                       });
                     },
                   );
@@ -649,30 +650,34 @@ class _SymptomSelectState extends State<_SymptomSelect> {
                 // 다이얼로그에서 선택된 증상을 처리
                 // 여기에서는 선택된 증상을 사용할 수 있음
                 setState(() {
-                  this.selectedSymptom = selectedSymptom;
+                  this.selectedSymptom = selectedSymptom; // 중요함2
+                  symptomStatus = true; // 증상 선택 상태로 변경
                 });
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
-            child: const Text("증상선택"),
+            child: const Text("증상선택 ( 필수 )"),
           ),
         ),
-        if (selectedSymptom != null)
+        // if (selectedSymptom != null && symptomStatus == true)
+        if (symptomStatus == true)
           Text(
-            "$selectedSymptom", // 변수로 변경필요
+            "$selectedSymptom", // 선택된 증상을 표시
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16.0,
               color: BODY_TEXT_COLOR,
             ),
           ),
-        if (selectedSymptom == null)
-          const Text(
-            "증상을 선택해주세요.",
+        if (selectedSymptom == null && symptomStatus == false)
+          // if (symptomInitialValue.isNotEmpty && symptomStatus == false)
+          Text(
+            // "$symptomInitialValue", // 변수로 변경필요
+            "$symptomInitialValue", // 변수로 변경필요
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
-              color: Colors.red, // 원하는 색상으로 변경 가능
+              color: BODY_TEXT_COLOR,
             ),
           ),
       ],
@@ -684,8 +689,12 @@ class _SymptomSelectState extends State<_SymptomSelect> {
 // ------------ 활동 선택 --------------
 class _ActivitySelect extends StatefulWidget {
   final FormFieldSetter<String> activitySaved;
+  final String activityInitialValue;
 
-  const _ActivitySelect({required this.activitySaved, super.key});
+  const _ActivitySelect(
+      {required this.activitySaved,
+      required this.activityInitialValue,
+      super.key});
 
   @override
   State<_ActivitySelect> createState() => _ActivitySelectState();
@@ -693,6 +702,15 @@ class _ActivitySelect extends StatefulWidget {
 
 class _ActivitySelectState extends State<_ActivitySelect> {
   String? selectedActivity;
+  late bool activityStatus = false;
+  late String activityInitialValue;
+
+  void initState() {
+    super.initState();
+    activityStatus = false;
+    activityInitialValue = widget.activityInitialValue;
+    print("★ activityInitialValue = > $activityInitialValue");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -712,6 +730,7 @@ class _ActivitySelectState extends State<_ActivitySelect> {
                       widget.activitySaved(activity); //  부모 위젯에 선택된 증상 전달
                       setState(() {
                         this.selectedActivity = activity;
+                        activityStatus = true; // 증상 선택 상태로 변경
                       });
                     },
                   );
@@ -722,29 +741,32 @@ class _ActivitySelectState extends State<_ActivitySelect> {
                 // 여기에서는 선택된 증상을 사용할 수 있음
                 setState(() {
                   this.selectedActivity = selectedActivity;
+                  activityStatus = true; // 증상 선택 상태로 변경
                 });
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PRIMARY_COLOR2),
-            child: const Text("활동선택"),
+            child: const Text("활동선택 ( 필수 )"),
           ),
         ),
-        if (selectedActivity != null)
+        if (activityStatus == true)
           Text(
-            "$selectedActivity", // 변수로 변경필요
+            "$selectedActivity", // 선택된 증상을 표시
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16.0,
               color: BODY_TEXT_COLOR,
             ),
           ),
-        if (selectedActivity == null)
-          const Text(
-            "활동을 선택해주세요.",
+        if (selectedActivity == null && activityStatus == false)
+          // if (symptomInitialValue.isNotEmpty && symptomStatus == false)
+          Text(
+            // "$symptomInitialValue", // 변수로 변경필요
+            "$activityInitialValue", // 변수로 변경필요
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
-              color: Colors.red, // 원하는 색상으로 변경 가능
+              color: BODY_TEXT_COLOR,
             ),
           ),
       ],
@@ -766,7 +788,7 @@ class _Content extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomTextField(
-        label: "기타설명",
+        label: "기타설명( 기타 선택시 필수 )",
         isTime: false,
         onSaved: onSaved,
         initialValue: initialValue,
@@ -774,69 +796,8 @@ class _Content extends StatelessWidget {
     );
   }
 }
-// -------------------------------------
-// ------------ Color 입력 --------------
-// typedef ColorIdSetter = void Function(int id);
-//
-// class _ColorPicker extends StatelessWidget {
-//   final List<CategoryColor> colors;
-//   final int? selectedColorId;
-//   final ColorIdSetter colorIdSetter;
-//
-//   const _ColorPicker({
-//     required this.colors,
-//     required this.selectedColorId,
-//     required this.colorIdSetter,
-//     Key? key,
-//   }) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // return Row(   // Row 대신 Wrap으로 변경하면 자동으로 아랫줄로 내려감
-//     return Wrap(
-//       // Row 대신 Wrap으로 변경하면 자동으로 아랫줄로 내려감
-//       spacing: 8.0, // 좌우간격
-//       runSpacing: 10.0, // 위아래 간격
-//       children: colors
-//           .map(
-//             (e) => GestureDetector(
-//               // 색깔을 누를때마다
-//               onTap: () {
-//                 colorIdSetter(e.id);
-//               },
-//               child: renderColor(
-//                 e,
-//                 selectedColorId == e.id,
-//               ),
-//             ),
-//           )
-//           .toList(),
-//     );
-//   }
-//
-//   Widget renderColor(CategoryColor color, bool isSelected) {
-//     // 실제로 선택이 되어있으면 bool값이 true가 되게
-//     return Container(
-//       decoration: BoxDecoration(
-//         shape: BoxShape.circle,
-//         color: Color(int.parse(
-//           "FF${color.hexCode}",
-//           radix: 16,
-//         )),
-//         border: isSelected
-//             ? Border.all(
-//                 color: Colors.black,
-//                 width: 4.0,
-//               )
-//             : null,
-//       ),
-//       width: 32.0,
-//       height: 32.0,
-//     );
-//   }
-// }
-// ----------------------------------------------
 
+// ----------------------------------------------
 // ------------ 저장버튼 --------------
 class _SaveButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -916,7 +877,7 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
             buildSymptomRadio('흉통 또는 불편감', '흉통 또는 불편감'),
             buildSymptomRadio('체감온도 변화', '체감온도 변화'),
             buildSymptomRadio('호흡곤란', '호흡곤란'),
-            buildSymptomRadio('기타', '기타설명에 작성해 주세요.'),
+            buildSymptomRadio('기타', '기타'),
           ],
         ),
       ),
@@ -1017,7 +978,7 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
             buildActivityRadio('TV, 독서 등 평온', 'TV, 독서 등 평온'),
             buildActivityRadio('집안일', '집안일'),
             buildActivityRadio('과격한 운동', '과격한 운동'),
-            buildActivityRadio('기타', '기타설명에 작성해 주세요.'),
+            buildActivityRadio('기타', '기타'),
           ],
         ),
       ),
