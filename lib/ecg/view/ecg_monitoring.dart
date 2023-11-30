@@ -1,25 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:ecg_app/ecg/component/ecg_card.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EcgMonitoringScreen extends StatelessWidget {
   const EcgMonitoringScreen({super.key});
 
-  // ignore: non_constant_identifier_names
-  // Future<List> Paginate()async{
-  //   const String ip = "192.168.0.1";
-  //   final dio = Dio();
-  //
-  //   final resp = await dio.get(
-  //       'http://$ip/test'
-  //   );
-  //   return resp.data['data'];
-  //
-  // }
-
 //09:03
   @override
   Widget build(BuildContext context) {
+
     return EcgCard(
       bleImage: Image.asset(
         "asset/img/icon/ble.png",
@@ -48,7 +38,8 @@ class EcgMonitoringScreen extends StatelessWidget {
         fit: BoxFit.cover,
       ),
       cardioImage: Image.asset(
-        "asset/img/icon/Cardio1.png",
+        // "asset/img/icon/Cardio1.png",
+        "asset/img/misc/HolmesCardio_2.png",
         width: MediaQuery.of(context).size.width / 6,
         fit: BoxFit.cover,
       ),

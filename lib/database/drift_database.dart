@@ -8,7 +8,7 @@ import 'package:ecg_app/model/schedule.dart';
 import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-
+// 마커때문에 수정 11:42
 // part 는 private 값까지 불러올 수 있다.)(import 보다 더 범위가 넓음)
 part 'drift_database.g.dart'; // g는 generated (자동으로 생성되었다는 말)
 // 현재파일의 이름.g.dart
@@ -53,11 +53,27 @@ class LocalDatabase extends _$LocalDatabase {
         ..where((tbl) => tbl.id.equals(id))).write(data);
 
   // 모든 일정 데이터를 가져오는 메서드
-  Future<List<Schedule>> getAllSchedules() => select(schedules).get();
+  // Future<List<Schedule>> getAllSchedules() => select(schedules).get();
+  Stream<List<Schedule>> getAllSchedules() => select(schedules).watch();
+
 
   // Stream<List<Schedule>> watchSchedules(DateTime date) =>
   //
   //     select(schedules).watch();
+
+  // date, symptom, activity, content 필드만 가져오는 쿼리
+  Future<List<Map<String, dynamic>>> getDateSymptomActivityContent() =>
+      select(schedules).map((row) => {
+        'date': row.date,
+        'startTime' : row.startTime,
+        'endTime' : row.endTime,
+        'symptom': row.symptom,
+        'activity': row.activity,
+        'content': row.content,
+      }).get();
+
+
+
 
   Stream<List<Schedule>> watchSchedules(DateTime date){
     // final query = select(schedules);
@@ -65,6 +81,12 @@ class LocalDatabase extends _$LocalDatabase {
     // return query.watch();  //3줄이 아래 한줄과 같은 뜻임
     return (select(schedules)..where((tbl) => tbl.date.equals(date))).watch();
   }
+  // Stream<List<Schedule>> watchSchedules(DateTime startDate, DateTime endDate) {
+  //   return (select(schedules)
+  //     ..where((tbl) => tbl.date.isBetweenValues(startDate, endDate)))
+  //       .watch();
+  // }
+
 
 
 

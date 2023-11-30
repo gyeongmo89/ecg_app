@@ -89,6 +89,9 @@ class _FirstLoading0State extends State<FirstLoading0> {
                 //   width: 60,
                 // ),
                 Image.asset(
+                  // "asset/img/misc/HolmesCardio_2.png",
+                  // fit: BoxFit.contain,
+                  // width: 200.0,
                   "asset/img/icon/Cardio1.png",
                   fit: BoxFit.contain,
                   width: 180.0,
@@ -115,7 +118,7 @@ class _FirstLoading0State extends State<FirstLoading0> {
                   height: 30.0,
                 ),
                 const Text(
-                  "Holmes AIreport is focusing on wearable medical\ndevices market.\nThe objective is developing next\ngeneration products for better life.",
+                  "Holmes AIReport is focusing on wearable medical\ndevices market.\nThe objective is developing next\ngeneration products for better life.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
@@ -133,7 +136,7 @@ class _FirstLoading0State extends State<FirstLoading0> {
                   height: 15.0,
                 ),
                 const Text(
-                  "Version 1.0.0",
+                  "Version 0.1.0",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

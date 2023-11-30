@@ -10,6 +10,7 @@ import 'package:drift/drift.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -35,6 +36,9 @@ class _RootTabState extends State<RootTab>
   void initState() {
     // TODO: implement initState
     super.initState();
+    // 처음 시작했을 때 토스트 메시지 띄우기
+
+
 
     controller = TabController(length: 2, vsync: this);
     // length 는 children에 넣은 값들 여기선 ECG, Note 2개
@@ -42,8 +46,9 @@ class _RootTabState extends State<RootTab>
     // vsync는 무조건 with SingleTickerProviderStateMixin 넣어야함
     
     controller.addListener(tabListener); //값이 변경이 될때마다 특정 변수를 실행하라는 뜻
-  }
 
+
+  }
   @override
   void dispose() {
     // TODO: implement dispose
