@@ -74,11 +74,11 @@ class CustomTextField extends StatelessWidget {
       // },
       //---------
       cursorColor: Colors.grey,
-      maxLines: isTime ? 1 : null,
+      maxLines: isTime ? 2 : null,
       // null이면 자동 줄바꿈, 1은 라인 수
       expands: !isTime,
       initialValue: initialValue, //
-      // maxLength: 100, // 글자 500자 제한
+      maxLength: 50, // 글자 500자 제한
       // = isTime ? false : true 이랑 똑같음
       // keyboardType: TextInputType.number,
       keyboardType: isTime ? TextInputType.number : TextInputType.multiline,

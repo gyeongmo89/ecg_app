@@ -5,6 +5,7 @@ import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/ecg/view/ecg_chart.dart';
 import 'package:ecg_app/ecg/view/hr_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EcgCard extends StatefulWidget {
   final Widget bleImage;
@@ -46,12 +47,14 @@ class _EcgCardState extends State<EcgCard> {
   void initState() {
     super.initState();
     startUpdatingHeartRate();
+
   }
 
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
