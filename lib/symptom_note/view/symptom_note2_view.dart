@@ -33,18 +33,16 @@ class _SymptomNote2State extends State<SymptomNote2> {
   @override
   Widget build(BuildContext context) {
     // bool isToday = isSameDay(selectedDay, DateTime.now());
-    bool isTodayOrBefore = selectedDay.isBefore(DateTime.now()) || isSameDay(selectedDay, DateTime.now());
-
+    bool isTodayOrBefore = selectedDay.isBefore(DateTime.now()) ||
+        isSameDay(selectedDay, DateTime.now());
 
     return Scaffold(
-      floatingActionButton: isTodayOrBefore
-        ? renderFloatingActionButton()
-        : null,
+      floatingActionButton:
+          isTodayOrBefore ? renderFloatingActionButton() : null,
       body: SafeArea(
         child: Column(
           children: [
             Calendar(
-
               selectedDay: selectedDay,
               focusedDay: focusedDay,
               onDaySelected: onDaySelected,
@@ -108,9 +106,19 @@ class _ScheduleList extends StatefulWidget {
   State<_ScheduleList> createState() => _ScheduleListState();
 }
 
+DateTime selectedDay = DateTime.utc(
+  // utc를 해외시간 고려(시차)
+  DateTime.now().year,
+  DateTime.now().month,
+  DateTime.now().day,
+);
+
 class _ScheduleListState extends State<_ScheduleList> {
   @override
   Widget build(BuildContext context) {
+    bool isTodayOrBefore = selectedDay.isBefore(DateTime.now()) ||
+        isSameDay(selectedDay, DateTime.now());
+
     return Expanded(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -141,9 +149,15 @@ class _ScheduleListState extends State<_ScheduleList> {
               }
 
               if (snapshot.hasData && snapshot.data!.isEmpty) {
-                return Center(
-                  child: Text("등록된 증상노트가 없습니다."),
-                );
+                if (isTodayOrBefore && !widget.selectedDate.isAfter(DateTime.now())) {
+                  return Center(
+                    child: Text("등록된 증상노트가 없습니다."),
+                  );
+                } else if (widget.selectedDate.isAfter(DateTime.now())) {
+                  return const Center(
+                    child: Text("검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다."),
+                  );
+                }
               }
 
               return ListView.separated(
@@ -179,7 +193,6 @@ class _ScheduleListState extends State<_ScheduleList> {
                                         .removeSchedule(schedule.id);
                                     setState(() {
                                       snapshot.data!.remove(schedule);
-
                                     });
                                   },
                                   backgroundColor: SAVE_COLOR2,

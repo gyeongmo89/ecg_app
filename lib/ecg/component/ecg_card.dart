@@ -1,26 +1,16 @@
-// Hr 차트 추가 시작
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/ecg/view/ecg_chart.dart';
 import 'package:ecg_app/ecg/view/hr_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+// ECG 필요없는 부분 삭제 2023-12-05 16:01
 
 class EcgCard extends StatefulWidget {
-  final Widget bleImage;
-  final Widget hrImage;
-  final Widget ecgImage;
-  final String bleStatus;
-  final Widget calenderImage;
   final Widget cardioImage;
 
   const EcgCard(
-      {required this.bleImage,
-      required this.hrImage,
-      required this.ecgImage,
-      required this.bleStatus,
-      required this.calenderImage,
+      {
       required this.cardioImage,
       super.key});
 
@@ -57,6 +47,7 @@ class _EcgCardState extends State<EcgCard> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
+
       child: Column(
         children: [
           Row(
@@ -122,12 +113,13 @@ class _EcgCardState extends State<EcgCard> {
 // -------------------- BODY ECG --------------------
           Container(
 
-            height: deviceHeight/3.2,
+            // height: deviceHeight/3.2,
+            height: deviceHeight/4.3,
             width: deviceWidth,
             // height: 230.0,
             // width: 380.0,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25.0),
+                borderRadius: BorderRadius.circular(15.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,
@@ -166,10 +158,12 @@ class _EcgCardState extends State<EcgCard> {
           ),
 // -------------------- BODY HR --------------------
           Container(
-            height: deviceHeight/3.2,
+            // height: deviceHeight/3.2,
+            height: deviceHeight/4.3,
             width: deviceWidth,
+
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25.0),
+                borderRadius: BorderRadius.circular(15.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,
