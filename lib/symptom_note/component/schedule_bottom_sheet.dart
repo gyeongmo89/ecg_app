@@ -239,6 +239,27 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     if (formKey.currentState!.validate()) {
       print("에러가 없습니다.");
       formKey.currentState!.save();
+      print({formKey.currentState!.save()});
+
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('저장 완료'),
+            content: Text('데이터가 정상적으로 저장되었습니다.'),
+            actions: [
+              CustomButton(
+                text: "확인",
+                onPressed: () {
+                  Navigator.pop(context); // 현재 AlertDialog 닫기
+                  // Navigator.of(context).pop(); // 이전 화면으로 이동
+                },
+                backgroundColor: SAVE_COLOR2,
+              ),
+            ],
+          );
+        },
+      );
       print("----------------");
       print("startTime : $startTime");
       print("endTime : $endTime");
@@ -1194,13 +1215,13 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            buildSymptomRadio('팔, 목, 턱 등이 불편함', '팔, 목, 턱 등이 불편함'), // 11
-            buildSymptomRadio('심계항진(빠른 심장박동)', '심계항진(빠른 심장박동)'), // 12
-            buildSymptomRadio('호흡곤란', '호흡곤란'), // 13
-            buildSymptomRadio('현기증', '현기증'), // 14
-            buildSymptomRadio('피로', '피로'), // 15
-            buildSymptomRadio('가슴 불편함', '가슴 불편함'), // 16
-            buildSymptomRadio('기타', '기타'), // None          // 10
+            buildSymptomRadio('가슴 불편함', '가슴 불편함'),
+            buildSymptomRadio('팔, 목, 턱 등이 불편함', '팔, 목, 턱 등이 불편함'),
+            buildSymptomRadio('심계항진(빠른 심장박동)', '심계항진(빠른 심장박동)'),
+            buildSymptomRadio('호흡곤란', '호흡곤란'),
+            buildSymptomRadio('현기증', '현기증'),
+            buildSymptomRadio('피로', '피로'),
+            buildSymptomRadio('기타', '기타'), // None
           ],
         ),
       ),
@@ -1320,12 +1341,13 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            buildActivityRadio('TV 시청, 독서 등의 활동', 'TV 시청, 독서 등의 활동'), // 18
-            buildActivityRadio('걷기', '걷기'), // 19
-            buildActivityRadio('달리기', '달리기'), // 20
-            buildActivityRadio('업무(육체활동)', '업무(육체활동)'), // 33
-            buildActivityRadio('업무(비 육체활동)', '업무(비 육체활동)'), // 35
-            buildActivityRadio('기타', '기타'), // None             // 17
+            buildActivityRadio('업무(육체활동)', '업무(육체활동)'),
+            buildActivityRadio('업무(비 육체활동)', '업무(비 육체활동)'),
+            buildActivityRadio('TV 시청, 독서 등의 활동', 'TV 시청, 독서 등의 활동'),
+            buildActivityRadio('걷기', '걷기'),
+            buildActivityRadio('달리기', '달리기'),
+            buildActivityRadio('집안일', '집안일'),
+            buildActivityRadio('기타', '기타'),
           ],
         ),
       ),

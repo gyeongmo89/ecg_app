@@ -64,7 +64,9 @@ class _HrChartState extends State<HrChart> {
     return Stack(
       children: <Widget>[
         AspectRatio(
-          aspectRatio: 1.70,
+          // aspectRatio: 1.70,
+          aspectRatio: 2.50,
+
           child: LineChart(
             // showAvg ? avgData() : mainData(),
               mainData()),
