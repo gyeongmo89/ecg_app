@@ -53,6 +53,9 @@ dependencies:
   permission_handler: ^11.0.1
   provider: ^6.1.1
   fluttertoast: ^8.2.4
+  syncfusion_flutter_charts: ^23.2.6  # 최신 버전을 사용하고 싶다면 해당 버전을 수정하세요
+  flutter_charts: ^0.5.2
+
 
 
 

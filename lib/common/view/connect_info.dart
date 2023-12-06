@@ -5,6 +5,7 @@ import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:ecg_app/common/view/first_loading.dart';
+import 'package:ecg_app/ecg_test.dart';
 import 'package:ecg_app/screens/scan_screen.dart';
 import 'package:ecg_app/user/view/test.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +171,19 @@ class ConnectionInfo extends StatelessWidget {
                           await FlutterBluePlus.turnOn();
                           // Navigator.of(context).push(
                           //   MaterialPageRoute(builder: (_) => RootTab(),),
+                          // );
+
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) => Scaffold(
+                          //       appBar: AppBar(
+                          //         title: Text('HolmesAI 실시간 심전도',style: TextStyle(color: Colors.white),),
+                          //         backgroundColor: APPBAR_COLOR,
+                          //       ),
+                          //       backgroundColor: Colors.black,
+                          //       body: EcgChart(),
+                          //     ),
+                          //   ),
                           // );
                           Navigator.of(context).push(
                             MaterialPageRoute(
