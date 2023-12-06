@@ -45,8 +45,8 @@ class DefaultLayout extends StatelessWidget {
     if (title == null) {
       return null;
     } else {
-      final appState = Provider.of<AppState>(context, listen: true); // Provider로부터 AppState 가져오기
-      String dayText = 'DAY ${appState.getConnectedDayText()}';
+      // final appState = Provider.of<AppState>(context, listen: true); // Provider로부터 AppState 가져오기
+      // String dayText = 'DAY ${appState.getConnectedDayText()}';
       return AppBar(
         backgroundColor: APPBAR_COLOR,
         title: Builder(

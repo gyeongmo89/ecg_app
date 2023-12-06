@@ -53,13 +53,13 @@ void main() async {
   //     );
   //   }
   // }
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AppState(),
-      child: const _App(),
-    ),
-  );
+  runApp(const _App());
+  // runApp(
+  //   ChangeNotifierProvider(
+  //     create: (context) => AppState(),
+  //     child: const _App(),
+  //   ),
+  // );
 }
 
 // class CounterProvider with ChangeNotifier {

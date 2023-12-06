@@ -116,8 +116,8 @@ class _ScanResultTileState extends State<ScanResultTile> {
     var adv = widget.result.advertisementData;
     return ExpansionTile(
       title: _buildTitle(context),
-      leading: Text(widget.result.rssi.toString()),
-      trailing: _buildConnectButton(context),
+      leading: Text(widget.result.rssi.toString()),     // 블루투스 신호 강도
+      trailing: _buildConnectButton(context),           // 연결 버튼
       children: <Widget>[
         if (adv.advName.isNotEmpty)
           _buildAdvRow(context, 'Name', adv.advName),
@@ -129,6 +129,7 @@ class _ScanResultTileState extends State<ScanResultTile> {
           _buildAdvRow(context, 'Service UUIDs', getNiceServiceUuids(adv.serviceUuids)),
         if (adv.serviceData.isNotEmpty)
           _buildAdvRow(context, 'Service Data', getNiceServiceData(adv.serviceData)),
+
       ],
     );
   }
