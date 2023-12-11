@@ -3,16 +3,14 @@ import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/ecg/view/ecg_chart.dart';
 import 'package:ecg_app/ecg/view/hr_chart.dart';
+import 'package:ecg_app/ecg_test.dart';
 import 'package:flutter/material.dart';
 // ECG 필요없는 부분 삭제 2023-12-05 16:01
 
 class EcgCard extends StatefulWidget {
   final Widget cardioImage;
 
-  const EcgCard(
-      {
-      required this.cardioImage,
-      super.key});
+  const EcgCard({required this.cardioImage, super.key});
 
   @override
   State<EcgCard> createState() => _EcgCardState();
@@ -20,6 +18,9 @@ class EcgCard extends StatefulWidget {
 
 class _EcgCardState extends State<EcgCard> {
   int heartRate = 75;
+  int avg = 75;
+  int min = 75;
+  int max = 75;
 
   void startUpdatingHeartRate() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -28,6 +29,9 @@ class _EcgCardState extends State<EcgCard> {
           // Generate a random number between 70 and 110.
           final random = Random();
           heartRate = 80 + random.nextInt(20);
+          avg = 70 + random.nextInt(20);
+          min = 65 + random.nextInt(20);
+          max = 75 + random.nextInt(20);
         });
       }
     });
@@ -37,7 +41,6 @@ class _EcgCardState extends State<EcgCard> {
   void initState() {
     super.initState();
     startUpdatingHeartRate();
-
   }
 
   @override
@@ -47,7 +50,6 @@ class _EcgCardState extends State<EcgCard> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-
       child: Column(
         children: [
           Row(
@@ -61,8 +63,9 @@ class _EcgCardState extends State<EcgCard> {
                     borderRadius: BorderRadius.circular(8.0),
                     child: widget.cardioImage,
                   ),
-                  const SizedBox(
-                    width: 4.0,
+                  SizedBox(
+                    // width: 4.0,
+                    width: deviceWidth / 9 / 4,
                   ),
                   const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,12 +112,128 @@ class _EcgCardState extends State<EcgCard> {
             ],
           ),
 // --------------------------------------------------
-          const SizedBox(height: 16.0),
+//           SizedBox(height: deviceHeight/7),
+          SizedBox(height: deviceHeight / 67),
+          Row(
+            children: [
+              Text("Recording Time  14:07"),
+            ],
+          ),
+          SizedBox(height: deviceHeight / 67),
+// -------------------- Average, Minimum, Maximum --------------------
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "AVG",
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: PRIMARY_COLOR2),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            avg.toString(), //
+                            style: TextStyle(
+                              fontSize: 44.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        "bpm",
+                        style: TextStyle(
+                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                  height: 45.0,
+                  child: VerticalDivider(
+                    color: PRIMARY_COLOR2,
+                    thickness: 1.0,
+                  )),
+              Column(
+                children: [
+                  Text(
+                    "MIN",
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: PRIMARY_COLOR2),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        min.toString(), //
+                        style: TextStyle(
+                          fontSize: 44.0,
+                        ),
+                      ),
+                      Text(
+                        "bpm",
+                        style: TextStyle(
+                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                  height: 45.0,
+                  child: VerticalDivider(
+                    color: PRIMARY_COLOR2,
+                    thickness: 1.0,
+                  )),
+              Column(
+                children: [
+                  Text(
+                    "MAX",
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        // color: PRIMARY_COLOR),
+                        color: PRIMARY_COLOR2),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        max.toString(), //
+                        style: TextStyle(
+                          fontSize: 44.0,
+                        ),
+                      ),
+                      Text(
+                        "bpm",
+                        style: TextStyle(
+                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: deviceHeight / 47),
+// --------------------------------------------------
+
 // -------------------- BODY ECG --------------------
           Container(
-
             // height: deviceHeight/3.2,
-            height: deviceHeight/4.3,
+            height: deviceHeight / 4.3,
             width: deviceWidth,
             // height: 230.0,
             // width: 380.0,
@@ -129,10 +248,10 @@ class _EcgCardState extends State<EcgCard> {
               children: [
                 Container(
                   // height: deviceHeight,
-                  width: deviceWidth/1.25,
+                  width: deviceWidth / 1.25,
                   // height: 220.0,
                   // width: 320.0,
-                  child: const Column(
+                  child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -145,7 +264,7 @@ class _EcgCardState extends State<EcgCard> {
                               )),
                         ],
                       ),
-                      EcgChart(),
+                      EcgChart2(),
                     ],
                   ),
                 ),
@@ -159,7 +278,7 @@ class _EcgCardState extends State<EcgCard> {
 // -------------------- BODY HR --------------------
           Container(
             // height: deviceHeight/3.2,
-            height: deviceHeight/4.3,
+            height: deviceHeight / 4.3,
             width: deviceWidth,
 
             decoration: BoxDecoration(
@@ -173,7 +292,7 @@ class _EcgCardState extends State<EcgCard> {
               children: [
                 Container(
                   // height: 220.0,
-                  width: deviceWidth/1.25,
+                  width: deviceWidth / 1.25,
                   child: const Column(
                     children: [
                       Row(

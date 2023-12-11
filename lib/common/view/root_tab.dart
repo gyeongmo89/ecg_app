@@ -86,7 +86,7 @@ class _RootTabState extends State<RootTab>
         currentIndex: index, //처음엔 네비게이터 홈 으로 보이게 해야하므로
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_heart_outlined),
+              icon: Icon(Icons.monitor_heart_outlined),
             label: 'ECG',
           ),
           BottomNavigationBarItem(

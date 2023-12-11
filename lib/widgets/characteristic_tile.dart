@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
 import "../utils/snackbar.dart";
-
 import "descriptor_tile.dart";
+
+// 데이터 출력 소스코드 시작 : 2023-12-06 19:12
+// 특정 서비스UUID, 케릭터리스틱UUID 정하는 기능 추가 시작 : 2023-12-06 23:26
+// 일단 데이터가 한개만 프린트되서 일단 킵하는것으로..
 
 class CharacteristicTile extends StatefulWidget {
   final BluetoothCharacteristic characteristic;
@@ -26,15 +27,53 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
   @override
   void initState() {
     super.initState();
-    _lastValueSubscription = widget.characteristic.lastValueStream.listen((value) {
-      _value = value;
+    // Service UUID와 Characteristic UUID
+    final serviceUUID = Guid('6E400001-B5A3-F393-E0A9-E50E24DCCA9E');
+    final characteristicUUID = Guid('6E400003-B5A3-F393-E0A9-E50E24DCCA9E');
+
+    _lastValueSubscription = widget.characteristic.value.listen((value) {
+      // _value = value;
+      // _value.addAll(value); // 이 부분을 수정하여 리스트에 데이터를 추가합니다.
+
       setState(() {});
+      setState(() {
+        _value = value; // 데이터를 새로운 값으로 업데이트합니다.
+      });
+      // setState(() {
+      //   // _value.clear(); // 리스트를 초기화합니다.
+      //   _value.addAll(value); // 새로운 데이터로 리스트를 업데이트합니다.
+      // });
+      // Remove line breaks (10) from the received data
+      _value.removeWhere((element) => element == 10);
+
+      print("Received data: $_value");
     });
+
+    _scanDeviceServices(widget.characteristic.device, serviceUUID, characteristicUUID);
+  }
+
+  // 특정 Service와 Characteristic의 데이터를 지속적으로 수신하는 함수
+  void _scanDeviceServices(BluetoothDevice device, Guid serviceUUID, Guid characteristicUUID) async {
+    List<BluetoothService> services = await device.discoverServices();
+    for (BluetoothService service in services) {
+      if (service.uuid == serviceUUID) {
+        for (BluetoothCharacteristic c in service.characteristics) {
+          if (c.uuid == characteristicUUID) {
+            try {
+              await c.setNotifyValue(true);
+            } catch (e) {
+              print('Error setting notify value: $e');
+            }
+          }
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
     _lastValueSubscription.cancel();
+
     super.dispose();
   }
 
@@ -47,8 +86,15 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
 
   Future onReadPressed() async {
     try {
-      await c.read();
+      // Read 버튼을 누르면 데이터를 읽습니다.
+      final value = await c.read();
       Snackbar.show(ABC.c, "Read: Success", success: true);
+
+      if (c.properties.read) {
+        setState(() {
+          _value = value;
+        });
+      }
     } catch (e) {
       Snackbar.show(ABC.c, prettyException("Read Error:", e), success: false);
     }
@@ -68,11 +114,15 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
 
   Future onSubscribePressed() async {
     try {
-      String op = c.isNotifying == false ? "Subscribe" : "Unubscribe";
+      String op = c.isNotifying == false ? "Subscribe" : "Unsubscribe";
       await c.setNotifyValue(c.isNotifying == false);
       Snackbar.show(ABC.c, "$op : Success", success: true);
       if (c.properties.read) {
+        // await c.read();
+        final value = await c.read();
         await c.read();
+        // 읽은 데이터를 출력합니다.
+        print("Received data onReadPressed: $value");
       }
       setState(() {});
     } catch (e) {
@@ -86,7 +136,9 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
   }
 
   Widget buildValue(BuildContext context) {
+
     String data = _value.toString();
+
     return Text(data, style: TextStyle(fontSize: 13, color: Colors.grey));
   }
 

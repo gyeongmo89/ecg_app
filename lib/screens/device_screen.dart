@@ -1,4 +1,3 @@
-// 패치 받은 후 아래의 코드로 테스트할 예정
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -31,10 +30,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
   late StreamSubscription<bool> _isDisconnectingSubscription;
   late StreamSubscription<int> _mtuSubscription;
 
-
   @override
   void initState() {
     super.initState();
+
+    // 여기서 이미 페어링된 장치를 찾고 연결을 시도합니다.
+    _connectToPairedDevice();
 
     _connectionStateSubscription = widget.device.connectionState.listen((state) async {
       _connectionState = state;
@@ -62,6 +63,37 @@ class _DeviceScreenState extends State<DeviceScreen> {
       setState(() {});
     });
   }
+
+  // 이미 페어링된 장치를 찾고 연결을 시도하는 함수
+  void _connectToPairedDevice() async {
+    try {
+      // 여기서 이미 페어링된 장치 목록을 가져옵니다.
+      List<BluetoothDevice> pairedDevices = await FlutterBluePlus.connectedDevices;
+      // List<BluetoothDevice> pairedDevices = await FlutterBlue.instance.connectedDevices;
+
+      // 이미 페어링된 장치들 중에서 선택 가능한 로직을 추가합니다.
+      for (BluetoothDevice pairedDevice in pairedDevices) {
+        // 여기서 원하는 장치를 선택할 수 있는 조건을 추가합니다.
+        if (pairedDevice.id == widget.device.id) {
+          // 원하는 장치를 찾았으면 바로 연결 시도합니다.
+          await widget.device.connectAndUpdateStream();
+          // 연결이 성공하면 상태를 업데이트하고 UI를 갱신합니다.
+          setState(() {
+            _connectionState = BluetoothConnectionState.connected;
+          });
+          // 연결 성공 메시지를 보여줍니다.
+          Snackbar.show(ABC.c, "Connect: Success", success: true);
+          return; // 연결을 시도했으므로 함수 종료
+        }
+      }
+      // 만약 원하는 장치를 찾지 못했다면 여기에 대한 처리를 추가할 수 있습니다.
+    } catch (e) {
+      // 에러 발생 시 처리
+      print("Error while connecting to paired device: $e");
+      Snackbar.show(ABC.c, "Connect Error: $e", success: false);
+    }
+  }
+
 
   @override
   void dispose() {
