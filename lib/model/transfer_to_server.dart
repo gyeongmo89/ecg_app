@@ -1,4 +1,5 @@
 // 가져온 데이터 한개씩 변수로 맵핑 시작 1.
+// 데이터 전송 Dialog 에러 수정 시작
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
@@ -180,7 +181,7 @@ void postDataToServer(BuildContext context) async {
     print("symptomType --> ${[mappedSymptom]}");
 
     postData.add({
-      "patchSn": "HolmesCardio0001",
+      "patchSn": "HolmesCardio0002",
       "symptomNote": {
         "handWritten": schedule['content'] ?? "",
         "symptomActivity": [mappedActivity], // activity 값을 사용
@@ -232,24 +233,27 @@ void postDataToServer(BuildContext context) async {
 
   if (symptomSchedules.isEmpty) {
     // 전송할 데이터가 없습니다.
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("알림"),
-          content: Text("전송할 데이터가 없습니다."),
-          actions: <Widget>[
-            CustomButton(
-              text: "확인",
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              backgroundColor: SAVE_COLOR2,
-            ),
-          ],
-        );
-      },
-    );
+    // showDialog(
+    //   context: context,
+    //   // builder: (BuildContext context) {
+    //   builder: (BuildContext dialogContext) { // 수정된 부분
+    //     return AlertDialog(
+    //       title: Text("알림"),
+    //       content: Text("전송할 데이터가 없습니다."),
+    //       actions: <Widget>[
+    //         CustomButton(
+    //           text: "확인",
+    //           onPressed: () {
+    //             // Navigator.of(context).pop();
+    //             Navigator.of(dialogContext).pop(); // 수정된 부분
+    //           },
+    //           backgroundColor: SAVE_COLOR2,
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+    showEmptyDataDialog(context);
   } else {
     try {
       final response = await dio.post(
@@ -269,28 +273,32 @@ void postDataToServer(BuildContext context) async {
         // AlertDialog 표시
         print("response data 분기 ${response.data["success"]}");
         if (response.data["success"] == true) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("전송 완료"),
-                content: Text("데이터가 성공적으로 전송되었습니다."),
-                actions: <Widget>[
-                  CustomButton(
-                    text: "확인",
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    backgroundColor: SAVE_COLOR2,
-                  ),
-                ],
-              );
-            },
-          );
+          showSuccessDialog(context);
+          // showDialog(
+          //   context: context,
+          //   // builder: (BuildContext context) {
+          //   builder: (BuildContext dialogContext) { // 이 부분 수정
+          //     return AlertDialog(
+          //       title: Text("전송 완료"),
+          //       content: Text("데이터가 성공적으로 전송되었습니다."),
+          //       actions: <Widget>[
+          //         CustomButton(
+          //           text: "확인",
+          //           onPressed: () {
+          //             // Navigator.of(context).pop();
+          //             Navigator.of(dialogContext).pop(); // 이 부분 수정
+          //           },
+          //           backgroundColor: SAVE_COLOR2,
+          //         ),
+          //       ],
+          //     );
+          //   },
+          // );
         } else {
           showDialog(
             context: context,
-            builder: (BuildContext context) {
+            // builder: (BuildContext context) {
+            builder: (BuildContext dialogContext) { // 이 부분 수정
               return AlertDialog(
                 title: Text("전송 실패"),
                 content: Text("전송이 실패 되었습니다. 에러코드 : ${response.data["error"]}"),
@@ -298,7 +306,8 @@ void postDataToServer(BuildContext context) async {
                   CustomButton(
                     text: "확인",
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
+                      Navigator.of(dialogContext).pop(); // 이 부분 수정
                     },
                     backgroundColor: SAVE_COLOR2,
                   ),
@@ -333,28 +342,92 @@ void postDataToServer(BuildContext context) async {
     } catch (e) {
       // 예외 처리
       print("에러 발생: $e");
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("전송 실패"),
-            content: Text("에러가 발생 하였습니다. 에러코드 : $e"),
-            actions: <Widget>[
-              CustomButton(
-                text: "확인",
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                backgroundColor: SAVE_COLOR2,
-              ),
-            ],
-          );
-        },
-      );
+
+      // showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AlertDialog(
+      //       title: Text("전송 실패"),
+      //       content: Text("에러가 발생 하였습니다. 에러코드 : $e"),
+      //       actions: <Widget>[
+      //         CustomButton(
+      //           text: "확인",
+      //           onPressed: () {
+      //             Navigator.of(context).pop();
+      //           },
+      //           backgroundColor: SAVE_COLOR2,
+      //         ),
+      //       ],
+      //     );
+      //   },
+      // );
     }
-  }
-  // POST 요청 보내기
+  }  // POST 요청 보내기
 }
+
+void showEmptyDataDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text("알림"),
+        content: Text("전송할 데이터가 없습니다."),
+        actions: <Widget>[
+          CustomButton(
+            text: "확인",
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            backgroundColor: SAVE_COLOR2,
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showSuccessDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text("전송 완료"),
+        content: Text("데이터가 성공적으로 전송되었습니다."),
+        actions: <Widget>[
+          CustomButton(
+            text: "확인",
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            backgroundColor: SAVE_COLOR2,
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showFailureDialog(BuildContext context, String errorMessage) {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text("전송 실패"),
+        content: Text("전송이 실패 되었습니다. 에러코드 : $errorMessage"),
+        actions: <Widget>[
+          CustomButton(
+            text: "확인",
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            backgroundColor: SAVE_COLOR2,
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 Future<List<int>> fetchKeySymptomCodesFromServer() async {
   // 수정된 부분: 반환 타입 변경

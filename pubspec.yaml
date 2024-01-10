@@ -53,8 +53,11 @@ dependencies:
   permission_handler: ^11.0.1
   provider: ^6.1.1
   fluttertoast: ^8.2.4
-  syncfusion_flutter_charts: ^23.2.6  # 최신 버전을 사용하고 싶다면 해당 버전을 수정하세요
+  syncfusion_flutter_charts: ^23.2.6
   flutter_charts: ^0.5.2
+  firebase_messaging: ^14.7.10
+  firebase_core: ^2.24.2
+  flutter_local_notifications: ^16.3.0
 
 
 
@@ -91,21 +94,14 @@ flutter:
     #- asset/img/misc/firstLoading.PNG
     - asset/img/misc/
     - asset/img/icon/
-    - asset/img/logo/HolmesAI PNG.png
-    - asset/img/logo/HolmesAI_LOGO.svg
-    - asset/img/misc/Cardio1.png
-    - asset/img/icon/ble.png
-    - asset/img/icon/ecgHeart.png
-    - asset/img/icon/hrHeart.png
-    - asset/img/icon/calender.png
-    - asset/img/icon/heartGGG.gif
-    - asset/img/icon/Cardio1.png
-    - asset/img/logo/홈즈AI_파비콘_안1.svg
-    - asset/img/logo/홈즈AI_파비콘_안2.svg
-    - asset/img/logo/홈즈AI_파비콘_안3.svg
     - asset/img/icon/app_icon.png
+    - asset/img/icon/favicon.svg
+    - asset/img/logo/HolmesAI_LOGO.png
+    - asset/img/logo/HolmesAI_LOGO.svg
+    - asset/img/misc/atPatch.png
+    - asset/img/misc/healthCare.png
     - asset/img/misc/mountingPosition.PNG
-    - asset/img/misc/HolmesCardio_2.png
+
 
   #   - images/a_dot_ham.jpeg
 
@@ -150,17 +146,6 @@ flutter:
         - asset: asset/fonts/kr/NotoSansKR-Light.ttf
           weight: 100
 
-
-    - family: sunFlower
-      fonts:
-        - asset: asset/fonts/Sunflower-Bold.ttf
-          weight: 700
-
-        - asset: asset/fonts/Sunflower-Medium.ttf
-          weight: 500
-
-        - asset: asset/fonts/Sunflower-Light.ttf
-          weight: 300
 
 
 

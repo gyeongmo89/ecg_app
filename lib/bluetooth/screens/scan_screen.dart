@@ -168,10 +168,10 @@ import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import './device_screen.dart';
-import '../../utils/snackbar.dart';
-import '../../widgets/connected_device_tile.dart';
-import '../../widgets/scan_result_tile.dart';
-import '../../utils/extra.dart';
+import 'package:ecg_app/bluetooth/utils/snackbar.dart';
+import 'package:ecg_app/bluetooth/widgets/connected_device_tile.dart';
+import 'package:ecg_app/bluetooth/widgets/scan_result_tile.dart';
+import 'package:ecg_app/bluetooth/utils/extra.dart';
 import 'package:provider/provider.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -451,7 +451,7 @@ class _ScanScreenState extends State<ScanScreen> {
               // 카디오 로고
               Image.asset(
                 // "asset/img/misc/Cardio1.png",
-                "asset/img/misc/HolmesCardio_2.png",
+                "asset/img/misc/healthCare.png",
                 width: MediaQuery.of(context).size.width / 6 * 2,
               ),
               const SizedBox(
