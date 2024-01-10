@@ -260,14 +260,12 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
           );
         },
       );
-      print("----------------");
       print("startTime : $startTime");
       print("endTime : $endTime");
       print("symptom : $symptom");
       print("activity : $activity");
       print("Content : $content");
       print("Content : ${(content).runtimeType}");
-      print("----------------");
 
       if (startTime == null || symptom == null || activity == null) {
         showDialog(

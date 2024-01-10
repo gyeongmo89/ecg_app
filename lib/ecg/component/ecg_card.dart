@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/ecg/view/ecg_chart.dart';
-import 'package:ecg_app/ecg/view/hr_chart.dart';
-import 'package:ecg_app/ecg_test.dart';
+import 'package:ecg_app/ecg/component/ecg_chart.dart';
+import 'package:ecg_app/ecg/component/hr_chart.dart';
+import 'package:ecg_app/ecg/view/ecg_test.dart';
 import 'package:flutter/material.dart';
 // ECG 필요없는 부분 삭제 2023-12-05 16:01
 
@@ -22,6 +22,7 @@ class _EcgCardState extends State<EcgCard> {
   int min = 75;
   int max = 75;
 
+  // heartRate, avg, min, max 랜덤 값으로 설정하는 함수
   void startUpdatingHeartRate() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
@@ -40,7 +41,7 @@ class _EcgCardState extends State<EcgCard> {
   @override
   void initState() {
     super.initState();
-    startUpdatingHeartRate();
+    startUpdatingHeartRate(); // heartRate, avg, min, max 랜덤 값으로 설정하는 함수
   }
 
   @override
@@ -64,7 +65,6 @@ class _EcgCardState extends State<EcgCard> {
                     child: widget.cardioImage,
                   ),
                   SizedBox(
-                    // width: 4.0,
                     width: deviceWidth / 9 / 4,
                   ),
                   const Column(
@@ -84,7 +84,6 @@ class _EcgCardState extends State<EcgCard> {
                       ]),
                 ],
               ),
-
               Container(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -92,6 +91,7 @@ class _EcgCardState extends State<EcgCard> {
                   children: [
                     Container(
                       height: 55,
+                      // height: deviceHeight / 9,
                       width: 40,
                       alignment: Alignment.center,
                     ),
