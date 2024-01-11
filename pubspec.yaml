@@ -49,18 +49,15 @@ dependencies:
   fl_chart: ^0.64.0
   flutter_svg: ^2.0.9
   http: ^1.1.0
+  flutter_blue_plus: ^1.29.5
   permission_handler: ^11.0.1
   provider: ^6.1.1
   fluttertoast: ^8.2.4
   syncfusion_flutter_charts: ^23.2.6
   flutter_charts: ^0.5.2
-#  firebase_messaging: ^14.7.10
+  firebase_messaging: ^14.7.10
   firebase_core: ^2.24.2
-  flutter_local_notifications: ^17.1.2
-  shared_preferences: ^2.2.2
-  local_auth: ^2.1.8
-  flutter_blue_plus: ^1.32.8
-  crypto: ^3.0.3
+  flutter_local_notifications: ^16.3.0
 
 
 
@@ -101,11 +98,11 @@ flutter:
     - asset/img/icon/favicon.svg
     - asset/img/logo/HolmesAI_LOGO.png
     - asset/img/logo/HolmesAI_LOGO.svg
+    - asset/img/misc/atPatch.png
+    - asset/img/misc/healthCare.png
     - asset/img/misc/heartCare1.png
     - asset/img/misc/heartCare2.png
     - asset/img/misc/mountingPosition.PNG
-    - asset/img/misc/mountingPosition_2.png
-    - asset/img/misc/mountingPosition_3.png
 
 
   #   - images/a_dot_ham.jpeg

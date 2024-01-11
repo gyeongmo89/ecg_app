@@ -5,8 +5,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';
+import 'package:ecg_app/common/const/colors2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+
 
 class EcgChart extends StatefulWidget {
   const EcgChart({super.key});
@@ -16,16 +18,16 @@ class EcgChart extends StatefulWidget {
 }
 
 class _EcgChartState extends State<EcgChart> {
-  List<FlSpot> ecgData = [];
-  double xValue = 0;
-  Timer? ecgTimer;
+  List<FlSpot> ecgData = []; // 추가
+  double xValue = 0; // 추가
+  Timer? ecgTimer; // 추가
 
   List<Color> gradientColors = [
     AppColors.contentColorCyan,
     AppColors.contentColorBlue,
   ];
   bool showAvg = false;
-
+  // 추가 --------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -36,11 +38,18 @@ class _EcgChartState extends State<EcgChart> {
     const ecgInterval = Duration(milliseconds: 200);
     ecgTimer = Timer.periodic(ecgInterval, (timer) {
       updateEcgData();
+      // if (ecgData.length > 100) {
+      //   ecgData.removeAt(0);
+      // }
     });
   }
 
   void updateEcgData() {
+    final random = Random();
+
     final newData = List<FlSpot>.empty(growable: true);
+
+    // for (double i = 0; i < 11; i += 0.2) {
     for (double i = 0; i < 50; i += 0.2) {
       newData.add(FlSpot(i, 0 + Random().nextDouble() * 4));
     }
@@ -49,7 +58,7 @@ class _EcgChartState extends State<EcgChart> {
       ecgData = newData;
     });
   }
-
+  // 추가 --------------------------------------------------
   @override
   void dispose() {
     ecgTimer?.cancel();
@@ -61,8 +70,10 @@ class _EcgChartState extends State<EcgChart> {
     return Stack(
       children: <Widget>[
         AspectRatio(
+          // aspectRatio: 1.70,
           aspectRatio: 2.50,
           child: LineChart(
+              // showAvg ? avgData() : mainData(),
               mainData()),
         ),
       ],
@@ -81,6 +92,7 @@ class _EcgChartState extends State<EcgChart> {
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
+            // color: AppColors.mainGridLineColor,
             color: Colors.white,
             strokeWidth: 1,
           );
@@ -109,10 +121,18 @@ class _EcgChartState extends State<EcgChart> {
       maxX: 10,
       minY: 0,
       maxY: 5,
-
       lineBarsData: [
         LineChartBarData(
-          spots: ecgData.isEmpty ? [FlSpot(0, 0)] : ecgData,
+          spots: ecgData.isEmpty ? [FlSpot(0, 0)] : ecgData, // 초기화  // 추가
+          // spots: const [
+          //   FlSpot(0, 3),
+          //   FlSpot(2.6, 2),
+          //   FlSpot(4.9, 5),
+          //   FlSpot(6.8, 3.1),
+          //   FlSpot(8, 4),
+          //   FlSpot(9.5, 3),
+          //   FlSpot(11, 4),
+          // ],
           isCurved: false,
           gradient: LinearGradient(
             colors: gradientColors,

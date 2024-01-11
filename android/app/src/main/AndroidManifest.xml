@@ -1,25 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- FCM 으로 추가함 -->
-<!--    <uses-permission android:name="android.permission.INTERNET"/>-->
-<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>-->
-<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
-<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
-<!--    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>-->
-    <!-- FCM 으로 추가함 -->
-    <!-- 로컬 푸쉬메시지로 추가함 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-
-
-
-
-    <!-- 로컬 푸쉬메시지로 추가함 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- FCM 으로 추가함 -->
 
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -40,10 +27,6 @@
 
     <!-- legacy for Android 9 or lower -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
-
-    <!-- 생체인증 -->
-    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
 
 <!--    &lt;!&ndash; Tell Google Play Store that your app uses Bluetooth LE-->
 <!--         Set android:required="true" if bluetooth is necessary &ndash;&gt;-->
@@ -66,14 +49,13 @@
 <!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />&ndash;&gt;-->
 <!--&lt;!&ndash;    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>&ndash;&gt;-->
 <!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />&ndash;&gt;-->
-    <!-- 아래 android:name=".MainActivity" 원래 이거였음 -->
+
     <application
-        android:label="CLheart"
+        android:label="healthHub"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
-
-            android:name="io.flutter.embedding.android.FlutterFragmentActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -83,7 +65,7 @@
 
             android:showWhenLocked="true"
             android:turnScreenOn="true">
-            <!-- 위에 두줄 로컬푸쉬메시지로 추가함 -->
+            <!-- 위에 두줄 FCM 으로 추가함 -->
 
 
 
