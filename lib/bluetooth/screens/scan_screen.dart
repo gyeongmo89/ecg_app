@@ -224,7 +224,7 @@ class _ScanScreenState extends State<ScanScreen> {
           remoteId: DeviceIdentifier("D$i:6E:D4:3$i:CA:BE"),
         ),
         advertisementData: AdvertisementData(
-          advName: "HolmesAI-Cardio ${i + 1}",
+          advName: "heartCare HCL_P101-0${i + 1}",
           txPowerLevel: 0, // 여기서 적절한 값으로 변경해주세요
           connectable: false, // 여기서 적절한 값으로 변경해주세요
           manufacturerData: {},
@@ -294,14 +294,17 @@ class _ScanScreenState extends State<ScanScreen> {
   Widget buildScanButton(BuildContext context) {
     if (FlutterBluePlus.isScanningNow) {
       return FloatingActionButton(
-        child: const Icon(Icons.stop),
+        child: const Icon(Icons.stop,color: Colors.white,),
         onPressed: onStopPressed,
         backgroundColor: Colors.red,
       );
     } else {
       return FloatingActionButton(
           backgroundColor: PRIMARY_COLOR2,
-          child: Icon(Icons.search),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(30.0),
+          // ),
+          child: Icon(Icons.search, color: Colors.white),
           onPressed: onScanPressed);
       // 여기 수정해야함
     }
@@ -439,23 +442,21 @@ class _ScanScreenState extends State<ScanScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
-          title: const Text('Holmes Cardio 연결'),
+
+          title: const Text('heartCare 연결', style: TextStyle(color: Colors.white,),),
         ),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              SizedBox(
-                height: 4.0,
-              ),
+              // SizedBox(
+              //   height: 4.0,
+              // ),
               // 카디오 로고
               Image.asset(
                 // "asset/img/misc/Cardio1.png",
-                "asset/img/misc/healthCare.png",
-                width: MediaQuery.of(context).size.width / 6 * 2,
-              ),
-              const SizedBox(
-                height: 4.0,
+                "asset/img/misc/heartCare1.png",
+                width: MediaQuery.of(context).size.width / 3,
               ),
               // 사용설명 박스
               Container(
@@ -475,7 +476,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                        "1. Holmes Cardio를 앱에 등록하기 위해, "
+                        "1. heartCare를 앱에 등록하기 위해, "
                         "전원을 켜주세요.",
                         style: TextStyle(
                           fontSize: 16,
@@ -485,7 +486,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       height: 25.0,
                     ),
                     Text(
-                        "2. 패치의 전원을 3초이상 누르면, 소리와 함께"
+                        "2. 전원을 3초이상 누르면, 소리와 함께"
                         " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
                         style: TextStyle(
                           fontSize: 16,
@@ -505,7 +506,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: Icon(Icons.search),
                           ),
                           TextSpan(
-                            text: '버튼을 누르고 패치와 연결 합니다.',
+                            text: '버튼을 누르고 heartCare와 연결 합니다.',
                             style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
                           ),
                         ],

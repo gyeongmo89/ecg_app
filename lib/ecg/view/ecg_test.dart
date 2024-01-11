@@ -22,16 +22,18 @@ class EcgChartPainter extends CustomPainter {
 
     final Paint thinGridPaint = Paint()
       ..color = Colors.grey
-      ..strokeWidth = 0.5; // 작은 정사각형을 얇게 그리기 위한 페인트
+      ..strokeWidth = 0.3; // 작은 정사각형을 얇게 그리기 위한 페인트
 
 
 
     final Paint chartPaint = Paint()
       // ..color = Colors.red // 차트를 빨간색으로 설정
       // ..color = Color(0xFF30AFF9) // 차트를 빨간색으로 설정
-      ..color = Colors.pinkAccent // 차트를 빨간색으로 설정
+      // ..color = Colors.pinkAccent // 차트를 빨간색으로 설정
+      // ..color = Colors.green // 차트를 빨간색으로 설정
+      ..color = Color(0xFF57da74) // 차트를 빨간색으로 설정
 
-      ..strokeWidth = 1.5
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
     final double dataSpacing = chartWidth / ecgData.length;
@@ -296,9 +298,10 @@ class _EcgChartState extends State<EcgChart2> {
         width: 350,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.transparent),
-          borderRadius: BorderRadius.circular(8.0),
-          color: Colors.white,
-          // color: Colors.black,
+          // borderRadius: BorderRadius.circular(8.0),
+          // color: Colors.white,
+          // color: Colors.black,#232628
+          color: Color(0xFF232628),
         ),
         child: CustomPaint(
           painter: EcgChartPainter(ecgData),

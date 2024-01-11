@@ -44,8 +44,9 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
-      title: 'ECG Monitoring',  
+      title: 'ECG Monitoring',
       bottomNavigationBar: BottomNavigationBar( // 하단 네비게이션 바
+        backgroundColor: Colors.black,
         selectedItemColor: PRIMARY_COLOR2,
         unselectedItemColor: SUB_TEXT_COLOR,
         selectedFontSize: 15,

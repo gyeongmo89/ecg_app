@@ -100,6 +100,8 @@ flutter:
     - asset/img/logo/HolmesAI_LOGO.svg
     - asset/img/misc/atPatch.png
     - asset/img/misc/healthCare.png
+    - asset/img/misc/heartCare1.png
+    - asset/img/misc/heartCare2.png
     - asset/img/misc/mountingPosition.PNG
 
 

@@ -61,26 +61,52 @@ class _EcgCardState extends State<EcgCard> {
               Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(4.0),
                     child: widget.cardioImage,
                   ),
-                  SizedBox(
-                    width: deviceWidth / 9 / 4,
-                  ),
+                  // SizedBox(
+                  //   width: deviceWidth / 9 / 4,
+                  // ),
                   const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Holmes Cardio",
+                        Text("heartCare",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: BODY_TEXT_COLOR,
                             )),
-                        Text("Connected",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
-                            )),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.bluetooth_audio,
+                              // Icons.circle,
+                              color: Colors.blueAccent,
+                              size: 14,
+                            ),
+                            Text("Connected",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                )),
+                          ],
+                        ),
+                        // Row(
+                        //   children: [
+                        //     Icon(
+                        //       // Icons.bluetooth_connected,
+                        //       Icons.bluetooth_audio,
+                        //       // Icons.circle,
+                        //       color: Colors.redAccent,
+                        //       size: 14,
+                        //     ),
+                        //     Text("Disconnected",
+                        //         style: TextStyle(
+                        //           fontSize: 14,
+                        //           color: Colors.red,
+                        //         )),
+                        //   ],
+                        // )
                       ]),
                 ],
               ),
@@ -112,14 +138,14 @@ class _EcgCardState extends State<EcgCard> {
             ],
           ),
 // --------------------------------------------------
-//           SizedBox(height: deviceHeight/7),
-          SizedBox(height: deviceHeight / 67),
+//           SizedBox(height: deviceHeight/67),
+          SizedBox(height: deviceHeight / 180),
           Row(
             children: [
               Text("Recording Time  14:07"),
             ],
           ),
-          SizedBox(height: deviceHeight / 67),
+          SizedBox(height: deviceHeight / 100),
 // -------------------- Average, Minimum, Maximum --------------------
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -157,7 +183,7 @@ class _EcgCardState extends State<EcgCard> {
                 ],
               ),
               SizedBox(
-                  height: 45.0,
+                height: deviceHeight / 14,
                   child: VerticalDivider(
                     color: PRIMARY_COLOR2,
                     thickness: 1.0,
@@ -191,7 +217,7 @@ class _EcgCardState extends State<EcgCard> {
                 ],
               ),
               SizedBox(
-                  height: 45.0,
+                  height: deviceHeight / 14,
                   child: VerticalDivider(
                     color: PRIMARY_COLOR2,
                     thickness: 1.0,
@@ -238,7 +264,7 @@ class _EcgCardState extends State<EcgCard> {
             // height: 230.0,
             // width: 380.0,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
+                borderRadius: BorderRadius.circular(8.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,
@@ -282,7 +308,7 @@ class _EcgCardState extends State<EcgCard> {
             width: deviceWidth,
 
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
+                borderRadius: BorderRadius.circular(8.0),
                 color: const Color(0xFFE6EBF0),
                 border: Border.all(
                   color: Colors.white,

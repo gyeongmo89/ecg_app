@@ -93,7 +93,8 @@ class MenuDrawer extends StatelessWidget {
                         width: MediaQuery.of(context).size.width/15,
                       ),
                       Text(
-                        "Holmes-Cardio-001",
+                        // "Holmes-Cardio-001",
+                        "HCL_C101-0001",
                         style: TextStyle(
                           color: Colors.white,
                           // color: SUB_TEXT_COLOR,

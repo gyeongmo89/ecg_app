@@ -92,13 +92,14 @@ class _EcgChartState extends State<EcgChart> {
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
-            color: AppColors.mainGridLineColor,
+            // color: AppColors.mainGridLineColor,
+            color: Colors.white,
             strokeWidth: 1,
           );
         },
         getDrawingVerticalLine: (value) {
           return const FlLine(
-            color: AppColors.mainGridLineColor,
+            color: Colors.white,
             strokeWidth: 1,
           );
         },

@@ -19,10 +19,13 @@ class EcgMonitoringScreen extends StatelessWidget {
 
     return Scaffold(
       body: EcgCard(
-        cardioImage: Image.asset(
-          "asset/img/misc/healthCare.png",
-          width: MediaQuery.of(context).size.width / 6,
-          fit: BoxFit.cover,
+        cardioImage: Transform.rotate(
+          angle: 3.14 * 1.5, // 270도 회전 (라디안 단위)
+          child: Image.asset(
+            "asset/img/misc/heartCare1.png",
+            width: MediaQuery.of(context).size.width / 5,
+            fit: BoxFit.cover,
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -40,7 +43,7 @@ class EcgMonitoringScreen extends StatelessWidget {
           );
         },
         backgroundColor: PRIMARY_COLOR2,
-        child: Icon(Icons.edit_note),
+        child: Icon(Icons.edit_note, color: Colors.white,),
       ),
     );
   }

@@ -23,10 +23,10 @@ class ConnectionInfo extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
               // 다크블루 계열
-              Color(0xFF000118),
-              Color(0xFF03045e),
-              Color(0xFF023e8a),
-              Color(0xFF0077b6),
+                  Color(0xFF666F9A,),
+                  Color(0xFF8974A3,),
+                  Color(0xFFAB79A6,),
+                  Color(0xFFCA7FA1,),
             ])),
         // child: SingleChildScrollView(
         child: SafeArea(
@@ -147,6 +147,7 @@ class ConnectionInfo extends StatelessWidget {
                       "Start",
                       style: TextStyle(
                         fontSize: 26,
+                        color: Colors.white
                       ),
                     ),
                   ),

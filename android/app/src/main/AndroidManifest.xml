@@ -51,7 +51,7 @@
 <!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />&ndash;&gt;-->
 
     <application
-        android:label="Holmes-Note"
+        android:label="healthHub"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

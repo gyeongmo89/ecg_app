@@ -31,6 +31,7 @@ class DefaultLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor ?? Colors.white,
+
       // 입력을 받지 않으면 기본색깔인 흰색으로
       // appBar: renderAppBar(),
       appBar: renderAppBar(context),
@@ -57,9 +58,10 @@ class DefaultLayout extends StatelessWidget {
             double screenWidth = MediaQuery.of(context).size.width;
             return Row(
               children: [
-                const Text("Holmes AI Note"),
-                SizedBox(width: screenWidth/6,),
-                Text(dayText),
+                // const Text("Holmes AI Note",style: TextStyle(color: Colors.white),),
+                const Text("healthHub",style: TextStyle(color: Colors.white, ),),
+                SizedBox(width: screenWidth/4,),
+                Text(dayText, style: TextStyle(color: Colors.white),),
               ],
             );
           }

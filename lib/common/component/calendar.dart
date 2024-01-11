@@ -187,7 +187,7 @@ class _CalendarState extends State<Calendar> {
 
     return TableCalendar(
       locale: "ko_KR",
-// locale: "en_US",
+      // locale: "en_US",
       focusedDay: widget.focusedDay,
       firstDay: DateTime(1800),
       lastDay: DateTime(3000),

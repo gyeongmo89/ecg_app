@@ -40,10 +40,23 @@ class _StartLoadingState extends State<StartLoading> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-            Color(0xFF000118),
-            Color(0xFF03045e),
-            Color(0xFF023e8a),
-            Color(0xFF0077b6),
+            // Color(0xFF000118),
+            // Color(0xFF03045e),
+            // Color(0xFF023e8a),
+            // Color(0xFF0077b6),
+
+            // Color(0xFF325f76,),
+            // Color(0xFF48688A,),
+            // Color(0xFF666F9A,),
+
+            // Color(0xFFCA7FA1,),
+            // Color(0xFFAB79A6,),
+            // Color(0xFF8974A3,),
+            // Color(0xFF666F9A,),
+              Color(0xFF666F9A,),
+              Color(0xFF8974A3,),
+              Color(0xFFAB79A6,),
+              Color(0xFFCA7FA1,),
           ])),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -60,29 +73,31 @@ class _StartLoadingState extends State<StartLoading> {
                   "asset/img/logo/HolmesAI_LOGO.svg",
                   width: deviceWidth / (3 * 1),
                 ),
-                SizedBox(
-                  height: deviceHeight / (5 * 4),
-                ),
+                // SizedBox(
+                //   height: deviceHeight / (5 * 4),
+                // ),
                 // heartCare 로고
                 Image.asset(
-                  "asset/img/misc/atPatch.png",
+                  "asset/img/misc/heartCare1.png",
+                  // "asset/img/misc/atPatch.png",
                   fit: BoxFit.contain,
-                  width: deviceWidth / (1 * 2),
+                  width: deviceWidth / (1.0),
+                  // width: deviceWidth / (1),
                 ),
-                SizedBox(
-                  height: deviceHeight / (5 * 4),
-                ),
+                // SizedBox(
+                //   height: deviceHeight / (30),
+                // ),
                 // 로딩 프로그레스 바
                 const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(PRIMARY_COLOR2),
                   strokeWidth: 3,
                 ),
                 SizedBox(
-                  height: deviceHeight / (5 * 4),
+                  height: deviceHeight / (30),
                 ),
                 // 솔루션 모토
                 const Text(
-                  "Holmes AI haertCare is focusing on wearable medical\ndevices market.\nThe objective is developing next\ngeneration products for better life.",
+                  "Holmes AI haertCare is focusing on wearable\nmedical devices market.\nThe objective is developing next\ngeneration products for better life.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

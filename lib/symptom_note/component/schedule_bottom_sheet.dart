@@ -1160,7 +1160,7 @@ class _SaveButton extends StatelessWidget {
               primary: SAVE_COLOR2,
               // primary:  PRIMARY_COLOR,
             ),
-            child: const Text("저장"),
+            child: const Text("저장",style: TextStyle(color: Colors.white,)),
           ),
         ),
       ],

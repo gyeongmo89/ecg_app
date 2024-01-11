@@ -84,7 +84,7 @@ class _SymptomNote2State extends State<SymptomNote2> {
       // backgroundColor: PRIMARY_COLOR,
       backgroundColor: PRIMARY_COLOR2,
       // child: Icon(Icons.add),
-      child: Icon(Icons.edit_note),
+      child: Icon(Icons.edit_note,color: Colors.white,),
     );
   }
 
