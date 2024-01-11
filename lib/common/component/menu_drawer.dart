@@ -1,7 +1,10 @@
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
+import 'package:ecg_app/ecg/component/ecg_card.dart';
+import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
 import 'package:ecg_app/model/transfer_to_server.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,7 +17,7 @@ class MenuDrawer extends StatelessWidget {
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now); // 날짜/시간 형식 설정
     String calculateFinishDate(String inputDate) {
       DateTime parsedDate = DateFormat('yyyy-MM-dd HH:mm').parse(inputDate);
-      DateTime finishDate = parsedDate.add(const Duration(days: 7));
+      DateTime finishDate = parsedDate.add(Duration(days: 7));
       return DateFormat('yyyy-MM-dd HH:mm').format(finishDate);
     }
 
@@ -23,8 +26,8 @@ class MenuDrawer extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("서비스 준비중"),
-            content: const Text("업데이트 예정인 서비스 입니다."),
+            title: Text("서비스 준비중"),
+            content: Text("업데이트 예정인 서비스 입니다."),
             actions: <Widget>[
               CustomButton(
                 text: "확인",
@@ -55,14 +58,14 @@ class MenuDrawer extends StatelessWidget {
             // color: Color(0xffCBD5E0),
             height: MediaQuery.of(context).size.height/5,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              padding: EdgeInsets.symmetric(horizontal: 18.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
                     height: MediaQuery.of(context).size.height/40,
                   ),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
@@ -78,7 +81,7 @@ class MenuDrawer extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Serial No.",
                         style: TextStyle(
                           color: Colors.white,
@@ -89,8 +92,9 @@ class MenuDrawer extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.of(context).size.width/15,
                       ),
-                      const Text(
-                        "Holmes-Cardio-001",
+                      Text(
+                        // "Holmes-Cardio-001",
+                        "HCL_C101-0001",
                         style: TextStyle(
                           color: Colors.white,
                           // color: SUB_TEXT_COLOR,
@@ -104,7 +108,7 @@ class MenuDrawer extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Start Date",
                         style: TextStyle(
                           color: Colors.white,
@@ -117,7 +121,7 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       Text(
                         formattedDate,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           // color: SUB_TEXT_COLOR,
                         ),
@@ -130,7 +134,7 @@ class MenuDrawer extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Finish Date",
                         style: TextStyle(
                           color: Colors.white,
@@ -143,7 +147,7 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       Text(
                         calculateFinishDate(formattedDate),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           // color: SUB_TEXT_COLOR,
                         ),
@@ -155,30 +159,30 @@ class MenuDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading:  const Icon(Icons.cloud_upload_outlined),
+            leading:  Icon(Icons.cloud_upload_outlined),
             // iconColor: Colors.blueAccent,
             iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
-            title:  const Text("Upload"),
+            title:  Text("Upload"),
             onTap: () {
               postDataToServer(context);
               Navigator.of(context).pop();
             },
-            trailing:  const Icon(Icons.upload_rounded),
+            trailing:  Icon(Icons.upload_rounded),
           ),
 
           // ---------- 2차 또는 향후 기능 ----------
           ListTile(
-            leading:  const Icon(Icons.home),
+            leading:  Icon(Icons.home),
             iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
-            title:  const Text("Home"),
+            title:  Text("Home"),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const RootTab(),),
+                MaterialPageRoute(builder: (_) => RootTab(),),
               );
             },
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
           // ListTile(
           //   leading:  Icon(Icons.edit_calendar_outlined),
@@ -190,48 +194,48 @@ class MenuDrawer extends StatelessWidget {
           // ),
 
           ListTile(
-            leading:  const Icon(Icons.notes),
+            leading:  Icon(Icons.notes),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  const Text("History", style: TextStyle(color: Colors.grey),),
+            title:  Text("History", style: TextStyle(color: Colors.grey),),
             onTap: () {nextVersionInfo(context);},
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading: const Icon(Icons.bar_chart),
+            leading: Icon(Icons.bar_chart),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  const Text("Statistics", style: TextStyle(color: Colors.grey),),
+            title:  Text("Statistics", style: TextStyle(color: Colors.grey),),
             onTap: () {nextVersionInfo(context);},
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  const Icon(Icons.info_outline),
+            leading:  Icon(Icons.info_outline),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  const Text("Patch Info", style: TextStyle(color: Colors.grey),),
+            title:  Text("Patch Info", style: TextStyle(color: Colors.grey),),
             onTap: () {nextVersionInfo(context);},
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  const Icon(Icons.settings_outlined),
+            leading:  Icon(Icons.settings_outlined),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  const Text("Setting", style: TextStyle(color: Colors.grey),),
+            title:  Text("Setting", style: TextStyle(color: Colors.grey),),
             onTap: () {nextVersionInfo(context);},
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  const Icon(Icons.info),
+            leading:  Icon(Icons.info),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  const Text("About", style: TextStyle(color: Colors.grey),),
+            title:  Text("About", style: TextStyle(color: Colors.grey),),
             onTap: () {nextVersionInfo(context);},
-            trailing:  const Icon(Icons.navigate_next),
+            trailing:  Icon(Icons.navigate_next),
           ),
           // -----------------------------------------
         ],

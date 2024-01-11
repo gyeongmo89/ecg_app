@@ -167,8 +167,10 @@ import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import './device_screen.dart';
 import 'package:ecg_app/bluetooth/utils/snackbar.dart';
 import 'package:ecg_app/bluetooth/widgets/connected_device_tile.dart';
+import 'package:ecg_app/bluetooth/widgets/scan_result_tile.dart';
 import 'package:ecg_app/bluetooth/utils/extra.dart';
 import 'package:provider/provider.dart';
 
@@ -222,7 +224,7 @@ class _ScanScreenState extends State<ScanScreen> {
           remoteId: DeviceIdentifier("D$i:6E:D4:3$i:CA:BE"),
         ),
         advertisementData: AdvertisementData(
-          advName: "HolmesAI-Cardio ${i + 1}",
+          advName: "heartCare HCL_P101-0${i + 1}",
           txPowerLevel: 0, // 여기서 적절한 값으로 변경해주세요
           connectable: false, // 여기서 적절한 값으로 변경해주세요
           manufacturerData: {},
@@ -277,7 +279,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
     MaterialPageRoute route = MaterialPageRoute(
         builder: (context) => DeviceScreen(device: device),
-        settings: const RouteSettings(name: '/DeviceScreen'));
+        settings: RouteSettings(name: '/DeviceScreen'));
     Navigator.of(context).push(route);
   }
 
@@ -286,21 +288,24 @@ class _ScanScreenState extends State<ScanScreen> {
       FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     }
     setState(() {});
-    return Future.delayed(const Duration(milliseconds: 500));
+    return Future.delayed(Duration(milliseconds: 500));
   }
 
   Widget buildScanButton(BuildContext context) {
     if (FlutterBluePlus.isScanningNow) {
       return FloatingActionButton(
+        child: const Icon(Icons.stop,color: Colors.white,),
         onPressed: onStopPressed,
         backgroundColor: Colors.red,
-        child: const Icon(Icons.stop),
       );
     } else {
       return FloatingActionButton(
           backgroundColor: PRIMARY_COLOR2,
-          onPressed: onScanPressed,
-          child: const Icon(Icons.search));
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(30.0),
+          // ),
+          child: Icon(Icons.search, color: Colors.white),
+          onPressed: onScanPressed);
       // 여기 수정해야함
     }
   }
@@ -313,7 +318,7 @@ class _ScanScreenState extends State<ScanScreen> {
             onOpen: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => DeviceScreen(device: d),
-                settings: const RouteSettings(name: '/DeviceScreen'),
+                settings: RouteSettings(name: '/DeviceScreen'),
               ),
             ),
             onConnect: () => onConnectPressed(d),
@@ -331,7 +336,7 @@ class _ScanScreenState extends State<ScanScreen> {
             onTap: () {
               if (entry.key == 0) {
                 Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => const RootTab()));
+                    .push(MaterialPageRoute(builder: (_) => RootTab()));
               } else {
                 onConnectPressed(entry.value.device);
               }
@@ -385,12 +390,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   /* BLE 아이콘 위젯 */
   Widget leading(ScanResult r) {
-    return const CircleAvatar(
-      backgroundColor: Colors.cyan,
+    return CircleAvatar(
       child: Icon(
         Icons.bluetooth,
         color: Colors.white,
       ),
+      backgroundColor: Colors.cyan,
     );
   }
 
@@ -407,7 +412,7 @@ class _ScanScreenState extends State<ScanScreen> {
       // },
       onTap: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const RootTab()));
+            .push(MaterialPageRoute(builder: (_) => RootTab()));
         // if (r.device.name == 'HolmesAI-Cardio 1') {
         //   Navigator.of(context).push(MaterialPageRoute(builder: (_) => RootTab()));
         // }
@@ -437,23 +442,21 @@ class _ScanScreenState extends State<ScanScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
-          title: const Text('Holmes Cardio 연결'),
+
+          title: const Text('heartCare 연결', style: TextStyle(color: Colors.white,),),
         ),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              const SizedBox(
-                height: 4.0,
-              ),
+              // SizedBox(
+              //   height: 4.0,
+              // ),
               // 카디오 로고
               Image.asset(
                 // "asset/img/misc/Cardio1.png",
-                "asset/img/misc/healthCare.png",
-                width: MediaQuery.of(context).size.width / 6 * 2,
-              ),
-              const SizedBox(
-                height: 4.0,
+                "asset/img/misc/heartCare1.png",
+                width: MediaQuery.of(context).size.width / 3,
               ),
               // 사용설명 박스
               Container(
@@ -473,7 +476,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                        "1. Holmes Cardio를 앱에 등록하기 위해, "
+                        "1. heartCare를 앱에 등록하기 위해, "
                         "전원을 켜주세요.",
                         style: TextStyle(
                           fontSize: 16,
@@ -483,7 +486,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       height: 25.0,
                     ),
                     Text(
-                        "2. 패치의 전원을 3초이상 누르면, 소리와 함께"
+                        "2. 전원을 3초이상 누르면, 소리와 함께"
                         " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
                         style: TextStyle(
                           fontSize: 16,
@@ -503,7 +506,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: Icon(Icons.search),
                           ),
                           TextSpan(
-                            text: '버튼을 누르고 패치와 연결 합니다.',
+                            text: '버튼을 누르고 heartCare와 연결 합니다.',
                             style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
                           ),
                         ],
@@ -513,7 +516,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ],
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 5.0,
               ),
               Expanded(
@@ -526,7 +529,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       return listItem(scanResultList[index]);
                     },
                     separatorBuilder: (BuildContext context, int index) {
-                      return const Divider();
+                      return Divider();
                     },
                   ), // 시연때문에 여기부터 임의추가함
 

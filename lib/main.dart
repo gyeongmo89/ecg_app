@@ -18,6 +18,11 @@ class _App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         fontFamily: "NotoSans",
+        appBarTheme: const AppBarTheme(
+          // backgroundColor: Colors.white,
+          elevation: 3,
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
       ),
       debugShowCheckedModeBanner: false,
       // home: FirstLoading(),

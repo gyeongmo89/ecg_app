@@ -1,6 +1,57 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- FCM 으로 추가함 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- FCM 으로 추가함 -->
+
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Tell Google Play Store that your app uses Bluetooth LE
+     Set android:required="true" if bluetooth is necessary -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <!-- New Bluetooth permissions in Android 12
+    https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- legacy for Android 11 or lower -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+
+    <!-- legacy for Android 9 or lower -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
+
+<!--    &lt;!&ndash; Tell Google Play Store that your app uses Bluetooth LE-->
+<!--         Set android:required="true" if bluetooth is necessary &ndash;&gt;-->
+<!--    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />-->
+
+<!--    &lt;!&ndash; New Bluetooth permissions in Android 12-->
+<!--    https://developer.android.com/about/versions/12/features/bluetooth-permissions &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />-->
+
+<!--    &lt;!&ndash; legacy for Android 11 or lower &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>-->
+
+<!--    &lt;!&ndash; legacy for Android 9 or lower &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />-->
+
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />&ndash;&gt;-->
+
     <application
-        android:label="ecg_app"
+        android:label="healthHub"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -10,7 +61,14 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
+            <!-- 위에 두줄 FCM 으로 추가함 -->
+
+
+
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
@@ -18,11 +76,16 @@
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
+              android:value="high_importance_channel"
               />
+            <!-- 위에 한줄 FCM 으로 추가함 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- 위에 두줄 FCM 으로 추가함 -->
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

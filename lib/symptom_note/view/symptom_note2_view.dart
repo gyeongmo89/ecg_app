@@ -2,6 +2,7 @@ import 'package:ecg_app/common/component/calendar.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
+import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:ecg_app/symptom_note/component/schedule_card.dart';
 import 'package:ecg_app/symptom_note/component/today_banner.dart';
@@ -83,7 +84,7 @@ class _SymptomNote2State extends State<SymptomNote2> {
       // backgroundColor: PRIMARY_COLOR,
       backgroundColor: PRIMARY_COLOR2,
       // child: Icon(Icons.add),
-      child: const Icon(Icons.edit_note),
+      child: Icon(Icons.edit_note,color: Colors.white,),
     );
   }
 
@@ -99,7 +100,7 @@ class _ScheduleList extends StatefulWidget {
   // 내가 임의 코드 추가
   final DateTime selectedDate;
 
-  const _ScheduleList({required this.selectedDate});
+  const _ScheduleList({required this.selectedDate, super.key});
 
   @override
   State<_ScheduleList> createState() => _ScheduleListState();
@@ -120,7 +121,7 @@ class _ScheduleListState extends State<_ScheduleList> {
 
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 8.0),
         // child: ListView.builder(
         // child: ListView.separated(
         child: StreamBuilder<List<Schedule>>(
@@ -144,12 +145,12 @@ class _ScheduleListState extends State<_ScheduleList> {
               // print(snapshot.data);
               if (!snapshot.hasData) {
                 // snapshot hasData 가 false 이면
-                return const Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator());
               }
 
               if (snapshot.hasData && snapshot.data!.isEmpty) {
                 if (isTodayOrBefore && !widget.selectedDate.isAfter(DateTime.now())) {
-                  return const Center(
+                  return Center(
                     child: Text("등록된 증상노트가 없습니다."),
                   );
                 } else if (widget.selectedDate.isAfter(DateTime.now())) {
@@ -162,7 +163,7 @@ class _ScheduleListState extends State<_ScheduleList> {
               return ListView.separated(
                   itemCount: snapshot.data!.length, // 스케쥴의 길이만큼 아이템 카드를 그린다.
                   separatorBuilder: (context, index) {
-                    return const SizedBox(
+                    return SizedBox(
                       height: 8.0,
                     );
                   },
@@ -175,8 +176,8 @@ class _ScheduleListState extends State<_ScheduleList> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text("삭제 확인"),
-                              content: const Text("삭제하시겠습니까?"),
+                              title: Text("삭제 확인"),
+                              content: Text("삭제하시겠습니까?"),
                               actions: [
                                 CustomButton(
                                     text: "취소",

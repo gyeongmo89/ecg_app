@@ -82,18 +82,20 @@ class _HrChartState extends State<HrChart> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
-        horizontalInterval: 1,
+        horizontalInterval: 2,
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
-            color: AppColors.mainGridLineColor,
-            strokeWidth: 2,
+            // color: AppColors.mainGridLineColor,
+            color: Colors.white,
+            strokeWidth: 0.2,
           );
         },
         getDrawingVerticalLine: (value) {
           return const FlLine(
-            color: AppColors.mainGridLineColor,
-            strokeWidth: 2,
+            // color: AppColors.mainGridLineColor,
+            color: Colors.white,
+            strokeWidth: 0.2,
           );
         },
       ),
@@ -121,8 +123,10 @@ class _HrChartState extends State<HrChart> {
           gradient: LinearGradient(
             colors: gradientColors,
           ),
-          barWidth: 4, // 차트 굵기
+          // barWidth: 4, // 차트 굵기
+          barWidth: 2, // 차트 굵기
           isStrokeCapRound: true,
+          // isStrokeCapRound: false,
           dotData: const FlDotData(
             show: false,
           ),
