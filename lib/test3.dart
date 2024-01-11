@@ -1,28 +1,26 @@
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: YourWidget(),
     );
   }
 }
 
 class YourWidget extends StatefulWidget {
-  const YourWidget({super.key});
-
   @override
   _YourWidgetState createState() => _YourWidgetState();
 }
@@ -49,9 +47,9 @@ class _YourWidgetState extends State<YourWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Device Token Example'),
+        title: Text('Device Token Example'),
       ),
-      body: const Center(
+      body: Center(
         child: Text('디바이스 토큰 가져오기'),
       ),
     );
