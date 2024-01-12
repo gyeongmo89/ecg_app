@@ -53,10 +53,17 @@ class _StartLoadingState extends State<StartLoading> {
             // Color(0xFFAB79A6,),
             // Color(0xFF8974A3,),
             // Color(0xFF666F9A,),
-              Color(0xFF666F9A,),
-              Color(0xFF8974A3,),
-              Color(0xFFAB79A6,),
-              Color(0xFFCA7FA1,),
+            //     // 핑크 계열
+            //   Color(0xFF666F9A,),
+            //   Color(0xFF8974A3,),
+            //   Color(0xFFAB79A6,),
+            //   Color(0xFFCA7FA1,),
+
+            // 그린 계열
+            Color(0xFF0DB2B2,),
+            Color(0xFF00A2C8,),
+            Color(0xFF0D8CD0,),
+            Color(0xFF6C70C1,),
           ])),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

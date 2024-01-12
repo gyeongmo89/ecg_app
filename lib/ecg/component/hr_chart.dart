@@ -18,6 +18,8 @@ class _HrChartState extends State<HrChart> {
 
   List<Color> gradientColors = [
     AppColors.contentColorCyan,
+    // AppColors.contentColorPurple,
+    // AppColors.contentColorCyan,
     AppColors.contentColorBlue,
   ];
   bool showAvg = false;

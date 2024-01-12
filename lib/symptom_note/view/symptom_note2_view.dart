@@ -39,7 +39,21 @@ class _SymptomNote2State extends State<SymptomNote2> {
     return Scaffold(
       floatingActionButton:
           isTodayOrBefore ? renderFloatingActionButton() : null,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF0DB2B2),
+              Color(0xFF00A2C8),
+              Color(0xFF0D8CD0),
+              Color(0xFF6C70C1),
+            ],
+          ),
+        ),
+      // body: SafeArea(
         child: Column(
           children: [
             Calendar(
@@ -151,11 +165,11 @@ class _ScheduleListState extends State<_ScheduleList> {
               if (snapshot.hasData && snapshot.data!.isEmpty) {
                 if (isTodayOrBefore && !widget.selectedDate.isAfter(DateTime.now())) {
                   return Center(
-                    child: Text("등록된 증상노트가 없습니다."),
+                    child: Text("등록된 증상노트가 없습니다.", style: TextStyle(color: Colors.white),),
                   );
                 } else if (widget.selectedDate.isAfter(DateTime.now())) {
                   return const Center(
-                    child: Text("검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다."),
+                    child: Text("검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다.", style: TextStyle(color: Colors.white),),
                   );
                 }
               }

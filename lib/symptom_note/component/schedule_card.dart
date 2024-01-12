@@ -1,3 +1,4 @@
+// 2024-01-12 카드색상 변경
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class ScheduleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(
             width: 1.0,
             // color: PRIMARY_COLOR,
@@ -41,7 +43,7 @@ class ScheduleCard extends StatelessWidget {
                   startTime: startTime,
                   endTime: endTime,
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 16.0,
                 ),
                 _Symptom(
@@ -50,7 +52,7 @@ class ScheduleCard extends StatelessWidget {
                 // _Content(
                 //   content: content,
                 // ),
-                const SizedBox(
+                SizedBox(
                   width: 16.0,
                 ),
                 // _Category(color: color),
@@ -65,7 +67,7 @@ class _Time extends StatelessWidget {
   final int startTime;
   final int endTime;
 
-  const _Time({required this.startTime, required this.endTime});
+  const _Time({required this.startTime, required this.endTime, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,7 @@ class _Time extends StatelessWidget {
 
 class _Content extends StatelessWidget {
   final String content;
-  const _Content({required this.content});
+  const _Content({required this.content, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +114,7 @@ class _Content extends StatelessWidget {
 class _Symptom extends StatelessWidget {
   final String symptom;
   final String content;
-  const _Symptom({required this.symptom, required this.content});
+  const _Symptom({required this.symptom, required this.content,super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +128,7 @@ class _Symptom extends StatelessWidget {
     return Expanded(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(etcSymptom, style: const TextStyle(fontSize: 16.0),textAlign: TextAlign.center,),
+        Text(etcSymptom, style: TextStyle(fontSize: 16.0),textAlign: TextAlign.center,),
       ],
     ));
   }

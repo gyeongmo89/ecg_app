@@ -1,14 +1,12 @@
+// 2024-01-12 켈린더 디자인 변경
+// 1.요일 색상 변경
+// 2.선택 날짜 색상 변경
+// 3.주말 날짜 색상 변경
+
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-// marker 구현 시작 -> 고정으로 maker 찍는것은 하였음
-// 등록된 노트 개수 만큼 marker 구현 시작 1
-// 토요일 집에서 작업 시작, 선택된 날짜의 데이터 만큼만 마커 표시 시작1.
-// 마커 1개만 출력됨
-// 시간이 지체되어 일단 다른기능부터 구현할것
-// 23:31  마커 다른날짜 추가 구현 1
 
 class Event {
   final String id;
@@ -90,7 +88,7 @@ class _CalendarState extends State<Calendar> {
                 shape: BoxShape.circle,
                 color: Colors.red,
               ),
-              margin: const EdgeInsets.symmetric(horizontal: 1.0),
+              margin: EdgeInsets.symmetric(horizontal: 1.0),
             ),
           ),
         );
@@ -175,7 +173,8 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     final defaultBoxDeco = BoxDecoration(
       borderRadius: BorderRadius.circular(8.0),
-      color: Colors.grey[200],
+      // color: Colors.grey[200],
+      color: Colors.white,
     );
 
     final defaultTextStyle = TextStyle(
@@ -196,6 +195,7 @@ class _CalendarState extends State<Calendar> {
         titleTextStyle: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 16.0,
+          // color: Colors.white
         ),
       ),
       calendarStyle: CalendarStyle(
@@ -210,19 +210,25 @@ class _CalendarState extends State<Calendar> {
         defaultDecoration: defaultBoxDeco,
         weekendDecoration: defaultBoxDeco,
         selectedDecoration: BoxDecoration(
-          color: Colors.white,
+          // color: Colors.white,
+          color: Colors.black, //여기
+
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
             color: PRIMARY_COLOR2,
             width: 1.0,
           ),
         ),
+        // defaultTextStyle: defaultTextStyle,
         defaultTextStyle: defaultTextStyle,
-        weekendTextStyle: defaultTextStyle,
-        selectedTextStyle: defaultTextStyle.copyWith(
-          color: PRIMARY_COLOR2,
+        weekendTextStyle: defaultTextStyle.copyWith(
+          color: Colors.red, // Set the weekend text color to white
         ),
-        outsideDecoration: const BoxDecoration(
+        selectedTextStyle: defaultTextStyle.copyWith(
+          // color: PRIMARY_COLOR2,
+          color: Colors.white,
+        ),
+        outsideDecoration: BoxDecoration(
           shape: BoxShape.rectangle,
         ),
       ),
@@ -238,6 +244,76 @@ class _CalendarState extends State<Calendar> {
             date.day == widget.selectedDay!.day;
       },
       calendarBuilders: CalendarBuilders(
+        dowBuilder: (context, day) {
+          switch (day.weekday) {
+            // case 1:
+            //   return Center(child: Text('월',style: TextStyle(color: Colors.white),),);
+            // case 2:
+            //   return Center(child: Text('화',style: TextStyle(color: Colors.white),),);
+            // case 3:
+            //   return Center(child: Text('수',style: TextStyle(color: Colors.white),),);
+            // case 4:
+            //   return Center(child: Text('목',style: TextStyle(color: Colors.white),),);
+            // case 5:
+            //   return Center(child: Text('금',style: TextStyle(color: Colors.white),),);
+            case 1:
+              return Center(
+                child: Text(
+                  '월',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 2:
+              return Center(
+                child: Text(
+                  '화',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 3:
+              return Center(
+                child: Text(
+                  '수',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 4:
+              return Center(
+                child: Text(
+                  '목',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 5:
+              return Center(
+                child: Text(
+                  '금',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 6:
+              return Center(
+                child: Text(
+                  '토',
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              );
+            case 7:
+              return Center(
+                child: Text(
+                  '일',
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              );
+          }
+        },
         markerBuilder: (
           context,
           day,

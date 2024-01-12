@@ -1,5 +1,7 @@
+// 2024-01-12 차트 색상 변경
 import 'dart:async';
 import 'package:ecg_app/common/const/colors.dart';
+import 'package:ecg_app/common/const/colors2.dart';
 import 'package:flutter/material.dart';
 
 class EcgChartPainter extends CustomPainter {
@@ -24,15 +26,25 @@ class EcgChartPainter extends CustomPainter {
       ..color = Colors.grey
       ..strokeWidth = 0.3; // 작은 정사각형을 얇게 그리기 위한 페인트
 
+    List<Color> gradientColors = [
 
+      // AppColors.contentColorGreen,
+      AppColors.contentColorCyan,
+      AppColors.contentColorBlue,
+      AppColors.contentColorPink,
+      // AppColors.contentColorRed,
+
+    ];
 
     final Paint chartPaint = Paint()
       // ..color = Colors.red // 차트를 빨간색으로 설정
-      // ..color = Color(0xFF30AFF9) // 차트를 빨간색으로 설정
       // ..color = Colors.pinkAccent // 차트를 빨간색으로 설정
-      // ..color = Colors.green // 차트를 빨간색으로 설정
-      ..color = Color(0xFF57da74) // 차트를 빨간색으로 설정
-
+      // ..color = Colors.green // 차트를 초록으로 설정
+      // ..color = Color(0xFF57da74) // 차트를 밝은초록 설정
+      // ..color = Color(0xFF57da74) // 차트를 밝은초록 설정
+      ..shader = LinearGradient(
+        colors: gradientColors,
+      ).createShader(Rect.fromPoints(Offset(0, 0), Offset(chartWidth, chartHeight)))
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
@@ -101,7 +113,8 @@ class _EcgChartState extends State<EcgChart2> {
   }
 
   void startTimer() {
-    const interval = Duration(milliseconds: 20);
+    // const interval = Duration(milliseconds: 20);
+    const interval = Duration(milliseconds: 30);
     timer = Timer.periodic(interval, (timer) {
       final double value = _generateEcgData();
       setState(() {
