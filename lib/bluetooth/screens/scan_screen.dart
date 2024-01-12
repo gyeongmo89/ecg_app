@@ -173,7 +173,7 @@ import 'package:ecg_app/bluetooth/widgets/connected_device_tile.dart';
 import 'package:ecg_app/bluetooth/widgets/scan_result_tile.dart';
 import 'package:ecg_app/bluetooth/utils/extra.dart';
 import 'package:provider/provider.dart';
-
+// 배경화면 수정
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
 
@@ -368,7 +368,13 @@ class _ScanScreenState extends State<ScanScreen> {
         : r.advertisementData.localName.isNotEmpty
             ? r.advertisementData.localName
             : 'N/A';
-    return Text(name);
+    return Text(
+      name,
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold, // Set the text to bold
+      ),
+    );
   }
 // -------------------아래는 내가 임의 추가 시연을 위해서---그리고 주석함------
 //   /* 장치의 명 위젯  */
@@ -401,7 +407,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   /*  장치의 신호값 위젯  */
   Widget deviceSignal(ScanResult r) {
-    return Text(r.rssi.toString());
+    return Text(
+      r.rssi.toString(),
+      style: TextStyle(
+        color: Colors.white, // Set the text color to white
+      ),
+    );
   }
 
   /* 장치 아이템 위젯 */
@@ -429,8 +440,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   /* 장치의 MAC 주소 위젯  */
   Widget deviceMacAddress(ScanResult r) {
-    // return Text(r.device.id.id);
-    return Text(r.device.id.id ?? 'N/A');
+    return Text(
+      r.device.id.id ?? 'N/A',
+      style: TextStyle(
+        color: Colors.white60, // Set the text color to white
+      ),
+    );
   }
   // -------------------위에는 내가 임의 추가 시연을 위해서---------
 
@@ -445,105 +460,123 @@ class _ScanScreenState extends State<ScanScreen> {
 
           title: const Text('heartCare 연결', style: TextStyle(color: Colors.white,),),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              // SizedBox(
-              //   height: 4.0,
-              // ),
-              // 카디오 로고
-              Image.asset(
-                // "asset/img/misc/Cardio1.png",
-                "asset/img/misc/heartCare1.png",
-                width: MediaQuery.of(context).size.width / 3,
-              ),
-              // 사용설명 박스
-              Container(
-                width: MediaQuery.of(context).size.width / 3 * 5,
-                // height: MediaQuery.of(context).size.height / 7.2 * 2,
-                height: MediaQuery.of(context).size.height / 6.0 * 2,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    color: const Color(0xFFE6EBF0),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2.0,
-                    )),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                        "1. heartCare를 앱에 등록하기 위해, "
-                        "전원을 켜주세요.",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: BODY_TEXT_COLOR,
-                        )),
-                    SizedBox(
-                      height: 25.0,
-                    ),
-                    Text(
-                        "2. 전원을 3초이상 누르면, 소리와 함께"
-                        " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
-                        style: TextStyle(
-                          fontSize: 16,
-                          // color: BODY_TEXT_COLOR,
-                        )),
-                    SizedBox(
-                      height: 25.0,
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '3. ',
-                            style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
-                          ),
-                          WidgetSpan(
-                            child: Icon(Icons.search),
-                          ),
-                          TextSpan(
-                            text: '버튼을 누르고 heartCare와 연결 합니다.',
-                            style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
-                          ),
-                        ],
-                      ),
-                    )
-,
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 5.0,
-              ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: onRefresh,
-                  child: ListView.separated(
-                    // 시연때문에 여기부터 임의추가함
-                    itemCount: scanResultList.length,
-                    itemBuilder: (context, index) {
-                      return listItem(scanResultList[index]);
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Divider();
-                    },
-                  ), // 시연때문에 여기부터 임의추가함
+        // body: Padding(
+        //   padding: const EdgeInsets.all(12.0),
+          // 배경변경하려면 위에 두줄 주석하고 아래코드 주석 풀면됨
+          body: Container(
+          decoration: BoxDecoration(
+          gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+          Color(0xFF0DB2B2,),
+          Color(0xFF00A2C8,),
+          Color(0xFF0D8CD0,),
+          Color(0xFF6C70C1,),
+          ],
+          ),
+          ),
 
-                  // 아래가 원래의 정상적인 코드임----------
-                  // child: ListView(
-                  //   children: <Widget>[
-                  //     ..._buildConnectedDeviceTiles(context),
-                  //     ..._buildScanResultTiles(context),
-                  //   ],
-                  // ),
-                  // -----------------------------------
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                // SizedBox(
+                //   height: 4.0,
+                // ),
+                // 카디오 로고
+                Image.asset(
+                  // "asset/img/misc/Cardio1.png",
+                  "asset/img/misc/heartCare1.png",
+                  width: MediaQuery.of(context).size.width / 3,
                 ),
-              ),
-            ],
+                // 사용설명 박스
+                Container(
+                  width: MediaQuery.of(context).size.width / 3 * 5,
+                  // height: MediaQuery.of(context).size.height / 7.2 * 2,
+                  height: MediaQuery.of(context).size.height / 6.0 * 2,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: const Color(0xFFE6EBF0),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2.0,
+                      )),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          "1. heartCare를 앱에 등록하기 위해, "
+                          "전원을 켜주세요.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: BODY_TEXT_COLOR,
+                          )),
+                      SizedBox(
+                        height: 25.0,
+                      ),
+                      Text(
+                          "2. 전원을 3초이상 누르면, 소리와 함께"
+                          " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            // color: BODY_TEXT_COLOR,
+                          )),
+                      SizedBox(
+                        height: 25.0,
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '3. ',
+                              style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
+                            ),
+                            WidgetSpan(
+                              child: Icon(Icons.search),
+                            ),
+                            TextSpan(
+                              text: '버튼을 누르고 heartCare와 연결 합니다.',
+                              style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
+                            ),
+                          ],
+                        ),
+                      )
+            ,
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView.separated(
+                      // 시연때문에 여기부터 임의추가함
+                      itemCount: scanResultList.length,
+                      itemBuilder: (context, index) {
+                        return listItem(scanResultList[index]);
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider();
+                      },
+                    ), // 시연때문에 여기부터 임의추가함
+
+                    // 아래가 원래의 정상적인 코드임----------
+                    // child: ListView(
+                    //   children: <Widget>[
+                    //     ..._buildConnectedDeviceTiles(context),
+                    //     ..._buildScanResultTiles(context),
+                    //   ],
+                    // ),
+                    // -----------------------------------
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         floatingActionButton: buildScanButton(context),

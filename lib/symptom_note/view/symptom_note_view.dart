@@ -2,6 +2,7 @@ import 'package:ecg_app/common/component/calendar.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
+import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:ecg_app/symptom_note/component/schedule_card.dart';
 import 'package:ecg_app/symptom_note/component/today_banner.dart';
@@ -28,13 +29,6 @@ class _SymptomNote2State extends State<SymptomNote2> {
     DateTime.now().day,
   );
   DateTime focusedDay = DateTime.now();
-
-  @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-  });
-}
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +102,6 @@ void initState() {
     );
   }
 
-
   onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       this.selectedDay = selectedDay;
@@ -116,38 +109,6 @@ void initState() {
     });
   }
 }
-
-// class _EventPopup extends StatefulWidget {
-//   const _EventPopup({super.key});
-//
-//   @override
-//   State<_EventPopup> createState() => _EventPopupState();
-// }
-//
-// class _EventPopupState extends State<_EventPopup> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       title: Text('CLtime의 EVENT\n버튼을 누르셨습니다.\n증상 노트를 작성\n하시겠습니까?'),
-//       actions: <Widget>[
-//         TextButton(
-//           child: Text('나중에'),
-//           onPressed: () {
-//             // Add your code here to handle the "나중에" button press
-//           },
-//         ),
-//         TextButton(
-//           child: Text('증상작성'),
-//           onPressed: () {
-//             // Add your code here to handle the "증상작성" button press
-//           },
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-
 
 class _ScheduleList extends StatefulWidget {
   // 내가 임의 코드 추가
@@ -208,7 +169,7 @@ class _ScheduleListState extends State<_ScheduleList> {
                   );
                 } else if (widget.selectedDate.isAfter(DateTime.now())) {
                   return const Center(
-                    child: Text("검사가 진행되지 않은 날짜 이므로\n등록할 수 없습니다.", style: TextStyle(color: Colors.white),textAlign: TextAlign.center,),
+                    child: Text("검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다.", style: TextStyle(color: Colors.white),),
                   );
                 }
               }
@@ -260,7 +221,6 @@ class _ScheduleListState extends State<_ScheduleList> {
                         });
                       },
                       // 스와이프 했을때 그 순간 이벤트를 받으려면 onDismissed
-                      // 등록된 증상노트 수정하는 부분(등록된 카드 눌렀을때)
                       child: GestureDetector(
                         onTap: () {
                           showModalBottomSheet(
