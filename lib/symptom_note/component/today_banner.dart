@@ -1,9 +1,8 @@
-import 'package:ecg_app/common/const/colors.dart';
+// 2024-01-12 배너색상 변경
+
 import 'package:ecg_app/database/drift_database.dart';
-import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ecg_app/database/drift_database.dart';
 
 class TodayBanner extends StatelessWidget {
   final DateTime selectedDay;
@@ -19,7 +18,11 @@ class TodayBanner extends StatelessWidget {
     );
 
     return Container(
-      color: PRIMARY_COLOR2,
+      // color: PRIMARY_COLOR2,
+      // color: Colors.black12,
+      color: Colors.black38,
+      // color: Colors.black54,
+
       // color: PRIMARY_COLOR,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

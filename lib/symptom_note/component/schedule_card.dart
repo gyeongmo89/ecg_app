@@ -1,4 +1,4 @@
-import 'dart:ffi';
+// 2024-01-12 카드색상 변경
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +23,7 @@ class ScheduleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(
             width: 1.0,
             // color: PRIMARY_COLOR,

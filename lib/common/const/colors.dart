@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 // 테마 색상1
+// const PRIMARY_COLOR2 = Color(0xFFA4A9CE);
 const PRIMARY_COLOR2 = Color(0xFF0DB2B2);
+// const PRIMARY_COLOR2 = Color(0xFF994F99);
+// const PRIMARY_COLOR2 = Color(0xFFA82F61);
 // 연결 색상
 const PRIMARY_COLOR = Color(0xFF22A45D);
 // 글자 색상

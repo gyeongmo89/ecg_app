@@ -81,13 +81,14 @@ class _EcgCardState extends State<EcgCard> {
                             Icon(
                               Icons.bluetooth_audio,
                               // Icons.circle,
-                              color: Colors.blueAccent,
+                              // color: Colors.deepPurple,
+                              color: Colors.purple,
                               size: 14,
                             ),
                             Text("Connected",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.blue,
+                                  color: Colors.white,
                                 )),
                           ],
                         ),
@@ -129,8 +130,8 @@ class _EcgCardState extends State<EcgCard> {
                       ),
                     ),
                     const Text(
-                      " bpm",
-                      style: TextStyle(fontSize: 18, color: SUB_TEXT_COLOR),
+                      " bpm",//여기
+                      style: TextStyle(fontSize: 18, color: Colors.white60),
                     ),
                   ],
                 ),
@@ -157,7 +158,8 @@ class _EcgCardState extends State<EcgCard> {
                     style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
-                        color: PRIMARY_COLOR2),
+                        // color: PRIMARY_COLOR2),
+                        color: Colors.white),
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -176,7 +178,7 @@ class _EcgCardState extends State<EcgCard> {
                       Text(
                         "bpm",
                         style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                            fontSize: 14.0, color: Colors.white60),
                       ),
                     ],
                   ),
@@ -185,7 +187,8 @@ class _EcgCardState extends State<EcgCard> {
               SizedBox(
                 height: deviceHeight / 14,
                   child: VerticalDivider(
-                    color: PRIMARY_COLOR2,
+                    // color: PRIMARY_COLOR2,
+                    color: Colors.white,
                     thickness: 1.0,
                   )),
               Column(
@@ -195,7 +198,7 @@ class _EcgCardState extends State<EcgCard> {
                     style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
-                        color: PRIMARY_COLOR2),
+                        color: Colors.white),
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -210,7 +213,7 @@ class _EcgCardState extends State<EcgCard> {
                       Text(
                         "bpm",
                         style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                            fontSize: 14.0, color: Colors.white60),
                       ),
                     ],
                   ),
@@ -219,7 +222,7 @@ class _EcgCardState extends State<EcgCard> {
               SizedBox(
                   height: deviceHeight / 14,
                   child: VerticalDivider(
-                    color: PRIMARY_COLOR2,
+                    color: Colors.white,
                     thickness: 1.0,
                   )),
               Column(
@@ -230,7 +233,7 @@ class _EcgCardState extends State<EcgCard> {
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
                         // color: PRIMARY_COLOR),
-                        color: PRIMARY_COLOR2),
+                        color: Colors.white),
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -245,7 +248,8 @@ class _EcgCardState extends State<EcgCard> {
                       Text(
                         "bpm",
                         style: TextStyle(
-                            fontSize: 14.0, color: SUB_TEXT_COLOR),
+                            // fontSize: 14.0, color: SUB_TEXT_COLOR),
+                            fontSize: 14.0, color: Colors.white60),
                       ),
                     ],
                   ),
@@ -265,9 +269,13 @@ class _EcgCardState extends State<EcgCard> {
             // width: 380.0,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                color: const Color(0xFFE6EBF0),
+                // color: const Color(0xFFE6EBF0),
+                // color: const Color(0xFFFFF5FF),
+                // color: const Color(0xFFFFF5FF),
+                color: Colors.white,
                 border: Border.all(
-                  color: Colors.white,
+                  color: const Color(0xFFFFF5FF),
+
                   width: 2.0,
                 )),
             child: Column(
@@ -309,9 +317,9 @@ class _EcgCardState extends State<EcgCard> {
 
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                color: const Color(0xFFE6EBF0),
+                color: Colors.white,
                 border: Border.all(
-                  color: Colors.white,
+                  color: const Color(0xFFFFF5FF),
                   width: 2.0,
                 )),
             child: Column(
