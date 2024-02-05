@@ -1391,29 +1391,9 @@ class _SymptomDurationDialogState extends State<SymptomDurationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(8.0),
-        ),
-      ),
-      titlePadding: const EdgeInsets.all(0.1),
-      title: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8.0),
-          topRight: Radius.circular(8.0),
-        ),
-        child: Container(
-          color: PRIMARY_COLOR2,
-          child: const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-              '  증상 지속시간',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ),
-        ),
+
+      title: Text(
+        '증상 종료시간',
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -1484,7 +1464,7 @@ class _SymptomDurationDialogState extends State<SymptomDurationDialog> {
           Radio(
             value: value,
             groupValue: selectedSymptomDuration,
-            activeColor: PRIMARY_COLOR2,
+            // activeColor: PRIMARY_COLOR2,
             onChanged: (int? newValue) {
               setState(() {
                 selectedSymptomDuration = newValue;
@@ -1514,31 +1494,9 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(8.0),
-        ),
-      ),
-      titlePadding: const EdgeInsets.all(0.1),
-      // title의 패딩 조절
-      title: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8.0),
-          topRight: Radius.circular(8.0),
-        ),
-        child: Container(
-          color: PRIMARY_COLOR2,
-          child: const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-              '  증상선택',
-              // '  증상 선택',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ),
-        ),
+
+      title: Text(
+        '증상선택',
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -1608,7 +1566,7 @@ class _SymptomSelectionDialogState extends State<SymptomSelectionDialog> {
           Radio(
             value: value,
             groupValue: selectedSymptom,
-            activeColor: PRIMARY_COLOR2,
+            // activeColor: PRIMARY_COLOR2,
             onChanged: (String? newValue) {
               setState(() {
                 selectedSymptom = newValue;
@@ -1640,30 +1598,9 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(8.0),
-        ),
-      ),
-      titlePadding: const EdgeInsets.all(0.1),
-      // title의 패딩 조절
-      title: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8.0),
-          topRight: Radius.circular(8.0),
-        ),
-        child: Container(
-          color: PRIMARY_COLOR2,
-          child: const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-              '  활동 선택',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ),
-        ),
+
+      title: Text(
+        '활동 선택',
       ),
 
       content: SingleChildScrollView(
@@ -1733,7 +1670,6 @@ class _ActivitySelectionDialogState extends State<ActivitySelectionDialog> {
           Radio(
             value: value,
             groupValue: selectedActivity,
-            activeColor: PRIMARY_COLOR2,
             onChanged: (String? newValue) {
               setState(() {
                 selectedActivity = newValue;
