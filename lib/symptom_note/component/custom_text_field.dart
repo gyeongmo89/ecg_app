@@ -22,13 +22,26 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: PRIMARY_COLOR2,
-            // color: PRIMARY_COLOR,
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          children: [
+            //input icon
+            Icon(
+              Icons.notes,
+              color: Colors.black,
+              size: 22.0,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width/30,
+            ),
+            Text(
+              label,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                  color: BODY_TEXT_COLOR,
+                ),
+            ),
+          ],
         ),
         if (isTime) renderTextField(),
         if (!isTime)

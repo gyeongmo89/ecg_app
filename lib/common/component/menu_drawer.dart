@@ -1,27 +1,106 @@
+// 2024-02-02 15:09 Setting 의 Light, Dark, System 모드 설정 추가
+
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:ecg_app/ecg/component/ecg_card.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
+import 'package:ecg_app/main.dart';
 import 'package:ecg_app/model/transfer_to_server.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class MenuDrawer extends StatelessWidget {
+
+class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
+
+  @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  ThemeMode _themeMode = ThemeMode.dark;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+  void _loadThemeMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int themeIndex = prefs.getInt('themeMode') ?? 2; // Default to Dark Mode
+    setState(() {
+      _themeMode = ThemeMode.values[themeIndex];
+    });
+  }
+void _showThemeDialog(BuildContext context) {
+  // Get the current theme mode from the ThemeProvider
+  _themeMode = Provider.of<ThemeProvider>(context, listen: false).themeMode;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Select Theme'),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                RadioListTile<ThemeMode>(
+                  title: const Text('Light Mode'),
+                  value: ThemeMode.light,
+                  groupValue: _themeMode,
+                  onChanged: (ThemeMode? value) {
+                    if (value != null) {
+                      setState(() {
+                        _themeMode = value;
+                      });
+                      Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                RadioListTile<ThemeMode>(
+                  title: const Text('Dark Mode'),
+                  value: ThemeMode.dark,
+                  groupValue: _themeMode,
+                  onChanged: (ThemeMode? value) {
+                    if (value != null) {
+                      setState(() {
+                        _themeMode = value;
+                      });
+                      Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now(); // 현재 시간을 가져오기
-    String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now); // 날짜/시간 형식 설정
+    String formattedDate =
+        DateFormat('yyyy-MM-dd HH:mm').format(now); // 날짜/시간 형식 설정
     String calculateFinishDate(String inputDate) {
       DateTime parsedDate = DateFormat('yyyy-MM-dd HH:mm').parse(inputDate);
       DateTime finishDate = parsedDate.add(Duration(days: 7));
       return DateFormat('yyyy-MM-dd HH:mm').format(finishDate);
     }
 
-    void nextVersionInfo(BuildContext context){
+    void nextVersionInfo(BuildContext context) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -40,12 +119,57 @@ class MenuDrawer extends StatelessWidget {
           );
         },
       );
-
-
     }
 
-
-    return Drawer(
+// void _showThemeDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: const Text('Select Theme'),
+//         content: StatefulBuilder(
+//           builder: (BuildContext context, StateSetter setState) {
+//             return Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: <Widget>[
+//                 RadioListTile<ThemeMode>(
+//                   title: const Text('Light Mode'),
+//                   value: ThemeMode.light,
+//                   groupValue: _themeMode,
+//                   onChanged: (ThemeMode? value) {
+//                     if (value != null) {
+//                       setState(() {
+//                         _themeMode = value;
+//                       });
+//                       Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
+//                       Navigator.pop(context);
+//                     }
+//                   },
+//                 ),
+//                 RadioListTile<ThemeMode>(
+//                   title: const Text('Dark Mode'),
+//                   value: ThemeMode.dark,
+//                   groupValue: _themeMode,
+//                   onChanged: (ThemeMode? value) {
+//                     if (value != null) {
+//                       setState(() {
+//                         _themeMode = value;
+//                       });
+//                       Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
+//                       Navigator.pop(context);
+//                     }
+//                   },
+//                 ),
+//
+//               ],
+//             );
+//           },
+//         ),
+//       );
+//     },
+//   );
+// }
+return Drawer(
       child: ListView(
         children: <Widget>[
           // const UserAccountsDrawerHeader(
@@ -53,17 +177,16 @@ class MenuDrawer extends StatelessWidget {
           //   accountEmail: Text("asdf@mediv.kr"),
           // ),
           Container(
-
             color: PRIMARY_COLOR2,
             // color: Color(0xffCBD5E0),
-            height: MediaQuery.of(context).size.height/5,
+            height: MediaQuery.of(context).size.height / 5,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 18.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height/40,
+                    height: MediaQuery.of(context).size.height / 40,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -71,12 +194,14 @@ class MenuDrawer extends StatelessWidget {
                       Text(
                         "Information",
                         style: TextStyle(
-                            color: Colors.white,fontSize: 22, fontWeight: FontWeight.w600),
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600),
                       )
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height/40,
+                    height: MediaQuery.of(context).size.height / 40,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -90,7 +215,7 @@ class MenuDrawer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width/15,
+                        width: MediaQuery.of(context).size.width / 15,
                       ),
                       Text(
                         // "Holmes-Cardio-001",
@@ -103,7 +228,7 @@ class MenuDrawer extends StatelessWidget {
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height/100,
+                    height: MediaQuery.of(context).size.height / 100,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -117,7 +242,7 @@ class MenuDrawer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width/16,
+                        width: MediaQuery.of(context).size.width / 16,
                       ),
                       Text(
                         formattedDate,
@@ -129,7 +254,7 @@ class MenuDrawer extends StatelessWidget {
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height/100,
+                    height: MediaQuery.of(context).size.height / 100,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -143,7 +268,7 @@ class MenuDrawer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width/21,
+                        width: MediaQuery.of(context).size.width / 21,
                       ),
                       Text(
                         calculateFinishDate(formattedDate),
@@ -159,30 +284,33 @@ class MenuDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading:  Icon(Icons.cloud_upload_outlined),
+            leading: Icon(Icons.cloud_upload_outlined),
             // iconColor: Colors.blueAccent,
             iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
-            title:  Text("Upload"),
+            title: Text("Upload"),
             onTap: () {
               postDataToServer(context);
+
               Navigator.of(context).pop();
             },
-            trailing:  Icon(Icons.upload_rounded),
+            trailing: Icon(Icons.upload_rounded),
           ),
 
           // ---------- 2차 또는 향후 기능 ----------
           ListTile(
-            leading:  Icon(Icons.home),
+            leading: Icon(Icons.home),
             iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
-            title:  Text("Home"),
+            title: Text("Home"),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => RootTab(),),
+                MaterialPageRoute(
+                  builder: (_) => RootTab(),
+                ),
               );
             },
-            trailing:  Icon(Icons.navigate_next),
+            trailing: Icon(Icons.navigate_next),
           ),
           // ListTile(
           //   leading:  Icon(Icons.edit_calendar_outlined),
@@ -194,48 +322,70 @@ class MenuDrawer extends StatelessWidget {
           // ),
 
           ListTile(
-            leading:  Icon(Icons.notes),
+            leading: Icon(Icons.notes),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  Text("History", style: TextStyle(color: Colors.grey),),
-            onTap: () {nextVersionInfo(context);},
-            trailing:  Icon(Icons.navigate_next),
+            title: Text(
+              "History",
+              style: TextStyle(color: Colors.grey),
+            ),
+            onTap: () {
+              nextVersionInfo(context);
+            },
+            trailing: Icon(Icons.navigate_next),
           ),
 
           ListTile(
             leading: Icon(Icons.bar_chart),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  Text("Statistics", style: TextStyle(color: Colors.grey),),
-            onTap: () {nextVersionInfo(context);},
-            trailing:  Icon(Icons.navigate_next),
+            title: Text(
+              "Statistics",
+              style: TextStyle(color: Colors.grey),
+            ),
+            onTap: () {
+              nextVersionInfo(context);
+            },
+            trailing: Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  Icon(Icons.info_outline),
+            leading: Icon(Icons.info_outline),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  Text("Patch Info", style: TextStyle(color: Colors.grey),),
-            onTap: () {nextVersionInfo(context);},
-            trailing:  Icon(Icons.navigate_next),
+            title: Text(
+              "Patch Info",
+              style: TextStyle(color: Colors.grey),
+            ),
+            onTap: () {
+              nextVersionInfo(context);
+            },
+            trailing: Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  Icon(Icons.settings_outlined),
+            leading: Icon(Icons.settings_outlined),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  Text("Setting", style: TextStyle(color: Colors.grey),),
-            onTap: () {nextVersionInfo(context);},
-            trailing:  Icon(Icons.navigate_next),
+            title: Text("Setting", style: TextStyle(color: Colors.grey)),
+            onTap: () {
+              _showThemeDialog(context);
+            },
+            trailing: Icon(Icons.navigate_next),
           ),
 
           ListTile(
-            leading:  Icon(Icons.info),
+            leading: Icon(Icons.info),
             iconColor: Colors.grey,
             focusColor: Colors.purple,
-            title:  Text("About", style: TextStyle(color: Colors.grey),),
-            onTap: () {nextVersionInfo(context);},
-            trailing:  Icon(Icons.navigate_next),
+            title: Text(
+              "About",
+              style: TextStyle(color: Colors.grey),
+            ),
+            onTap: () {
+              nextVersionInfo(context);
+            },
+            trailing: Icon(Icons.navigate_next),
           ),
           // -----------------------------------------
         ],
@@ -243,4 +393,3 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 }
-

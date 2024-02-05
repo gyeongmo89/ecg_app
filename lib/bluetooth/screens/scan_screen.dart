@@ -522,7 +522,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
                           style: TextStyle(
                             fontSize: 16,
-                            // color: BODY_TEXT_COLOR,
+                            color: BODY_TEXT_COLOR,
                           )),
                       SizedBox(
                         height: 25.0,
@@ -532,14 +532,14 @@ class _ScanScreenState extends State<ScanScreen> {
                           children: [
                             TextSpan(
                               text: '3. ',
-                              style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
+                              style: TextStyle(fontSize: 16,color: BODY_TEXT_COLOR,), // 폰트 사이즈 변경
                             ),
                             WidgetSpan(
-                              child: Icon(Icons.search),
+                              child: Icon(Icons.search, size: 20, color: Colors.black,),
                             ),
                             TextSpan(
                               text: '버튼을 누르고 heartCare와 연결 합니다.',
-                              style: TextStyle(fontSize: 16), // 폰트 사이즈 변경
+                              style: TextStyle(fontSize: 16,color: BODY_TEXT_COLOR,), // 폰트 사이즈 변경
                             ),
                           ],
                         ),

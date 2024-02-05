@@ -1,3 +1,32 @@
+// if (snapshot.hasData && snapshot.data!.isEmpty) {
+// if (isSameDay(widget.selectedDate, DateTime.now())) {
+// // 오늘이라면
+// return Center(
+// child: Text(
+// "오늘은 등록된 증상노트가 없습니다.",
+// style: TextStyle(color: Colors.white),
+// ),
+// );
+// } else if (isTodayOrBefore) {
+// // 오늘 이전의 날짜일 경우
+// return Center(
+// child: Text(
+// // "등록된 증상노트가 없습니다.",
+// "검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다.",
+// style: TextStyle(color: Colors.white),
+// ),
+// );
+// } else {
+// // 오늘 이후의 날짜일 경우
+// return const Center(
+// child: Text(
+// "등록된 증상노트가 없습니다.",
+// style: TextStyle(color: Colors.white),
+// ),
+// );
+// }
+// }
+
 // //
 // import 'package:flutter/material.dart';
 // import 'package:flutter_blue/flutter_blue.dart';

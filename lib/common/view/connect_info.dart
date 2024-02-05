@@ -27,12 +27,19 @@ class ConnectionInfo extends StatelessWidget {
               //     Color(0xFF8974A3,),
               //     Color(0xFFAB79A6,),
               //     Color(0xFFCA7FA1,),
-                  // 그린 계열
-                  Color(0xFF0DB2B2,),
-                  Color(0xFF00A2C8,),
-                  Color(0xFF0D8CD0,),
-                  Color(0xFF6C70C1,),
-
+              // 그린 계열
+              Color(
+                0xFF0DB2B2,
+              ),
+              Color(
+                0xFF00A2C8,
+              ),
+              Color(
+                0xFF0D8CD0,
+              ),
+              Color(
+                0xFF6C70C1,
+              ),
             ])),
         // child: SingleChildScrollView(
         child: SafeArea(
@@ -53,22 +60,24 @@ class ConnectionInfo extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                   SizedBox(
-                    height: deviceHeight / 5 * 0.1,
+                    height: deviceHeight / 20 * 0.1,
                   ),
                   // 부착설명 사진
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    clipBehavior: Clip.antiAlias, // 이미지를 컨테이너의 경계에 따라 잘라내도록 설정
                     child: Image.asset(
-                      "asset/img/misc/mountingPosition.PNG",
-                      width: deviceWidth / 2 * 2,
+                      "asset/img/misc/mountingPosition_3.png",
+                      width: deviceWidth,  // 이미지를 원하는 가로 크기로 늘림
+                      height: deviceHeight / 5,  // 이미지를 원하는 세로 크기로 늘림
+                      fit: BoxFit.contain,  // 이미지가 부모 컨테이너를 완전히 채우도록 설정
                     ),
-                  ),
-                  SizedBox(
-                    height: deviceHeight / 5 * 0.1,
-                  ),
+                  )
+,
+                  // SizedBox(
+                  //   height: deviceHeight / 5 * 0.1,
+                  // ),
                   // 사용설명 박스
                   Container(
                     width: deviceWidth / 4 * 5,
@@ -86,9 +95,7 @@ class ConnectionInfo extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                            "✔ 1번의 쇄골 중앙지점과 2번의 왼쪽 유두 사이를 "
-                            "45도 각도로 가상의 선을 그을 때 3번에 해당 하는"
-                            "영역 중앙부에 패치를 부착 합니다.",
+                            "✔ 부착시 오른쪽 확대 사진 처럼 전원 버튼이 8시 방향을 향하게 부착 합니다.",
                             style: TextStyle(
                               fontSize: 16,
                               color: BODY_TEXT_COLOR,
@@ -97,9 +104,12 @@ class ConnectionInfo extends StatelessWidget {
                           height: deviceHeight / 5 * 0.2,
                         ),
                         const Text(
-                            "✔ 부착사진과 비교시, 일반적인 경우 파란색 부위(중앙 ~ 중앙하단) 근처에 부착 합니다.",
+                            "✔ 1번의 쇄골 중앙지점과 2번의 왼쪽 유두 사이를 "
+                            "45도 각도로 가상의 선을 그을 때 3번에 해당 하는"
+                            "영역 중앙부에 패치를 부착 합니다.",
                             style: TextStyle(
                               fontSize: 16,
+                              color: BODY_TEXT_COLOR,
                             )),
                         SizedBox(
                           height: deviceHeight / 5 * 0.2,
@@ -151,10 +161,7 @@ class ConnectionInfo extends StatelessWidget {
                         )),
                     child: Text(
                       "Start",
-                      style: TextStyle(
-                        fontSize: 26,
-                        color: Colors.white
-                      ),
+                      style: TextStyle(fontSize: 26, color: Colors.white),
                     ),
                   ),
                 ],
