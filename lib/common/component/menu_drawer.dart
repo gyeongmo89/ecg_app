@@ -35,9 +35,23 @@ class _MenuDrawerState extends State<MenuDrawer> {
   @override
   void initState() {
     super.initState();
-    _loadThemeMode();
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    _themeMode = themeProvider.themeMode;
+    themeProvider.addListener(_updateThemeMode);
+  }
+  void _updateThemeMode() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    setState(() {
+      _themeMode = themeProvider.themeMode;
+    });
   }
 
+  @override
+  void dispose() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    themeProvider.removeListener(_updateThemeMode);
+    super.dispose();
+  }
 
 
   void _showThemeDialog(BuildContext context) {
@@ -367,11 +381,13 @@ class _MenuDrawerState extends State<MenuDrawer> {
           ),
 
           ListTile(
-            leading: Icon(Icons.settings_outlined),
+            // leading: Icon(Icons.settings_outlined),
+            // leading: Icon(Icons.light_mode),
+            leading: Icon(_themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
             iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
             title: Text(
-              "Setting",
+              "Theme Mode",
             ),
             onTap: () {
               _showThemeDialog(context);
