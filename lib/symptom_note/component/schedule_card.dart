@@ -67,6 +67,7 @@ class _Time extends StatelessWidget {
   final int startTime;
   final int endTime;
 
+
   const _Time({required this.startTime, required this.endTime, super.key});
 
   @override
@@ -100,6 +101,31 @@ class _Time extends StatelessWidget {
     );
   }
 }
+
+//     int startTimeHour = (startTime ~/ 60).floor().toInt();
+//     int startTimeMinute = (startTime % 60).floor().toInt();
+//     int startTimeSecond = ((startTime % 60) * 60).floor().toInt(); // 소수 부분을 초로 변환
+//
+//     int endTimeHour = (endTime ~/ 60).floor().toInt();
+//     int endTimeMinute = (endTime % 60).floor().toInt();
+//     int endTimeSecond = ((endTime % 60) * 60).floor().toInt(); // 소수 부분을 초로 변환
+//
+//     return Column(
+//       children: [
+//         Text(
+//           "${startTimeHour.toString().padLeft(2, "0")}:${startTimeMinute.toString().padLeft(2, "0")}:${startTimeSecond.toString().padLeft(2, "0")}",
+//           style: textStyle,
+//         ),
+//         Text(
+//           "${endTimeHour.toString().padLeft(2, "0")}:${endTimeMinute.toString().padLeft(2, "0")}:${endTimeSecond.toString().padLeft(2, "0")}",
+//           style: textStyle.copyWith(
+//             fontSize: 12.0,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 class _Content extends StatelessWidget {
   final String content;
