@@ -4,15 +4,61 @@
 // 2024-01-22 수정 시작 서버 업로드 팝업
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:ecg_app/common/component/custom_button.dart';
+import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path/path.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+// final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void setupLocator() {
   GetIt.I.registerLazySingleton(() => LocalDatabase());
 }
+
+// void showSuccessDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext dialogContext) {
+//       return AlertDialog(
+//         title: Text("전송 완료"),
+//         content: Text("데이터가 성공적으로 전송되었습니다."),
+//         actions: <Widget>[
+//           CustomButton(
+//             text: "확인",
+//             onPressed: () {
+//               Navigator.of(dialogContext).pop();
+//             },
+//             backgroundColor: SAVE_COLOR2,
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+//
+// void showFailureDialog(BuildContext context, String errorMessage) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext dialogContext) {
+//       return AlertDialog(
+//         title: Text("전송 실패"),
+//         content: Text("전송이 실패 되었습니다. 에러코드 : $errorMessage"),
+//         actions: <Widget>[
+//           CustomButton(
+//             text: "확인",
+//             onPressed: () {
+//               Navigator.of(dialogContext).pop();
+//             },
+//             backgroundColor: SAVE_COLOR2,
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 
 Future<List<int>> fetchKeySymptomCodesFromServer() async {
   // 수정된 부분: 반환 타입 변경
@@ -21,7 +67,7 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
     Dio dio = Dio();
 
     // 서버 URL
-    String url = "http://112.218.170.60:8083/"; // 테스트 서버
+    String url = "http://112.218.170.60:8080/"; // 테스트 서버
     String path = "code";
     String symptomParam = "?domain=note&name=symptom";
     String symptomGetURL = url + path + symptomParam;
@@ -38,7 +84,6 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
 
     if (symptomResponse.statusCode == 200) {
       // 응답이 성공적으로 도착했을 때의 처리
-      print("응답이 성공적으로 도착했을 때의 처리 진입");
       final responseData = symptomResponse.data;
       if (responseData != null && responseData.containsKey('data')) {
         List<dynamic>? dataList = responseData['data'];
@@ -101,9 +146,9 @@ Future<List<int>> fetchKeyActivityCodesFromServer() async {
   try {
     // Dio 인스턴스 생성
     Dio dio = Dio();
+
     // 서버 URL
-    // String url = "http://112.218.170.60:8080/"; // 테스트 서버
-    String url = "http://112.218.170.60:8083/"; // 테스트 서버
+    String url = "http://112.218.170.60:8080/"; // 테스트 서버
     String path = "code";
     String activityParam = "?domain=note&name=activity";
     String activityGetURL = url + path + activityParam;
@@ -189,13 +234,21 @@ void postDataToServer(BuildContext context) async {
   final symptomSchedules = await localDatabase.getDateSymptomActivityContent();
   print("선택된 컬럼 프린트 : $symptomSchedules");
 
-  await Future.delayed(Duration(seconds: 1));
-
   final List<int> symptomCodeKeys = await fetchKeySymptomCodesFromServer();
   final List<int> activityCodeKeys = await fetchKeyActivityCodesFromServer();
+  // int chestDiscomfortKey = codeKeys.isNotEmpty ? codeKeys[0] : 0; // 첫 번째 코드 키
+  // int discomfortArmsNeckChinetcKey =
+  //     codeKeys.length > 1 ? codeKeys[1] : 0; // 두 번째 코드 키
+  // -- 활동선택 공통 코드 변수--
+  // int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함
+  // int discomfortArmsNeckChinetcKey = symptomCodeKeys[1];  // 팔, 목, 턱 등이 불편함
+  // int palpitaitionRapidHeartbeatKey = symptomCodeKeys[2];  // 심계항진(빠른 심장박동)
+  // int shortnessOfBreathKey = symptomCodeKeys[3]; // 호흡곤란
+  // int dizzinessKey = symptomCodeKeys[4]; // 현기증
+  // int fatigueKey = symptomCodeKeys[5]; // 피로
+  // int symptomEtcKey = symptomCodeKeys[6]; // 기타
 // -- 증상선택 공통 코드 변수--
-  print("symptomCodeKeys: $symptomCodeKeys");
-  int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함   //여기서 문제발생
+  int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함
   int discomfortArmsNeckChinetcKey = symptomCodeKeys[1]; // 팔, 목, 턱 등이 불편함
   int palpitaitionRapidHeartbeatKey = symptomCodeKeys[2]; // 심계항진(빠른 심장박동)
   int shortnessOfBreathKey = symptomCodeKeys[3]; // 호흡곤란
@@ -234,6 +287,30 @@ void postDataToServer(BuildContext context) async {
     String mappedSymptom = ''; // 기본값 설정
     String mappedActivity = ''; // 기본값 설정
 
+    // // symptom 매핑   // 지용씨
+    // if (schedule['symptom'] == '팔, 목, 턱 등이 불편함') {
+    //   mappedSymptom = '11';
+    // } else if (schedule['symptom'] == '심계항진(빠른 심장박동)') {
+    //   mappedSymptom = '12';
+    // }
+    // else if (schedule['symptom'] == '호흡곤란') {
+    //   mappedSymptom = '13';
+    // }
+    // else if (schedule['symptom'] == '현기증') {
+    //   mappedSymptom = '14';
+    // }
+    // else if (schedule['symptom'] == '피로') {
+    //   mappedSymptom = '15';
+    // }
+    // else if (schedule['symptom'] == '가슴 불편함') {
+    //   mappedSymptom = '16';
+    // }
+    // else{
+    //   mappedSymptom = '10';
+    // }
+    // symptom 매핑   // 테스트 서버용
+    // fetcKeyhSymptomCodesFromServer();
+
     if (schedule['symptom'] == '팔, 목, 턱 등이 불편함') {
       mappedSymptom = '$discomfortArmsNeckChinetcKey';
     } else if (schedule['symptom'] == '심계항진(빠른 심장박동)') {
@@ -253,6 +330,25 @@ void postDataToServer(BuildContext context) async {
       mappedSymptom = '';
     }
 
+    // // activity 매핑 // 지용씨
+    // if (schedule['activity'] == 'TV 시청, 독서 등의 활동') {
+    //   mappedActivity = '18';
+    // } else if (schedule['activity'] == '걷기') {
+    //   mappedActivity = '19';
+    // }
+    // else if (schedule['activity'] == '달리기') {
+    //   mappedActivity = '20';
+    // }
+    // else if (schedule['activity'] == '업무(육체활동)') {
+    //   mappedActivity = '33';
+    // }
+    // else if (schedule['activity'] == '업무(비 육체활동)') {
+    //   mappedActivity = '35';
+    // }
+    // else {
+    //   mappedActivity = '17';
+    // }
+    // activity 매핑 // 테스트 서버용
     if (schedule['activity'] == 'TV 시청, 독서 등의 활동') {
       mappedActivity = '$watchingTVReadingKey';
     } else if (schedule['activity'] == '걷기') {
@@ -272,6 +368,8 @@ void postDataToServer(BuildContext context) async {
     }
 
     // 날짜 데이터 포맷 변경
+    // String formattedEndDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(schedule['date'].add(Duration(minutes: schedule['endTime'])));
+    // String formattedStartDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(schedule['date'].add(Duration(minutes: schedule['startTime'])));
     String formattedStartDate = DateFormat('yyyy-MM-dd HH:mm:ss')
         .format(schedule['date'].add(Duration(minutes: schedule['startTime'])));
     String formattedEndDate = DateFormat('yyyy-MM-dd HH:mm:ss')
@@ -292,47 +390,69 @@ void postDataToServer(BuildContext context) async {
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedStartTime);
     String adjustedEndString =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedEndTime);
+    print("Adjusted Start Time: $adjustedStartString");
+    print("Adjusted End Time: $adjustedEndString");
 
-    print("patchSn --> serial_00001");
-    print("handWritten --> $schedule['content'],타입: ${schedule['content'].runtimeType}, 길이: ${schedule['content'].length}");
-    print("symptomActivity --> ${[mappedActivity]}, 타입: ${[mappedActivity].runtimeType}, 길이: ${[mappedActivity].length}");
-    print("symptomStartDatetime --> $adjustedStartString, 타입: ${adjustedStartString.runtimeType}, 길이: ${adjustedStartString.length}");
-    print("symptomEndDatetime --> $adjustedEndString, 타입: ${adjustedEndString.runtimeType}, 길이: ${adjustedEndString.length}");
-    print("symptomType --> ${[mappedSymptom]}, 타입: ${[mappedSymptom].runtimeType}, 길이: ${[mappedSymptom].length}");
-    print("mappedActivity --> $mappedActivity, ${mappedActivity.runtimeType}, 길이: ${mappedActivity.length}");
-    //스웨거 확인 http://112.218.170.60:8080/swagger-ui.html -> symptom-note-controller -> /symptom-note/app
-    print('postData: $postData');
+    print("handWritten --> $schedule['content']");
+    print("symptomActivity --> ${[mappedActivity]}");
+    print("symptomStartDatetime --> $adjustedStartString");
+    print("symptomEndDatetime --> $adjustedEndString");
+    print("symptomType --> ${[mappedSymptom]}");
 
     postData.add({
       "patchSn": "serial_00001",
       "symptomNote": {
         "handWritten": schedule['content'] ?? "",
-        // "symptomActivity": [mappedActivity], // activity 값을 사용
-        "symptomActivity": mappedActivity.isEmpty ? [-1] : [int.parse(mappedActivity[0])],
+        "symptomActivity": [int.parse(mappedActivity)],
         "symptomEndDatetime": adjustedEndString,
         "symptomStartDatetime": adjustedStartString,
-        // "symptomType": [mappedSymptom],
-        "symptomType": mappedSymptom.isEmpty ? [-1] : [int.parse(mappedSymptom[0])],
-      }
-    });
-
-    postData.add({
-      "patchSn": "serial_00001",
-      "symptomNote": {
-        "handWritten": schedule['content'] ?? "",
-        "symptomActivity": [3], // activity 값을 사용
-        // "symptomActivity": [int.parse(mappedActivity)],
-        "symptomEndDatetime": adjustedEndString,
-        "symptomStartDatetime": adjustedStartString,
-        "symptomType": [10],
-        // "symptomType": [int.parse(mappedSymptom)],
+        "symptomType": [int.parse(mappedSymptom)],
       }
     });
   }
 
+  //   postData.add({
+  //     "patchSn": "medivchoi",
+  //     "symptomNote": {
+  //       "handWritten": schedule['content'] ?? "",
+  //       "symptomActivity": [mappedActivity], // activity 값을 사용
+  //       "symptomEndDatetime": adjustedEndString,
+  //       "symptomStartDatetime": adjustedStartString,
+  //       "symptomType": [mappedSymptom], // 매핑된 symptom 값 사용
+  //     }
+  //   });
+  // }
+
+  // // 데이터 생성
+  // List<Map<String, dynamic>> postData = [
+  //   {
+  //     "patchSn": "serial_00001",
+  //     // "patchSn": "serial_00012",
+  //     "symptomNote": {
+  //       "handWritten": "1개 값만 입력 테스트",
+  //       // "symptomActivity": [19, 20],
+  //       "symptomActivity": [19],
+  //       "symptomEndDatetime": "2023-11-10 10:20:00",
+  //       "symptomStartDatetime": "2023-11-10 10:20:00",
+  //       // "symptomType": [14, 15]
+  //       "symptomType": [14]
+  //     }
+  //   },
+  //   // {
+  //   //   "patchSn": "serial_00002",
+  //   //   "symptomNote": {
+  //   //     "handWritten": "수기 등록한 내용 ",
+  //   //     "symptomActivity": [19, 20],
+  //   //     "symptomEndDatetime": "2023-11-10 10:40:00",
+  //   //     "symptomStartDatetime": "2023-11-10 10:20:00",
+  //   //     "symptomType": [14, 15]
+  //   //   }
+  //   // },
+  // ];
+
   // 서버 URL
-  // String url = "http://192.168.0.21:8080/"; // 엄팀장 서버
-  String url = "http://112.218.170.60:8083/"; // 테스트 서버
+  // String url = "http://192.168.0.21:8080/"; // 지용씨 서버
+  String url = "http://112.218.170.60:8080/"; // 테스트 서버
   String path = "symptom-note/app";
   String symptomURL = url + path;
 
@@ -348,7 +468,6 @@ void postDataToServer(BuildContext context) async {
     // showEmptyDataDialog(context);
   } else {
     try {
-      print('Sending data: $postData');
       final response = await dio.post(
         symptomURL,
         options: Options(
@@ -387,12 +506,12 @@ void postDataToServer(BuildContext context) async {
 
 void dataTransferSuccessToast() {
   Fluttertoast.showToast(
-    msg: "데이터 업로드가 완료 되었습니다.",
+    msg: "데이터 전송이 완료 되었습니다.",
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
     timeInSecForIosWeb: 1,
-    // backgroundColor: Colors.green,
-    // textColor: Colors.white,
+    backgroundColor: Colors.green,
+    textColor: Colors.white,
     fontSize: 16.0,
   );
 }
@@ -402,7 +521,7 @@ void dataTransferFailToast() {
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
     timeInSecForIosWeb: 1,
-    backgroundColor: Colors.red,
+    backgroundColor: Colors.green,
     textColor: Colors.white,
     fontSize: 16.0,
   );
@@ -418,6 +537,29 @@ void noDataToast() {
     fontSize: 16.0,
   );
 }
+
+
+// void showEmptyDataDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext dialogContext) {
+//       return AlertDialog(
+//         title: Text("알림"),
+//         content: Text("전송할 데이터가 없습니다."),
+//         actions: <Widget>[
+//           CustomButton(
+//             text: "확인",
+//             onPressed: () {
+//               Navigator.of(dialogContext).pop();
+//             },
+//             backgroundColor: SAVE_COLOR2,
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+
 
 
 

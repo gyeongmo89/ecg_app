@@ -169,7 +169,7 @@ class _ScheduleListState extends State<_ScheduleList> {
                   );
                 } else if (widget.selectedDate.isAfter(DateTime.now())) {
                   return const Center(
-                    child: Text("검사가 진행되지 않은 날짜 이므로 등록할 수 없습니다.", style: TextStyle(color: Colors.white),),
+                    child: Text("검사가 진행되지 않은 날짜 이므로\n등록할 수 없습니다.", style: TextStyle(color: Colors.white),textAlign: TextAlign.center,),
                   );
                 }
               }
