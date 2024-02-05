@@ -1,5 +1,5 @@
 // 2024-02-02 15:09 Setting 의 Light, Dark, System 모드 설정 추가
-
+// 2024-02-05- 10:42 테스트
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
 
@@ -24,70 +23,75 @@ class MenuDrawer extends StatefulWidget {
 class _MenuDrawerState extends State<MenuDrawer> {
   ThemeMode _themeMode = ThemeMode.dark;
 
+  void _loadThemeMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int themeIndex = prefs.getInt('themeMode') ?? 2; // Default to Dark Mode
+    print('Theme index: $themeIndex'); // Add this line
+    setState(() {
+      _themeMode = ThemeMode.values[themeIndex];
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _loadThemeMode();
   }
-  void _loadThemeMode() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int themeIndex = prefs.getInt('themeMode') ?? 2; // Default to Dark Mode
-    setState(() {
-      _themeMode = ThemeMode.values[themeIndex];
-    });
+
+
+
+  void _showThemeDialog(BuildContext context) {
+    // Get the current theme mode from the ThemeProvider
+    _themeMode = Provider.of<ThemeProvider>(context, listen: false).themeMode;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Theme'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  RadioListTile<ThemeMode>(
+                    title: const Text('Light Mode'),
+                    value: ThemeMode.light,
+                    groupValue: _themeMode,
+                    onChanged: (ThemeMode? value) {
+                      if (value != null) {
+                        setState(() {
+                          _themeMode = value;
+                        });
+                        Provider.of<ThemeProvider>(context, listen: false)
+                            .themeMode = value;
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  RadioListTile<ThemeMode>(
+                    title: const Text('Dark Mode'),
+                    value: ThemeMode.dark,
+                    groupValue: _themeMode,
+                    onChanged: (ThemeMode? value) {
+                      if (value != null) {
+                        setState(() {
+                          _themeMode = value;
+                        });
+                        Provider.of<ThemeProvider>(context, listen: false)
+                            .themeMode = value;
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
   }
-void _showThemeDialog(BuildContext context) {
-  // Get the current theme mode from the ThemeProvider
-  _themeMode = Provider.of<ThemeProvider>(context, listen: false).themeMode;
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Select Theme'),
-        content: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                RadioListTile<ThemeMode>(
-                  title: const Text('Light Mode'),
-                  value: ThemeMode.light,
-                  groupValue: _themeMode,
-                  onChanged: (ThemeMode? value) {
-                    if (value != null) {
-                      setState(() {
-                        _themeMode = value;
-                      });
-                      Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-                RadioListTile<ThemeMode>(
-                  title: const Text('Dark Mode'),
-                  value: ThemeMode.dark,
-                  groupValue: _themeMode,
-                  onChanged: (ThemeMode? value) {
-                    if (value != null) {
-                      setState(() {
-                        _themeMode = value;
-                      });
-                      Provider.of<ThemeProvider>(context, listen: false).themeMode = value;
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
-            );
-          },
-        ),
-      );
-    },
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +173,7 @@ void _showThemeDialog(BuildContext context) {
 //     },
 //   );
 // }
-return Drawer(
+    return Drawer(
       child: ListView(
         children: <Widget>[
           // const UserAccountsDrawerHeader(
@@ -321,41 +325,40 @@ return Drawer(
           //   trailing:  Icon(Icons.navigate_next),
           // ),
 
-          ListTile(
-            leading: Icon(Icons.notes),
-            iconColor: Colors.grey,
-            focusColor: Colors.purple,
-            title: Text(
-              "History",
-              style: TextStyle(color: Colors.grey),
-            ),
-            onTap: () {
-              nextVersionInfo(context);
-            },
-            trailing: Icon(Icons.navigate_next),
-          ),
-
-          ListTile(
-            leading: Icon(Icons.bar_chart),
-            iconColor: Colors.grey,
-            focusColor: Colors.purple,
-            title: Text(
-              "Statistics",
-              style: TextStyle(color: Colors.grey),
-            ),
-            onTap: () {
-              nextVersionInfo(context);
-            },
-            trailing: Icon(Icons.navigate_next),
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.notes),
+          //   iconColor: Colors.grey,
+          //   focusColor: Colors.purple,
+          //   title: Text(
+          //     "History",
+          //     style: TextStyle(color: Colors.grey),
+          //   ),
+          //   onTap: () {
+          //     nextVersionInfo(context);
+          //   },
+          //   trailing: Icon(Icons.navigate_next),
+          // ),
+          //
+          // ListTile(
+          //   leading: Icon(Icons.bar_chart),
+          //   iconColor: Colors.grey,
+          //   focusColor: Colors.purple,
+          //   title: Text(
+          //     "Statistics",
+          //     style: TextStyle(color: Colors.grey),
+          //   ),
+          //   onTap: () {
+          //     nextVersionInfo(context);
+          //   },
+          //   trailing: Icon(Icons.navigate_next),
+          // ),
 
           ListTile(
             leading: Icon(Icons.info_outline),
-            iconColor: Colors.grey,
+            iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
             title: Text(
               "Patch Info",
-              style: TextStyle(color: Colors.grey),
             ),
             onTap: () {
               nextVersionInfo(context);
@@ -365,9 +368,11 @@ return Drawer(
 
           ListTile(
             leading: Icon(Icons.settings_outlined),
-            iconColor: Colors.grey,
+            iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
-            title: Text("Setting", style: TextStyle(color: Colors.grey)),
+            title: Text(
+              "Setting",
+            ),
             onTap: () {
               _showThemeDialog(context);
             },
@@ -376,11 +381,10 @@ return Drawer(
 
           ListTile(
             leading: Icon(Icons.info),
-            iconColor: Colors.grey,
+            iconColor: PRIMARY_COLOR2,
             focusColor: Colors.purple,
             title: Text(
               "About",
-              style: TextStyle(color: Colors.grey),
             ),
             onTap: () {
               nextVersionInfo(context);
