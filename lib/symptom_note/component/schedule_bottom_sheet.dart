@@ -708,7 +708,7 @@ class _TimeState extends State<_Time> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Icon(Icons.access_time),
+            const Icon(Icons.access_time, color: Colors.black),
             TextButton(
                 // 시작시간 버튼
                 onPressed: () {
@@ -860,7 +860,7 @@ class _SymptomDurationSelectState extends State<_SymptomSelectDuration> {
         Row(
           children: [
             // input symptom image
-            const Icon(Icons.alarm_add_rounded),
+            const Icon(Icons.alarm_add_rounded, color: Colors.black),
             TextButton(
               onPressed: () async {
                 didUpdateWidget(widget);
@@ -988,7 +988,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
         Row(
           children: [
             // input symptom image
-            const Icon(Icons.sick_outlined),
+            const Icon(Icons.sick_outlined, color: Colors.black),
             TextButton(
               onPressed: () async {
                 final selectedSymptom = await showDialog<String?>(
@@ -1126,7 +1126,7 @@ class _ActivitySelectState extends State<_ActivitySelect> {
         Row(
           children: [
             // input activity image
-            const Icon(Icons.directions_run_outlined),
+            const Icon(Icons.directions_run_outlined, color: Colors.black),
             TextButton(
                 onPressed: () async {
                   final selectedActivity = await showDialog<String?>(
@@ -1225,11 +1225,7 @@ class _ContentPopup extends StatelessWidget {
       children: [
         Row(
           children: [
-            // input content image
-            // const Icon(Icons.mark_unread_chat_alt_outlined),
-            // const Icon(Icons.note),
-            // input pen image
-            const Icon(Icons.edit),
+            const Icon(Icons.edit, color: Colors.black),
             TextButton(
               onPressed: () {
                 showDialog(

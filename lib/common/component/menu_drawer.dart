@@ -2,6 +2,7 @@
 // 2024-02-05- 10:42 테스트
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
+import 'package:ecg_app/common/view/about_info.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:ecg_app/ecg/component/ecg_card.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
@@ -419,7 +420,12 @@ class _MenuDrawerState extends State<MenuDrawer> {
               "About",
             ),
             onTap: () {
-              nextVersionInfo(context);
+              // nextVersionInfo(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AboutInfo(),
+                ),
+              );
             },
             trailing: Icon(Icons.navigate_next),
           ),
