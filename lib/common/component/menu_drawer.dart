@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecg_app/common/view/patch_info.dart';
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
@@ -22,6 +23,13 @@ class MenuDrawer extends StatefulWidget {
 
 class _MenuDrawerState extends State<MenuDrawer> {
   ThemeMode _themeMode = ThemeMode.dark;
+  ThemeProvider? _themeProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _themeProvider = Provider.of<ThemeProvider>(context);
+  }
 
   void _loadThemeMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -35,21 +43,24 @@ class _MenuDrawerState extends State<MenuDrawer> {
   @override
   void initState() {
     super.initState();
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    _themeMode = themeProvider.themeMode;
-    themeProvider.addListener(_updateThemeMode);
+    if (_themeProvider != null) {
+      _themeMode = _themeProvider!.themeMode;
+      _themeProvider!.addListener(_updateThemeMode);
+    }
   }
   void _updateThemeMode() {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    setState(() {
-      _themeMode = themeProvider.themeMode;
-    });
+    if (_themeProvider != null) {
+      setState(() {
+        _themeMode = _themeProvider!.themeMode;
+      });
+    }
   }
 
   @override
   void dispose() {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    themeProvider.removeListener(_updateThemeMode);
+    if (_themeProvider != null) {
+      _themeProvider!.removeListener(_updateThemeMode);
+    }
     super.dispose();
   }
 
@@ -375,7 +386,12 @@ class _MenuDrawerState extends State<MenuDrawer> {
               "Patch Info",
             ),
             onTap: () {
-              nextVersionInfo(context);
+              // nextVersionInfo(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PatchInfo(),
+                ),
+              );
             },
             trailing: Icon(Icons.navigate_next),
           ),

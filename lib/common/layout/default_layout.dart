@@ -1,5 +1,7 @@
 // 반응형 적용
 // test 1
+// APP BAR 색상변경
+
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/component/menu_drawer.dart';
 import 'package:ecg_app/bluetooth/screens/scan_screen.dart';
@@ -49,7 +51,7 @@ class DefaultLayout extends StatelessWidget {
       // final appState = Provider.of<AppState>(context, listen: true); // Provider로부터 AppState 가져오기
       // String dayText = 'DAY ${appState.getConnectedDayText()}';
       return AppBar(
-        backgroundColor: APPBAR_COLOR,
+        // backgroundColor: APPBAR_COLOR,
         title: Builder(
           builder: (BuildContext context) {
 
@@ -59,9 +61,11 @@ class DefaultLayout extends StatelessWidget {
             return Row(
               children: [
                 // const Text("Holmes AI Note",style: TextStyle(color: Colors.white),),
-                const Text("healthHub",style: TextStyle(color: Colors.white, ),),
+                // const Text("healthHub",style: TextStyle(color: Colors.white, ),),
+                const Text("healthHub",),
                 SizedBox(width: screenWidth/4,),
-                Text(dayText, style: TextStyle(color: Colors.white),),
+                Text(dayText, ),
+                // Text(dayText, style: TextStyle(color: Colors.white),),
               ],
             );
           }
