@@ -154,7 +154,8 @@ class _Symptom extends StatelessWidget {
     return Expanded(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(etcSymptom, style: TextStyle(fontSize: 16.0),textAlign: TextAlign.center,),
+        // Text(etcSymptom, style: TextStyle(fontSize: 16.0),textAlign: TextAlign.center,),
+        Text(etcSymptom, style: TextStyle(fontSize: 16.0, color: BODY_TEXT_COLOR),textAlign: TextAlign.center,),
       ],
     ));
   }
