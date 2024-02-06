@@ -10,15 +10,17 @@ class AboutInfo extends StatelessWidget {
 
   final List<Map<String, String>> infoList = [
     {"앱 정보": ""},
-    {"제품 명": "  CLheart"},
+    {"제품 명": "  IheartU"},
     {"모델 명": "  HCL_M101"},
     {"최신 버전": "  Ver 1.0.0"},
     {"앱 버전": "  Ver 1.0.0\n"},
     {"제조사 정보": ""},
     {"제조사": "  HolmesAI"},
-    {"본사 주소": "  대구시 동구 동대구로 455 대구\n  스케일업 허브 465"},
-    {"이메일": "  skhong@holmesai.co.kr"},
-    {"홈페이지": "  www.holmesai.co.kr"},
+    {"본사 주소": "  서울특별시 종로구 새문안로 76\n  콘코디언빌딩 3층"},
+    {"대표번호": "  070-1234-1234"},
+    {"팩스": "  +82-70-1234-1234"},
+    {"이메일": "  sales@holmesai.com"},
+    {"홈페이지": "  https://holmesai.kr"},
   ];
 
   @override
@@ -51,7 +53,7 @@ class AboutInfo extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: deviceHeight / 30 * 2),
+            SizedBox(height: deviceHeight / 30 * 1),
             //image HolmesAI 로고
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +66,7 @@ class AboutInfo extends StatelessWidget {
                 SizedBox(width: deviceWidth / 20 * 1),
                 Column(
                   children: [
-                    Text("CLheart",
+                    Text("IheartU",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold)),
                     //image
@@ -82,16 +84,24 @@ class AboutInfo extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
+                // color: Colors.white60,
                 color: SUB_TEXT_COLOR,
               ),
             ),
-            SizedBox(height: deviceHeight / 20 * 2),
+            //왼쪽정렬
+            SizedBox(height: deviceHeight / 20 * 1),
+
+            // Text(
+            //   "제조사 정보",
+            //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            // ),
 
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   width: deviceWidth / 4 * 5,
-                  height: deviceHeight / 5 * 2.5,
+                  // height: deviceHeight / 5 * 2.31,
+                  height: deviceHeight / 5 * 3,
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
@@ -106,7 +116,9 @@ class AboutInfo extends StatelessWidget {
                       String title = infoList[index].keys.first;
                       String content = infoList[index].values.first;
                       return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: EdgeInsets.symmetric(
+                            vertical:
+                                2), // Adjust the padding to control the space between items
                         child: Container(
                           child: title == "제조사 정보" || title == "앱 정보"
                               ? Text(title, style: titleStyle)

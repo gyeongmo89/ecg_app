@@ -124,7 +124,7 @@ class _StartLoadingState extends State<StartLoading> {
                 ),
                 // 버전 정보
                 const Text(
-                  "Version 0.1.0",
+                  "Version 1.0.0",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
