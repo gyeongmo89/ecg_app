@@ -1,5 +1,6 @@
 // 2024-02-05 18:05 시작
 // Patch info 화면
+// Patch 정보를 보여주는 화면
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,7 @@ class PatchInfo extends StatelessWidget {
   PatchInfo({Key? key}) : super(key: key);
 
   final List<Map<String, String>> infoList = [
-    {"패치 정보": ""},
-    {"제품 명": "CLtime"},
+    {"제품명": "CLtime"},
     {"사용목적": "심전도 측정"},
     {"모델명": "HCL_C101"},
     {"제조사": "Holmes AI"},
@@ -30,12 +30,6 @@ class PatchInfo extends StatelessWidget {
 
     final titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
-      fontSize: 20,
-      color: PRIMARY_COLOR2,
-    );
-
-    final keyStyle = TextStyle(
-      fontWeight: FontWeight.bold,
       fontSize: 16,
       color: BODY_TEXT_COLOR,
     );
@@ -52,27 +46,19 @@ class PatchInfo extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: deviceHeight / 30 * 1),
-            Row(
-              children: [
-                Image.asset(
-                  "asset/img/misc/heartCare1.png",
-                  width: deviceWidth / 2 * 1,
-                  fit: BoxFit.fill,
-                ),
-                Image.asset(
-                  "asset/img/misc/heartCare2.png",
-                  width: deviceWidth / 2 * 1,
-                  fit: BoxFit.fill,
-                ),
-              ],
+            //image
+            Image.asset(
+              "asset/img/misc/heartCare1.png",
+              width: deviceWidth / 1 * 1,
+              fit: BoxFit.contain,
             ),
-            SizedBox(height: deviceHeight / 30 * 1),
+            //왼쪽정렬
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   width: deviceWidth / 4 * 5,
-                  height: deviceHeight / 5 * 2.8,
+                  // height: deviceHeight / 5 * 2.31,
+                  height: deviceHeight / 5 * 2.4,
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
@@ -87,19 +73,23 @@ class PatchInfo extends StatelessWidget {
                       String title = infoList[index].keys.first;
                       String content = infoList[index].values.first;
                       return Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical:
-                                2), // Adjust the padding to control the space between items
+                        padding: EdgeInsets.symmetric(vertical: 1),
                         child: Container(
-                          child: title == "패치 정보"
-                              ? Text(title, style: titleStyle)
+                          child: content == "  내부 전원형 기기, BF형 장착부"
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("• $title", style: titleStyle),
+                                    Text(content, style: contentStyle),
+                                  ],
+                                )
                               : RichText(
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                          text: "• $title ", style: keyStyle),
-                                      TextSpan(
-                                          text: content, style: contentStyle),
+                                          text: "• $title ", style: titleStyle),
+                                      TextSpan(text: content, style: contentStyle),
                                     ],
                                   ),
                                 ),
