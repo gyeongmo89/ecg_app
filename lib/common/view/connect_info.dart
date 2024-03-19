@@ -1,3 +1,4 @@
+// 2024-02-06 지문인식 추가
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/bluetooth/screens/scan_screen.dart';
@@ -5,9 +6,36 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:ecg_app/bluetooth/utils/snackbar.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:ecg_app/common/view/local_auth.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
 
-class ConnectionInfo extends StatelessWidget {
+class ConnectionInfo extends StatefulWidget {
   const ConnectionInfo({super.key});
+
+  @override
+  State<ConnectionInfo> createState() => _ConnectionInfoState();
+}
+
+class _ConnectionInfoState extends State<ConnectionInfo> {
+  // final LocalAuthentication auth = LocalAuthentication();
+  //
+  @override
+  void initState() {
+    super.initState();
+    // authenticateUser();
+  }
+
+  Future<bool> authenticateUser() async {
+    await Future.delayed(Duration(milliseconds: 500)); // 0.5초 딜레이
+    bool authenticated = await LocalAuthApi
+        .authenticate(); // Use the authenticate method from LocalAuthApi
+    if (!authenticated) {
+      SystemNavigator.pop(); // Exit the app if authentication fails
+    }
+    return authenticated;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,12 +97,11 @@ class ConnectionInfo extends StatelessWidget {
                     ),
                     child: Image.asset(
                       "asset/img/misc/mountingPosition_3.png",
-                      width: deviceWidth,  // 이미지를 원하는 가로 크기로 늘림
-                      height: deviceHeight / 5,  // 이미지를 원하는 세로 크기로 늘림
-                      fit: BoxFit.contain,  // 이미지가 부모 컨테이너를 완전히 채우도록 설정
+                      width: deviceWidth, // 이미지를 원하는 가로 크기로 늘림
+                      height: deviceHeight / 5, // 이미지를 원하는 세로 크기로 늘림
+                      fit: BoxFit.contain, // 이미지가 부모 컨테이너를 완전히 채우도록 설정
                     ),
-                  )
-,
+                  ),
                   // SizedBox(
                   //   height: deviceHeight / 5 * 0.1,
                   // ),
@@ -138,6 +165,10 @@ class ConnectionInfo extends StatelessWidget {
                   // Start 버튼
                   ElevatedButton(
                     onPressed: () async {
+                      bool authenticated = await authenticateUser();
+                      if (!authenticated) {
+                        return;
+                      }
                       try {
                         if (Platform.isAndroid) {
                           await FlutterBluePlus.turnOn();
