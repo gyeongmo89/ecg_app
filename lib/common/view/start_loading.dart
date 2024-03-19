@@ -104,7 +104,7 @@ class _StartLoadingState extends State<StartLoading> {
                 ),
                 // 솔루션 모토
                 const Text(
-                  "Holmes AI haertCare is focusing on wearable\nmedical devices market.\nThe objective is developing next\ngeneration products for better life.",
+                  "Holmes AI CLtime is focusing on wearable\nmedical devices market.\nThe objective is developing next\ngeneration products for better life.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

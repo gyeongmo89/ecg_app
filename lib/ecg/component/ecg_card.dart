@@ -70,7 +70,7 @@ class _EcgCardState extends State<EcgCard> {
                   const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("heartCare",
+                        Text("CLtime",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
