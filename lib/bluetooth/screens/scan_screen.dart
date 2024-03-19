@@ -224,7 +224,7 @@ class _ScanScreenState extends State<ScanScreen> {
           remoteId: DeviceIdentifier("D$i:6E:D4:3$i:CA:BE"),
         ),
         advertisementData: AdvertisementData(
-          advName: "heartCare HCL_P101-0${i + 1}",
+          advName: "CLtime HCL_C101-0${i + 1}",
           txPowerLevel: 0, // 여기서 적절한 값으로 변경해주세요
           connectable: false, // 여기서 적절한 값으로 변경해주세요
           manufacturerData: {},
@@ -458,7 +458,7 @@ class _ScanScreenState extends State<ScanScreen> {
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
 
-          title: const Text('heartCare 연결', style: TextStyle(color: Colors.white,),),
+          title: const Text('기기(패치) 연결', style: TextStyle(color: Colors.white,),),
         ),
         // body: Padding(
         //   padding: const EdgeInsets.all(12.0),
@@ -508,7 +508,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                          "1. heartCare를 앱에 등록하기 위해, "
+                          "1. 기기(패치)를 앱에 등록하기 위해, "
                           "전원을 켜주세요.",
                           style: TextStyle(
                             fontSize: 16,
@@ -538,7 +538,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               child: Icon(Icons.search, size: 20, color: Colors.black,),
                             ),
                             TextSpan(
-                              text: '버튼을 누르고 heartCare와 연결 합니다.',
+                              text: '버튼을 누르고 기기(패치)를 연결 합니다.',
                               style: TextStyle(fontSize: 16,color: BODY_TEXT_COLOR,), // 폰트 사이즈 변경
                             ),
                           ],
