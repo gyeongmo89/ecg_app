@@ -146,7 +146,6 @@ Future<List<int>> fetchKeyActivityCodesFromServer() async {
   try {
     // Dio 인스턴스 생성
     Dio dio = Dio();
-
     // 서버 URL
     String url = "http://112.218.170.60:8080/"; // 테스트 서버
     String path = "code";
@@ -233,6 +232,8 @@ void postDataToServer(BuildContext context) async {
   // print("모든 등록된 일정 프린트 : $allSchedules");
   final symptomSchedules = await localDatabase.getDateSymptomActivityContent();
   print("선택된 컬럼 프린트 : $symptomSchedules");
+
+  await Future.delayed(Duration(seconds: 1));
 
   final List<int> symptomCodeKeys = await fetchKeySymptomCodesFromServer();
   final List<int> activityCodeKeys = await fetchKeyActivityCodesFromServer();
@@ -390,23 +391,40 @@ void postDataToServer(BuildContext context) async {
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedStartTime);
     String adjustedEndString =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedEndTime);
-    print("Adjusted Start Time: $adjustedStartString");
-    print("Adjusted End Time: $adjustedEndString");
 
-    print("handWritten --> $schedule['content']");
-    print("symptomActivity --> ${[mappedActivity]}");
-    print("symptomStartDatetime --> $adjustedStartString");
-    print("symptomEndDatetime --> $adjustedEndString");
-    print("symptomType --> ${[mappedSymptom]}");
+
+    print("handWritten --> $schedule['content'],타입: ${schedule['content'].runtimeType}");
+    print("symptomActivity --> ${[mappedActivity]}, 타입: ${[mappedActivity].runtimeType}");
+    print("symptomStartDatetime --> $adjustedStartString, 타입: ${adjustedStartString.runtimeType}");
+    print("symptomEndDatetime --> $adjustedEndString, 타입: ${adjustedEndString.runtimeType}");
+    print("symptomType --> ${[mappedSymptom]}, 타입: ${[mappedSymptom].runtimeType}");
+    print("mappedActivity --> $mappedActivity, ${mappedActivity.runtimeType}");
+    //스웨거 확인 http://112.218.170.60:8080/swagger-ui.html -> symptom-note-controller -> /symptom-note/app
+    print('postData: $postData');
 
     postData.add({
       "patchSn": "serial_00001",
       "symptomNote": {
         "handWritten": schedule['content'] ?? "",
-        "symptomActivity": [int.parse(mappedActivity)],
+        // "symptomActivity": [mappedActivity], // activity 값을 사용
+        "symptomActivity": mappedActivity.isEmpty ? [-1] : [int.parse(mappedActivity[0])],
         "symptomEndDatetime": adjustedEndString,
         "symptomStartDatetime": adjustedStartString,
-        "symptomType": [int.parse(mappedSymptom)],
+        // "symptomType": [mappedSymptom],
+        "symptomType": mappedSymptom.isEmpty ? [-1] : [int.parse(mappedSymptom[0])],
+      }
+    });
+
+    postData.add({
+      "patchSn": "serial_00001",
+      "symptomNote": {
+        "handWritten": schedule['content'] ?? "",
+        "symptomActivity": [3], // activity 값을 사용
+        // "symptomActivity": [int.parse(mappedActivity)],
+        "symptomEndDatetime": adjustedEndString,
+        "symptomStartDatetime": adjustedStartString,
+        "symptomType": [10],
+        // "symptomType": [int.parse(mappedSymptom)],
       }
     });
   }
@@ -451,7 +469,7 @@ void postDataToServer(BuildContext context) async {
   // ];
 
   // 서버 URL
-  // String url = "http://192.168.0.21:8080/"; // 지용씨 서버
+  // String url = "http://192.168.0.21:8080/"; // 엄팀장 서버
   String url = "http://112.218.170.60:8080/"; // 테스트 서버
   String path = "symptom-note/app";
   String symptomURL = url + path;
@@ -468,6 +486,7 @@ void postDataToServer(BuildContext context) async {
     // showEmptyDataDialog(context);
   } else {
     try {
+      print('Sending data: $postData');
       final response = await dio.post(
         symptomURL,
         options: Options(
@@ -521,7 +540,7 @@ void dataTransferFailToast() {
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
     timeInSecForIosWeb: 1,
-    backgroundColor: Colors.green,
+    backgroundColor: Colors.red,
     textColor: Colors.white,
     fontSize: 16.0,
   );

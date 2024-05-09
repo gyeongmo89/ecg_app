@@ -3,9 +3,13 @@ import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class RootTab extends StatefulWidget {
-  const RootTab({super.key});
+  RootTab({Key? key, required this.device}) : super(key: key);
+  // 장치 정보 전달 받기
+  final BluetoothDevice? device;
+
 
   @override
   State<RootTab> createState() => _RootTabState();
@@ -13,6 +17,7 @@ class RootTab extends StatefulWidget {
 
 class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   late TabController controller; // 컨트롤러 선언
+  BluetoothDevice? get device => widget.device;
 
   int index = 0; //처음엔 네비게이터 홈(ECG)
 
@@ -72,8 +77,8 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
       child: TabBarView(
         physics: NeverScrollableScrollPhysics(),  // 스크롤 비활성화
         controller: controller,
-        children: const [
-          EcgMonitoringScreen(),  // ECG 화면
+        children: [
+          EcgMonitoringScreen(device: device!,),  // ECG 화면
           SymptomNote2(),         // Note 화면
         ],
       ),

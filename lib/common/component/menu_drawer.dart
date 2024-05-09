@@ -10,6 +10,7 @@ import 'package:ecg_app/main.dart';
 import 'package:ecg_app/model/transfer_to_server.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -321,6 +322,16 @@ class _MenuDrawerState extends State<MenuDrawer> {
             title: Text("Upload"),
             onTap: () {
               postDataToServer(context);
+              // Fluttertoast.showToast(
+              //   msg: "데이터 전송이 완료 되었습니다.",
+              //   toastLength: Toast.LENGTH_SHORT,
+              //   gravity: ToastGravity.BOTTOM,
+              //
+              //   timeInSecForIosWeb: 1,
+              //   // backgroundColor: Colors.green,
+              //   // textColor: Colors.white,
+              //   fontSize: 16.0,
+              // );
 
               Navigator.of(context).pop();
             },
@@ -336,7 +347,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => RootTab(),
+                  builder: (_) => RootTab(device: null),
                 ),
               );
             },
