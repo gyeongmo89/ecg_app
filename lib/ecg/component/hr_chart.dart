@@ -1,3 +1,4 @@
+// 2024-05-02 12:55 HR 차트 수정 시작 1
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors2.dart';
@@ -5,8 +6,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class HrChart extends StatefulWidget {
-  const HrChart({super.key});
+  final double avgBpm;
 
+  // const HrChart({super.key});
+  const HrChart({required this.avgBpm, Key? key}) : super(key: key);
   @override
   State<HrChart> createState() => _HrChartState();
 }
@@ -41,19 +44,31 @@ class _HrChartState extends State<HrChart> {
   }
 
   void updateEcgData() {
-    final random = Random();
-
-    final newData = List<FlSpot>.empty(growable: true);
-
-    // for (double i = 0; i < 11; i += 0.2) {
-    for (double i = 0; i < 21; i += 1.0) {
-      newData.add(FlSpot(i, 0 + Random().nextDouble() * 4));
-    }
-
-    setState(() {
-      ecgData = newData;
-    });
+  final newData = List<FlSpot>.empty(growable: true);
+  print("Update ECG Data");
+  for (double i = 0; i < 21; i += 1.0) {
+    // newData.add(FlSpot(i, widget.avgBpm));
+    newData.add(FlSpot(i, widget.avgBpm-1));
   }
+
+  setState(() {
+    ecgData = newData;
+  });
+}
+  // void updateEcgData() {
+  //   final random = Random();
+  //
+  //   final newData = List<FlSpot>.empty(growable: true);
+  //
+  //   // for (double i = 0; i < 11; i += 0.2) {
+  //   for (double i = 0; i < 21; i += 1.0) {
+  //     newData.add(FlSpot(i, 0 + Random().nextDouble() * 4));
+  //   }
+  //
+  //   setState(() {
+  //     ecgData = newData;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -114,10 +129,12 @@ class _HrChartState extends State<HrChart> {
         show: true,
         border: Border.all(color: const Color(0xff37434d)),
       ),
+
       minX: 0,
       maxX: 20,
       minY: -4,
       maxY: 10,
+
       lineBarsData: [
         LineChartBarData(
           spots: ecgData.isEmpty ? [FlSpot(0, 0)] : ecgData, // 초기화  // 추가

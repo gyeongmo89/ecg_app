@@ -91,12 +91,12 @@ class _Time extends StatelessWidget {
           "${startTimeHour.toString().padLeft(2, "0")}:${startTimMinute.toString().padLeft(2, "0")}",
           style: textStyle,
         ),
-        Text(
-          "${endTimeHour.toString().padLeft(2, "0")}:${endTimMinute.toString().padLeft(2, "0")}",
-          style: textStyle.copyWith(
-            fontSize: 12.0,
-          ),
-        ),
+        // Text(
+        //   "${endTimeHour.toString().padLeft(2, "0")}:${endTimMinute.toString().padLeft(2, "0")}",
+        //   style: textStyle.copyWith(
+        //     fontSize: 12.0,
+        //   ),
+        // ),
       ],
     );
   }

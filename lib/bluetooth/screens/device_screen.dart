@@ -1,794 +1,783 @@
+// 2024-04-03 11:44 40~50사이의 수가 차트를 벗어나서 그려져서 차트영역 수정시작
+// 2024-04-03 13:44 수신 데이터를 차트로 바로 적용되도록 시작1
+// 2024-04-03 17:22 수신 데이터를 차트로 바로 적용되도록 완료
+// 2024-04-03 18:41 차트 출력 완료
+// 2024-04-03 18:42 차트가 시간이 갈수록 모여져서 넓게 보이도록 수정시작
+// 2024-04-09 15:21 변경된 HW 적용 시작 1
+// 2024-04-09 17:36 변경된 HW 적용 완료
+// 2024-04-11 10:35 HW가 이동되어 Disconnect 후 가까이오면 다시 Connect 되도록 추가 시작 1
+// 2024-04-11 16:26 차트 추가 삭제 갯수 동일하게 해서 x축 찌거리지는 문제 해결
+// 2024-04-11 16:27 차트가 그리드 위에 그려지도록 수정시작 1
+// 2024-04-12 17:03 ecg_card 코드 병합
+// 2024-04-18 10:28 차트 배경색 추가 시작 1
+// 2024-05-07 15:26 Event 버튼 클릭시 팝업창 뜨도록 하는 함수 추가 시작1
 import 'dart:async';
+import 'package:ecg_app/common/const/colors2.dart';
+import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
+import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import '../widgets/service_tile.dart';
-import '../widgets/characteristic_tile.dart';
-import '../widgets/descriptor_tile.dart';
-import '../utils/snackbar.dart';
-import '../utils/extra.dart';
+import 'dart:typed_data';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
 
 class DeviceScreen extends StatefulWidget {
+  DeviceScreen({Key? key, required this.device}) : super(key: key);
+  // 장치 정보 전달 받기
   final BluetoothDevice device;
 
-  const DeviceScreen({Key? key, required this.device}) : super(key: key);
-
   @override
-  State<DeviceScreen> createState() => _DeviceScreenState();
+  _DeviceScreenState createState() => _DeviceScreenState();
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
-  int? _rssi;
-  int? _mtuSize;
-  BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
-  List<BluetoothService> _services = [];
-  bool _isDiscoveringServices = false;
-  bool _isConnecting = false;
-  bool _isDisconnecting = false;
+  List<double> dividedValue = []; // 클래스 멤버 변수로 선언
+  List<double> ecgData = [];
+  Timer? timer;
+  int dataIndex = 0;
 
-  late StreamSubscription<BluetoothConnectionState> _connectionStateSubscription;
-  late StreamSubscription<bool> _isConnectingSubscription;
-  late StreamSubscription<bool> _isDisconnectingSubscription;
-  late StreamSubscription<int> _mtuSubscription;
+  // flutterBlue
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+
+  // 연결 상태 표시 문자열
+  String stateText = 'Connecting';
+
+  // 연결 버튼 문자열
+  String connectButtonText = 'Disconnect';
+
+  // 현재 연결 상태 저장용
+  BluetoothDeviceState deviceState = BluetoothDeviceState.disconnected;
+
+  // 연결 상태 리스너 핸들 화면 종료시 리스너 해제를 위함
+  StreamSubscription<BluetoothDeviceState>? _stateListener;
+
+  List<BluetoothService> bluetoothService = [];
+
+  //
+  // Map<String, List<int>> notifyDatas = {};
+  Map<String, List<double>> notifyDatas = {};
+
+  @override
+  initState() {
+    super.initState();
+    // startTimer();
+
+    // 상태 연결 리스너 등록
+    _stateListener = widget.device.state.listen((event) {
+      debugPrint('event :  $event');
+      if (deviceState == event) {
+        // 상태가 동일하다면 무시
+        return;
+      }
+      // 연결 상태 정보 변경
+      // setBleConnectionState(event);
+    });
+    // 연결 시작
+    connect();
+  }
+
+  @override
+  void dispose() {
+    // 상태 리스터 해제
+    _stateListener?.cancel();
+    // 연결 해제
+    disconnect();
+
+    // 위젯이 파괴되는 시점에 ecgData 배열을 비웁니다.
+    ecgData.clear();
+    print("Disopose에서 clear 함수 실행");
+    super.dispose();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      // 화면이 mounted 되었을때만 업데이트 되게 함
+      super.setState(fn);
+    }
+  }
+
+  /* 연결 상태 갱신 */
+  // void setBleConnectionState(BluetoothDeviceState event) {
+  //   final connectionState = Provider.of<ConnectionState>(context, listen: false); // 상태관리를 위해 추가(2024-04-12 15:48)
+  //   switch (event) {
+  //     case BluetoothDeviceState.disconnected:
+  //       connectionState.stateText = 'Disconnected';
+  //       stateText = 'Disconnected';
+  //       // 버튼 상태 변경
+  //       connectButtonText = 'Connect';
+  //       ecgData.clear();
+  //       connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
+  //       break;
+  //     case BluetoothDeviceState.disconnecting:
+  //       connectionState.stateText = 'Disconnecting';
+  //       stateText = 'Disconnecting';
+  //       break;
+  //     case BluetoothDeviceState.connected:
+  //       connectionState.stateText = 'Connected';
+  //       stateText = 'Connected';
+  //       // 버튼 상태 변경
+  //       connectButtonText = 'Disconnect';
+  //
+  //       // connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
+  //       // discoverServices();
+  //       break;
+  //     case BluetoothDeviceState.connecting:
+  //       connectionState.stateText = 'Connecting...';
+  //       stateText = 'Connecting...';
+  //       break;
+  //   }
+  //   //이전 상태 이벤트 저장
+  //   deviceState = event;
+  //   setState(() {});
+  // }
+
+  Future<bool> connect() async {
+    Future<bool>? returnValue;
+
+    // Check if the device is already connected
+    if (widget.device.state == BluetoothDeviceState.connected) {
+      debugPrint('Device is already connected');
+      return Future.value(true);
+    }
+    // setState(() {
+    //   /* 상태 표시를 Connecting으로 변경 */
+    //   stateText = 'Connecting?????';
+    //
+    // });
+
+    /*
+      타임아웃을 10초(15000ms)로 설정 및 autoconnect 해제
+       참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
+     */
+    await widget.device
+        // .connect(autoConnect: false)
+        .connect(autoConnect: true)
+        .timeout(Duration(milliseconds: 15000), onTimeout: () {
+      //타임아웃 발생
+      //returnValue를 false로 설정
+      returnValue = Future.value(false);
+      debugPrint('timeout failed');
+
+      //연결 상태 disconnected로 변경
+      // setBleConnectionState(BluetoothDeviceState.disconnected);
+    }).then((data) async {
+      bluetoothService.clear();
+      if (returnValue == null) {
+        //returnValue가 null이면 timeout이 발생한 것이 아니므로 연결 성공
+        debugPrint('connection successful');
+        print('start discover service');
+        List<BluetoothService> bleServices =
+            await widget.device.discoverServices();
+        setState(() {
+          bluetoothService = bleServices;
+        });
+        // 각 속성을 디버그에 출력
+        for (BluetoothService service in bleServices) {
+          print('============================================');
+          print('Service UUID: ${service.uuid}');
+          for (BluetoothCharacteristic c in service.characteristics) {
+            print('\tcharacteristic UUID: ${c.uuid.toString()}');
+            print('\t\twrite: ${c.properties.write}');
+            print('\t\tread: ${c.properties.read}');
+            print('\t\tnotify: ${c.properties.notify}');
+            print('\t\tisNotifying: ${c.isNotifying}');
+            print(
+                '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
+            print('\t\tindicate: ${c.properties.indicate}');
+
+            // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
+            // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
+            if (c.properties.notify && c.descriptors.isNotEmpty) {
+              // 진짜 0x2902 가 있는지 단순 체크용!
+              for (BluetoothDescriptor d in c.descriptors) {
+                print('BluetoothDescriptor uuid ${d.uuid}');
+                if (d.uuid == BluetoothDescriptor.cccd) {
+                  print('d.lastValue: ${d.lastValue}');
+                }
+              }
+
+              // notify가 설정 안되었다면...
+              if (!c.isNotifying) {
+                try {
+                  await c.setNotifyValue(true);
+                  // 받을 데이터 변수 Map 형식으로 키 생성
+                  notifyDatas[c.uuid.toString()] = List.empty();
+                  c.value.listen((value) {
+                    // 수신받는 value 는 아스키코드로 인코딩된 문자열임
+                    // Uint8List를 String으로 변환, 이렇게 하면 각 숫자가 해당하는 ASCII 문자로 변환 됨
+                    // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
+                    // 각 문자열을 double로 변환
+
+                    Uint8List originalData = Uint8List.fromList(value);
+                    String asciiString = String.fromCharCodes(originalData);
+                    List<String> stringParts = asciiString.split(',');
+                    print(
+                        "심전도 기기로부터 In setNotifyValue stringParts: $stringParts,Tyep: ${stringParts.runtimeType}");
+
+                    // List<double> dividedValue = // 여기서 문제 발생
+                    //     stringParts.map((s) => double.parse(s)).toList();
+
+                    // List<double> dividedValue = stringParts.map((s) => double.parse(s.replaceAll('\n', ''))).toList();
+
+                    List<String> lines = asciiString.split('\n');
+                    List<double?> dividedValue = [];
+                    for (var line in lines) {
+                      List<String> stringParts = line.split(',');
+                      dividedValue.addAll(stringParts.map((s) {
+                        try {
+                          return double.parse(s);
+                        } catch (e) {
+                          print('Unable to parse "$s" into a double.');
+                          return null;
+                        }
+                      }));
+                    }
+                    print("dividedValue --------> $dividedValue");
+                    // 데이터 읽기 처리!
+                    print(
+                        'CLtime 으로 부터 수신되는 UUID와 Data 값 : ${c.uuid}: $dividedValue');
+                    // print('타입 : ${c.uuid}: ${dividedValue.runtimeType}');
+                    // Uint8List : 8비트 부호 없는 정수의 리스트 로 타입이 찍힘
+                    setState(() {
+                      // 받은 데이터 저장 화면 표시용
+                      // notifyDatas[c.uuid.toString()] = dividedValue;
+                      notifyDatas[c.uuid.toString()] = dividedValue
+                          .where((item) => item != null)
+                          .map((item) => item!)
+                          .toList();
+                      // _onDataReceived(value);  04-18 ecgData데이터 3번연속 출력 때문에 임시주석
+
+                    });
+                  });
+
+                  // 설정 후 일정시간 지연
+                  await Future.delayed(const Duration(milliseconds: 500));
+                } catch (e) {
+                  print('error ${c.uuid} $e');
+                }
+              }
+            }
+          }
+        }
+        returnValue = Future.value(true);
+      }
+    });
+
+    return returnValue ?? Future.value(false);
+  }
+
+  // /* 연결 해제 */
+  // void disconnect() {
+  //   try {
+  //     setState(() {
+  //       stateText = 'Disconnect';
+  //       // 연결이 해제되면 ecgData 배열을 비웁니다.
+  //       ecgData.clear();
+  //       print("Disconnect에서 clear 함수 실행");
+  //     });
+  //     widget.device.disconnect();
+  //   } catch (e) {}
+  // }
+
+  /* 연결 해제 */
+  void disconnect() {
+    try {
+      // // 연결이 해제되면 ecgData 배열을 비웁니다.
+      // print("Disconnect에서 clear 함수 실행1");
+      // ecgData.clear();
+      // print("Disconnect에서 clear 함수 실행2");
+      timer?.cancel(); // 타이머를 취소(안그러면 재연결시 속도가 빨라짐)
+      print("FLAG3-2");
+      setState(() {
+        // print("Disconnect에서 clear 함수 실행3");
+        stateText = 'Disconnect';
+        ecgData.clear();
+        print("Disconnect에서 clear 함수 실행_device_screen");
+      });
+      widget.device.disconnect();
+    } catch (e) {
+      print("Disconnect에서 catch문");
+    }
+  }
+
+  // void onDataReceived(List<double> ecgData) {
+  //   // Assuming ecgData is a list of double values received from BLE
+  //   print("onDataReceived 함수 진입");
+  //   if (ecgData.contains(19.0)) {
+  //     print("이벤트 버튼 클릭(지금은 19.0)");
+  //     _showEventPopup();
+  //   }
+  // }
+
+  // void _showEventPopup() {
+  //   // Assuming you are inside a stateful widget and have a context available
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('EVENT 버튼 클릭 감지'),
+  //         content: Text('CLtime의 EVENT 버튼을 누르셨습니다.\n증상 노트를 작성하시겠습니까?'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('나중에'),
+  //             onPressed: () {
+  //               // Add your code here to handle the "나중에" button press
+  //             },
+  //           ),
+  //           TextButton(
+  //             child: Text('증상작성'),
+  //             onPressed: () {
+  //               // ScheduleBottomSheet()로 이동
+  //               showModalBottomSheet(
+  //                 context: context,
+  //                 isScrollControlled: true,
+  //                 builder: (_) {
+  //                   return ScheduleBottomSheet(
+  //                     selectedDate: selectedDay, // 필요한 날짜를 전달하세요.
+  //                     scheduleId: null,
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Event 버튼 클릭시 팝업창 뜨도록 하는 함수 추가로 원래코드 임시주석
+  // void _onDataReceived(List<int> value) {
+  //   Uint8List originalData = Uint8List.fromList(value);
+  //   String asciiString = String.fromCharCodes(originalData);
+  //   List<String> stringParts = asciiString.split(',');
+  //   print(
+  //       "In _onDataReceived() stringParts: $stringParts,Tyep: ${stringParts.runtimeType}");
+  //   // List<double> dividedValue =   // 여기서 문제 발생
+  //   //     stringParts.map((s) => double.parse(s)).toList();
+  //
+  //   // List<double> dividedValue = stringParts.map((s) => double.parse(s.replaceAll('\n', ''))).toList();
+  //
+  //   List<String> lines = asciiString.split('\n');
+  //   List<double?> dividedValue = [];
+  //   for (var line in lines) {
+  //     List<String> stringParts = line.split(',');
+  //     dividedValue.addAll(stringParts.map((s) {
+  //       try {
+  //         return double.parse(s);
+  //       } catch (e) {
+  //         print('Unable to parse "$s" into a double.');
+  //         return null;
+  //       }
+  //     }));
+  //   }
+  //
+  //   print("dividedValue --------> $dividedValue");
+  //
+  //   // Remove 0.0 from dividedValue
+  //   dividedValue = dividedValue.where((item) => item != 0.0).toList();
+  //
+  //   // Print the number of data points added in each update
+  //   print('Number of data points added: ${dividedValue.length}');
+  //
+  //   setState(() {
+  //     // ecgData = dividedValue; // dividedValue를 ecgData에 할당
+  //     // ecgData.addAll(dividedValue); // dividedValue를 ecgData에 추가
+  //     // ecgData.addAll(dividedValue
+  //     //     .where((item) => item != null)
+  //     //     .map((item) => item!)
+  //     //     .toList());
+  //     //
+  //     // // Remove the same number of oldest data points from ecgData
+  //     // // if (ecgData.length > 250) { // 데이터가 500개 이상일 때만 삭제(삭제속도)
+  //     // if (ecgData.length > 200) {
+  //     //   // 데이터가 500개 이상일 때만 삭제(삭제속도)
+  //     //   // if (ecgData.length > 150) { // 데이터가 500개 이상일 때만 삭제(삭제속도)
+  //     //
+  //     //   ecgData.removeRange(0, dividedValue.length);
+  //     // }
+  //     // if (ecgData.length > 150) { // 데이터가 500개 이상일 때만 삭제(삭제속도)
+  //     //   ecgData.removeRange(0, dividedValue.length);
+  //     // }
+  //   });
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        /* 장치명 */
+        title: Text(widget.device.name),
+      ),
+      body: Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /* 연결 상태 */
+              Text('$stateText'),
+              /* 연결 및 해제 버튼 */
+              // OutlinedButton(
+              //     onPressed: () {
+              //       if (deviceState == BluetoothDeviceState.connected) {
+              //         /* 연결된 상태라면 연결 해제 */
+              //         disconnect();
+              //       } else if (deviceState ==
+              //           BluetoothDeviceState.disconnected) {
+              //         /* 연결 해재된 상태라면 연결 */
+              //         connect();
+              //       }
+              //     },
+              //     child: Text(connectButtonText)),
+              /* Chart 버튼 */
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              // EcgChart2(dividedValue: dividedValue)),
+                              EcgChart2(dividedValue: ecgData)),
+                    );
+                  },
+                  child: Text('Chart')),
+            ],
+          ),
+
+          /* 연결된 BLE의 서비스 정보 출력 */
+          Expanded(
+            child: ListView.separated(
+              itemCount: bluetoothService.length,
+              itemBuilder: (context, index) {
+                return listItem(bluetoothService[index]);
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return Divider();
+              },
+            ),
+          ),
+        ],
+      )),
+    );
+  }
+
+  /* 각 캐릭터리스틱 정보 표시 위젯 */
+  Widget characteristicInfo(BluetoothService r) {
+    String name = '';
+    String properties = '';
+    String data = '';
+    // 캐릭터리스틱을 한개씩 꺼내서 표시
+    for (BluetoothCharacteristic c in r.characteristics) {
+      properties = '';
+      data = '';
+      name += '\t\t${c.uuid}\n';
+      if (c.properties.write) {
+        properties += 'Write ';
+      }
+      if (c.properties.read) {
+        properties += 'Read ';
+      }
+      if (c.properties.notify) {
+        properties += 'Notify ';
+        if (notifyDatas.containsKey(c.uuid.toString())) {
+          // notify 데이터가 존재한다면
+          if (notifyDatas[c.uuid.toString()]!.isNotEmpty) {
+            data = notifyDatas[c.uuid.toString()].toString();
+          }
+        }
+      }
+      if (c.properties.writeWithoutResponse) {
+        properties += 'WriteWR ';
+      }
+      if (c.properties.indicate) {
+        properties += 'Indicate ';
+      }
+      name += '\t\t\tProperties: $properties\n';
+      if (data.isNotEmpty) {
+        // 받은 데이터 화면에 출력!
+        name += '\t\t\t\t$data\n';
+      }
+    }
+    return Text(name);
+  }
+
+  /* Service UUID 위젯  */
+  Widget serviceUUID(BluetoothService r) {
+    String name = '';
+    name = r.uuid.toString();
+    return Text(name);
+  }
+
+  /* Service 정보 아이템 위젯 */
+  Widget listItem(BluetoothService r) {
+    return ListTile(
+      onTap: null,
+      title: serviceUUID(r),
+      subtitle: characteristicInfo(r),
+    );
+  }
+
+  // void _EventPopup() {
+  //   AlertDialog(
+  //     title: Text('CLtime의 EVENT 버튼을 누르셨습니다.\n증상 노트를 작성하시겠습니까?'),
+  //     actions: <Widget>[
+  //       TextButton(
+  //         child: Text('나중에'),
+  //         onPressed: () {
+  //           // Add your code here to handle the "나중에" button press
+  //         },
+  //       ),
+  //       TextButton(
+  //         child: Text('증상작성'),
+  //         onPressed: () {
+  //           TextButton(
+  //             child: Text('증상작성'),
+  //             onPressed: () {
+  //               // ScheduleBottomSheet()로 이동
+  //               showModalBottomSheet(
+  //                 context: context,
+  //                 isScrollControlled: true,
+  //                 builder: (_) {
+  //                   return ScheduleBottomSheet(
+  //                     selectedDate: selectedDay, // 필요한 날짜를 전달하세요.
+  //                     scheduleId: null,
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //           )
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
+}
+
+// Status 상태관리를 위해 추가(2024-04-12 15:47)
+class ConnectionState with ChangeNotifier {
+  String _stateText = 'Disconnected';
+
+  String get stateText => _stateText;
+
+  set stateText(String value) {
+    _stateText = value;
+    notifyListeners();
+  }
+}
+
+//---------------------------------------------------
+class EcgChartPainter extends CustomPainter {
+  final List<double> ecgData;
+  final Paint backgroundPaint;
+
+  EcgChartPainter(this.ecgData, this.backgroundPaint);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw the background using backgroundPaint
+    canvas.drawRect(Offset.zero & size, backgroundPaint);
+    final double chartWidth = size.width;
+    final double chartHeight = size.height;
+    final double dataSpacing =
+        chartWidth / ecgData.length; // dataSpacing을 여기서 계산
+
+    // final Paint backgroundPaint = Paint()
+    //   // // 배경색을 회색으로 설정
+    //   // ..color = Colors.grey
+    //   // 배경색을 검정색으로 설정
+    //   ..color = Colors.black
+    //   ..strokeWidth = 0.5;
+
+    final Paint thickGridPaint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1.0; // 중앙 정사각형을 두껍게 그리기 위한 페인트
+
+    final Paint thinGridPaint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 0.3; // 작은 정사각형을 얇게 그리기 위한 페인트
+
+    List<Color> gradientColors = [
+      // AppColors.contentColorGreen,
+      AppColors.contentColorCyan,
+      AppColors.contentColorBlue,
+      AppColors.contentColorPink,
+      // AppColors.contentColorRed,
+    ];
+
+    final Paint chartPaint = Paint()
+      ..shader = LinearGradient(
+        colors: gradientColors,
+      ).createShader(
+          Rect.fromPoints(Offset(0, 0), Offset(chartWidth, chartHeight)))
+      // ..strokeWidth = 0.5
+      // ..color = Colors.red // 차트를 빨간색으로 설정
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    // final double dataSpacing = chartWidth / ecgData.length;
+
+    // 배경을 그리는 부분
+    for (double i = 0; i < chartWidth; i += 10) {
+      if ((i / 10).round() % 5 == 0) {
+        canvas.drawLine(Offset(i, 0), Offset(i, chartHeight), thickGridPaint);
+      } else {
+        canvas.drawLine(Offset(i, 0), Offset(i, chartHeight), thinGridPaint);
+      }
+    }
+
+    for (double i = 0; i < chartHeight; i += 10) {
+      if ((i / 10).round() % 5 == 0) {
+        canvas.drawLine(Offset(0, i), Offset(chartWidth, i), thickGridPaint);
+      } else {
+        canvas.drawLine(Offset(0, i), Offset(chartWidth, i), thinGridPaint);
+      }
+    }
+
+    final Path path = Path();
+    if (ecgData.isNotEmpty) {
+      //데이터 켈리브레이션
+      // 데이터를 정규화합니다.
+      print("ecgData-------------------------------> $ecgData");
+      print("FLAG1");
+       //here it is
+       print("FLAG2");
+      // final List<double> normalizedData =
+      //     ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz
+
+
+      // here
+
+
+      final List<double> normalizedData =
+          ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz
+      // ecgData.map((v) => v / 300).toList(); //기기판 250Hz
+      // ecgData.map((v) => v / 200).toList(); //기기판 250Hz
+      // ecgData.map((v) => v / 150).toList(); //기기판 250Hz
+
+      path.moveTo(
+          0,
+          chartHeight *
+              (1 - ecgData.first / 600)); // 시작 위치를 아래로 조정함(이게 베스트 프로토 타입 250Hz)
+      // chartHeight * (1 - ecgData.first / 300) -50); // 시작 위치를 아래로 조정함(기기판 250Hz)
+
+      for (int i = 1; i < normalizedData.length; i++) {
+        final double x = i * dataSpacing;
+        final double y = chartHeight *
+            (1 - normalizedData[i]); //Y축 위치조정(이게 베스트 프로토 타입 250Hz)
+        // final double y = chartHeight * (1 - normalizedData[i]) - 50; //Y축 위치조정(기기판 250Hz)
+        path.lineTo(x, y);
+      }
+    } else {
+      print("ecgData is empty!");
+      ecgData.clear();
+      print("ecgData is empty!~!");
+    }
+    canvas.drawPath(path, chartPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+class EcgChart2 extends StatefulWidget {
+  final List<double> dividedValue;
+
+  EcgChart2({required this.dividedValue});
+
+  @override
+  _EcgChartState createState() => _EcgChartState(dividedValue);
+}
+
+class _EcgChartState extends State<EcgChart2> {
+  List<double> dividedValue;
+  List<double> ecgData = [];
+  Timer? timer;
+  int dataIndex = 0;
+
+  _EcgChartState(this.dividedValue);
+
+  final Paint backgroundPaint = Paint()
+    ..color = Colors.black
+    ..strokeWidth = 0.5;
 
   @override
   void initState() {
     super.initState();
-
-    // 여기서 이미 페어링된 장치를 찾고 연결을 시도합니다.
-    _connectToPairedDevice();
-
-    _connectionStateSubscription = widget.device.connectionState.listen((state) async {
-      _connectionState = state;
-      if (state == BluetoothConnectionState.connected) {
-        _services = []; // must rediscover services
-      }
-      if (state == BluetoothConnectionState.connected && _rssi == null) {
-        _rssi = await widget.device.readRssi();
-      }
-      setState(() {});
-    });
-
-    _mtuSubscription = widget.device.mtu.listen((value) {
-      _mtuSize = value;
-      setState(() {});
-    });
-
-    _isConnectingSubscription = widget.device.isConnecting.listen((value) {
-      _isConnecting = value;
-      setState(() {});
-    });
-
-    _isDisconnectingSubscription = widget.device.isDisconnecting.listen((value) {
-      _isDisconnecting = value;
-      setState(() {});
-    });
+    ecgData = dividedValue; // dividedValue를 ecgData에 할당 16:43 주석
+    startTimer();
   }
-
-  // 이미 페어링된 장치를 찾고 연결을 시도하는 함수
-  void _connectToPairedDevice() async {
-    try {
-      // 여기서 이미 페어링된 장치 목록을 가져옵니다.
-      List<BluetoothDevice> pairedDevices = await FlutterBluePlus.connectedDevices;
-      // List<BluetoothDevice> pairedDevices = await FlutterBlue.instance.connectedDevices;
-
-      // 이미 페어링된 장치들 중에서 선택 가능한 로직을 추가합니다.
-      for (BluetoothDevice pairedDevice in pairedDevices) {
-        // 여기서 원하는 장치를 선택할 수 있는 조건을 추가합니다.
-        if (pairedDevice.id == widget.device.id) {
-          // 원하는 장치를 찾았으면 바로 연결 시도합니다.
-          await widget.device.connectAndUpdateStream();
-          // 연결이 성공하면 상태를 업데이트하고 UI를 갱신합니다.
-          setState(() {
-            _connectionState = BluetoothConnectionState.connected;
-          });
-          // 연결 성공 메시지를 보여줍니다.
-          Snackbar.show(ABC.c, "Connect: Success", success: true);
-          return; // 연결을 시도했으므로 함수 종료
-        }
-      }
-      // 만약 원하는 장치를 찾지 못했다면 여기에 대한 처리를 추가할 수 있습니다.
-    } catch (e) {
-      // 에러 발생 시 처리
-      print("Error while connecting to paired device: $e");
-      Snackbar.show(ABC.c, "Connect Error: $e", success: false);
-    }
-  }
-
 
   @override
   void dispose() {
-    _connectionStateSubscription.cancel();
-    _mtuSubscription.cancel();
-    _isConnectingSubscription.cancel();
-    _isDisconnectingSubscription.cancel();
+    timer?.cancel();
+    // 연결 해제
+    ecgData.clear();
+    print("Disopose에서 clear 함수 실행");
+
     super.dispose();
   }
 
-  bool get isConnected {
-    return _connectionState == BluetoothConnectionState.connected;
-  }
+  void startTimer() {
+    const interval = Duration(milliseconds: 350); // 차트 속도(이게 베스트 프로토 타입 250Hz)
 
-  Future onConnectPressed() async {
-    try {
-      await widget.device.connectAndUpdateStream();
-      Snackbar.show(ABC.c, "Connect: Success", success: true);
-    } catch (e) {
-      if (e is FlutterBluePlusException && e.code == FbpErrorCode.connectionCanceled.index) {
-        // ignore connections canceled by the user
-      } else {
-        Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
-      }
-    }
-  }
+    // const interval = Duration(milliseconds: 30); // 차트 속도(**)//기판 여기까지
 
-  Future onCancelPressed() async {
-    try {
-      await widget.device.disconnectAndUpdateStream(queue: false);
-      Snackbar.show(ABC.c, "Cancel: Success", success: true);
-    } catch (e) {
-      Snackbar.show(ABC.c, prettyException("Cancel Error:", e), success: false);
-    }
-  }
-
-  Future onDisconnectPressed() async {
-    try {
-      await widget.device.disconnectAndUpdateStream();
-      Snackbar.show(ABC.c, "Disconnect: Success", success: true);
-    } catch (e) {
-      Snackbar.show(ABC.c, prettyException("Disconnect Error:", e), success: false);
-    }
-  }
-
-  Future onDiscoverServicesPressed() async {
-    setState(() {
-      _isDiscoveringServices = true;
-    });
-    try {
-      _services = await widget.device.discoverServices();
-      Snackbar.show(ABC.c, "Discover Services: Success", success: true);
-    } catch (e) {
-      Snackbar.show(ABC.c, prettyException("Discover Services Error:", e), success: false);
-    }
-    setState(() {
-      _isDiscoveringServices = false;
+    timer = Timer.periodic(interval, (timer) {
+      final double newValue =
+          _generateEcgData(); // assuming _generateEcgData() returns a single new element
+      setState(() {
+        ecgData.removeAt(0);
+      });
     });
   }
 
-  Future onRequestMtuPressed() async {
-    try {
-      await widget.device.requestMtu(223);
-      Snackbar.show(ABC.c, "Request Mtu: Success", success: true);
-    } catch (e) {
-      Snackbar.show(ABC.c, prettyException("Change Mtu Error:", e), success: false);
+  double _generateEcgData() {
+    if (ecgData.isEmpty) {
+      print("ecgData is empty!");
+      return 0.0;
     }
-  }
 
-  List<Widget> _buildServiceTiles(BuildContext context, BluetoothDevice d) {
-    return _services
-        .map(
-          (s) => ServiceTile(
-        service: s,
-        characteristicTiles: s.characteristics.map((c) => _buildCharacteristicTile(c)).toList(),
-      ),
-    )
-        .toList();
-  }
+    // Check if dataIndex is within the range of ecgData
+    if (dataIndex >= ecgData.length) {
+      dataIndex = 0;
+    }
 
-  CharacteristicTile _buildCharacteristicTile(BluetoothCharacteristic c) {
-    return CharacteristicTile(
-      characteristic: c,
-      descriptorTiles: c.descriptors.map((d) => DescriptorTile(descriptor: d)).toList(),
-    );
-  }
-
-  Widget buildSpinner(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(14.0),
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: CircularProgressIndicator(
-          backgroundColor: Colors.black12,
-          color: Colors.black26,
-        ),
-      ),
-    );
-  }
-
-  Widget buildRemoteId(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text('${widget.device.remoteId}'),
-    );
-  }
-
-  Widget buildRssiTile(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        isConnected ? const Icon(Icons.bluetooth_connected) : const Icon(Icons.bluetooth_disabled),
-        Text(((isConnected && _rssi != null) ? '${_rssi!} dBm' : ''), style: Theme.of(context).textTheme.bodySmall)
-      ],
-    );
-  }
-
-  Widget buildGetServices(BuildContext context) {
-    return IndexedStack(
-      index: (_isDiscoveringServices) ? 1 : 0,
-      children: <Widget>[
-        TextButton(
-          child: const Text("Get Services"),
-          onPressed: onDiscoverServicesPressed,
-        ),
-        const IconButton(
-          icon: SizedBox(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(Colors.grey),
-            ),
-            width: 18.0,
-            height: 18.0,
-          ),
-          onPressed: null,
-        )
-      ],
-    );
-  }
-
-  Widget buildMtuTile(BuildContext context) {
-    return ListTile(
-        title: const Text('MTU Size'),
-        subtitle: Text('$_mtuSize bytes'),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onRequestMtuPressed,
-        ));
-  }
-
-  Widget buildConnectButton(BuildContext context) {
-    return Row(children: [
-      if (_isConnecting || _isDisconnecting) buildSpinner(context),
-      TextButton(
-          onPressed: _isConnecting ? onCancelPressed : (isConnected ? onDisconnectPressed : onConnectPressed),
-          child: Text(
-            _isConnecting ? "CANCEL" : (isConnected ? "DISCONNECT" : "CONNECT"),
-            style: Theme.of(context).primaryTextTheme.labelLarge?.copyWith(color: Colors.white),
-          ))
-    ]);
+    final double value = ecgData[dataIndex];
+    dataIndex = (dataIndex + 1) % ecgData.length;
+    return value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      key: Snackbar.snackBarKeyC,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.device.platformName),
-          actions: [buildConnectButton(context)],
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width, // 화면 너비의 80%
+        height: 0.2, // 화면 높이의 50%
+
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.transparent),
+          color: Color(0xFF232628),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              buildRemoteId(context),
-              ListTile(
-                leading: buildRssiTile(context),
-                title: Text('Device is ${_connectionState.toString().split('.')[1]}.'),
-                trailing: buildGetServices(context),
-              ),
-              buildMtuTile(context),
-              ..._buildServiceTiles(context, widget.device),
-            ],
-          ),
+        child: CustomPaint(
+          painter: EcgChartPainter(ecgData, backgroundPaint),
+          size: Size(double.infinity, 100), //(*원래)
         ),
       ),
     );
   }
 }
-//------------------------------------------------------------------------------------------------------------------
 
-// import 'dart:async';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-//
-// class DeviceScreen extends StatefulWidget {
-//   DeviceScreen({Key? key, required this.device}) : super(key: key);
-//   // 장치 정보 전달 받기
-//   final BluetoothDevice device;
-//
-//   @override
-//   _DeviceScreenState createState() => _DeviceScreenState();
-// }
-//
-// class _DeviceScreenState extends State<DeviceScreen> {
-//   // flutterBlue
-//   FlutterBluePlus flutterBlue = FlutterBluePlus();
-//
-//   // 연결 상태 표시 문자열
-//   String stateText = 'Connecting';
-//
-//   // 연결 버튼 문자열
-//   String connectButtonText = 'Disconnect';
-//
-//   // 현재 연결 상태 저장용
-//   BluetoothDeviceState deviceState = BluetoothDeviceState.disconnected;
-//
-//   // 연결 상태 리스너 핸들 화면 종료시 리스너 해제를 위함
-//   StreamSubscription<BluetoothDeviceState>? _stateListener;
-//
-//   List<BluetoothService> bluetoothService = [];
-//
-//   //
-//   Map<String, List<int>> notifyDatas = {};
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // 상태 연결 리스너 등록
-//     // _stateListener = widget.device.state.listen((event) {
-//     _stateListener = widget.device.state.listen((event) {
-//       debugPrint('event :  $event');
-//       if (deviceState == event) {
-//         // 상태가 동일하다면 무시
-//         return;
-//       }
-//       // 연결 상태 정보 변경
-//       setBleConnectionState(event as BluetoothDeviceState);
-//
-//     }) as StreamSubscription<BluetoothDeviceState>?
-//
-//     ;
-//     // 연결 시작
-//     connect();
-//   }
-//
-//   @override
-//   void dispose() {
-//     // 상태 리스터 해제
-//     _stateListener?.cancel();
-//     // 연결 해제
-//     disconnect();
-//     super.dispose();
-//   }
-//
-//   @override
-//   void setState(VoidCallback fn) {
-//     if (mounted) {
-//       // 화면이 mounted 되었을때만 업데이트 되게 함
-//       super.setState(fn);
-//     }
-//   }
-//
-//   /* 연결 상태 갱신 */
-//   setBleConnectionState(BluetoothDeviceState event) {
-//     switch (event) {
-//       case BluetoothDeviceState.disconnected:
-//         stateText = 'Disconnected';
-//         // 버튼 상태 변경
-//         connectButtonText = 'Connect';
-//         break;
-//       case BluetoothDeviceState.disconnecting:
-//         stateText = 'Disconnecting';
-//         break;
-//       case BluetoothDeviceState.connected:
-//         stateText = 'Connected';
-//         // 버튼 상태 변경
-//         connectButtonText = 'Disconnect';
-//         break;
-//       case BluetoothDeviceState.connecting:
-//         stateText = 'Connecting';
-//         break;
-//     }
-//     //이전 상태 이벤트 저장
-//     deviceState = event;
-//     setState(() {});
-//   }
-//
-//   /* 연결 시작 */
-//   Future<bool> connect() async {
-//     Future<bool>? returnValue;
-//     setState(() {
-//       /* 상태 표시를 Connecting으로 변경 */
-//       stateText = 'Connecting';
-//     });
-//
-//     /*
-//       타임아웃을 15초(15000ms)로 설정 및 autoconnect 해제
-//        참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
-//      */
-//     await widget.device
-//         .connect(autoConnect: false)
-//         .timeout(Duration(milliseconds: 15000), onTimeout: () {
-//       //타임아웃 발생
-//       //returnValue를 false로 설정
-//       returnValue = Future.value(false);
-//       debugPrint('timeout failed');
-//
-//       //연결 상태 disconnected로 변경
-//       setBleConnectionState(BluetoothDeviceState.disconnected);
-//     }).then((data) async {
-//       bluetoothService.clear();
-//       if (returnValue == null) {
-//         //returnValue가 null이면 timeout이 발생한 것이 아니므로 연결 성공
-//         debugPrint('connection successful');
-//         print('start discover service');
-//         List<BluetoothService> bleServices =
-//         await widget.device.discoverServices();
-//         setState(() {
-//           bluetoothService = bleServices;
-//         });
-//         // 각 속성을 디버그에 출력
-//         for (BluetoothService service in bleServices) {
-//           print('============================================');
-//           print('Service UUID: ${service.uuid}');
-//           for (BluetoothCharacteristic c in service.characteristics) {
-//             print('\tcharacteristic UUID: ${c.uuid.toString()}');
-//             print('\t\twrite: ${c.properties.write}');
-//             print('\t\tread: ${c.properties.read}');
-//             print('\t\tnotify: ${c.properties.notify}');
-//             print('\t\tisNotifying: ${c.isNotifying}');
-//             print(
-//                 '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
-//             print('\t\tindicate: ${c.properties.indicate}');
-//
-//             // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
-//             // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
-//             if (c.properties.notify && c.descriptors.isNotEmpty) {
-//               // 진짜 0x2902 가 있는지 단순 체크용!
-//               // for (BluetoothDescriptor d in c.descriptors) {
-//               //   print('BluetoothDescriptor uuid ${d.uuid}');
-//               //   if (d.uuid == BluetoothDescriptor.cccd) {
-//               //     print('d.lastValue: ${d.lastValue}');
-//               //   }
-//               // }
-//
-//               // notify가 설정 안되었다면...
-//               if (!c.isNotifying) {
-//                 try {
-//                   await c.setNotifyValue(true);
-//                   // 받을 데이터 변수 Map 형식으로 키 생성
-//                   notifyDatas[c.uuid.toString()] = List.empty();
-//                   c.value.listen((value) {
-//                     // 데이터 읽기 처리!
-//                     print('${c.uuid}: $value');
-//                     setState(() {
-//                       // 받은 데이터 저장 화면 표시용
-//                       notifyDatas[c.uuid.toString()] = value;
-//                     });
-//                   });
-//
-//                   // 설정 후 일정시간 지연
-//                   await Future.delayed(const Duration(milliseconds: 500));
-//                 } catch (e) {
-//                   print('error ${c.uuid} $e');
-//                 }
-//               }
-//             }
-//           }
-//         }
-//         returnValue = Future.value(true);
-//       }
-//     });
-//
-//     return returnValue ?? Future.value(false);
-//   }
-//
-//   /* 연결 해제 */
-//   void disconnect() {
-//     try {
-//       setState(() {
-//         stateText = 'Disconnecting';
-//       });
-//       widget.device.disconnect();
-//     } catch (e) {}
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         /* 장치명 */
-//         title: Text(widget.device.name),
-//       ),
-//       body: Center(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                 children: [
-//                   /* 연결 상태 */
-//                   Text('$stateText'),
-//                   /* 연결 및 해제 버튼 */
-//                   OutlinedButton(
-//                       onPressed: () {
-//                         if (deviceState == BluetoothDeviceState.connected) {
-//                           /* 연결된 상태라면 연결 해제 */
-//                           disconnect();
-//                         } else if (deviceState ==
-//                             BluetoothDeviceState.disconnected) {
-//                           /* 연결 해재된 상태라면 연결 */
-//                           connect();
-//                         }
-//                       },
-//                       child: Text(connectButtonText)),
-//                 ],
-//               ),
-//
-//               /* 연결된 BLE의 서비스 정보 출력 */
-//               Expanded(
-//                 child: ListView.separated(
-//                   itemCount: bluetoothService.length,
-//                   itemBuilder: (context, index) {
-//                     return listItem(bluetoothService[index]);
-//                   },
-//                   separatorBuilder: (BuildContext context, int index) {
-//                     return Divider();
-//                   },
-//                 ),
-//               ),
-//             ],
-//           )),
-//     );
-//   }
-//
-//   /* 각 캐릭터리스틱 정보 표시 위젯 */
-//   Widget characteristicInfo(BluetoothService r) {
-//     String name = '';
-//     String properties = '';
-//     String data = '';
-//     // 캐릭터리스틱을 한개씩 꺼내서 표시
-//     for (BluetoothCharacteristic c in r.characteristics) {
-//       properties = '';
-//       data = '';
-//       name += '\t\t${c.uuid}\n';
-//       if (c.properties.write) {
-//         properties += 'Write ';
-//       }
-//       if (c.properties.read) {
-//         properties += 'Read ';
-//       }
-//       if (c.properties.notify) {
-//         properties += 'Notify ';
-//         if (notifyDatas.containsKey(c.uuid.toString())) {
-//           // notify 데이터가 존재한다면
-//           if (notifyDatas[c.uuid.toString()]!.isNotEmpty) {
-//             data = notifyDatas[c.uuid.toString()].toString();
-//           }
-//         }
-//       }
-//       if (c.properties.writeWithoutResponse) {
-//         properties += 'WriteWR ';
-//       }
-//       if (c.properties.indicate) {
-//         properties += 'Indicate ';
-//       }
-//       name += '\t\t\tProperties: $properties\n';
-//       if (data.isNotEmpty) {
-//         // 받은 데이터 화면에 출력!
-//         name += '\t\t\t\t$data\n';
-//       }
-//     }
-//     return Text(name);
-//   }
-//
-//   /* Service UUID 위젯  */
-//   Widget serviceUUID(BluetoothService r) {
-//     String name = '';
-//     name = r.uuid.toString();
-//     return Text(name);
-//   }
-//
-//   /* Service 정보 아이템 위젯 */
-//   Widget listItem(BluetoothService r) {
-//     return ListTile(
-//       onTap: null,
-//       title: serviceUUID(r),
-//       subtitle: characteristicInfo(r),
-//     );
-//   }
-// }
-
-
-// 패치 받기전 해당코드로 예시할 것
-// import 'package:flutter/material.dart';
-// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-//
-// void main() {
-//   runApp(MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   final title = 'Flutter BLE Scan Demo';
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: title,
-//       home: MyHomePage(title: title),
-//     );
-//   }
-// }
-//
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({Key? key, required this.title}) : super(key: key);
-//   final String title;
-//
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-//
-// class _MyHomePageState extends State<MyHomePage> {
-//   // 장치명을 지정해 해당 장치만 표시되게함
-//   final String targetDeviceName = 'HolmesAI-Cardio 3';
-//
-//   FlutterBluePlus flutterBlue = FlutterBluePlus();
-//   List<ScanResult> scanResultList = [];
-//   bool _isScanning = false;
-//
-//   @override
-//   initState() {
-//     super.initState();
-//     // 블루투스 초기화
-//     initBle();
-//
-//     // generateDummyData();
-//   }
-//
-//
-//   // 가짜 데이터 생성
-//   void generateDummyData() {
-//     for (int i = 0; i < 5; i++) {
-//       ScanResult dummyResult = ScanResult(
-//         device: BluetoothDevice(
-//           remoteId: DeviceIdentifier("D$i:6E:D4:3$i:CA:BE"),
-//         ),
-//         advertisementData: AdvertisementData(
-//           advName: "HolmesAI-Cardio $i",
-//           txPowerLevel: 0, // 여기서 적절한 값으로 변경해주세요
-//           connectable: false, // 여기서 적절한 값으로 변경해주세요
-//           manufacturerData: {},
-//           serviceData: {},
-//           serviceUuids: [],
-//         ),
-//         rssi: -50 + i * 2,
-//         timeStamp: DateTime.now(), // 시간 정보 추가
-//       );
-//       scanResultList.add(dummyResult);
-//     }
-//   }
-//
-//   void initBle() {
-//     // BLE 스캔 상태 얻기 위한 리스너
-//     FlutterBluePlus.isScanning.listen((isScanning) {
-//       _isScanning = isScanning;
-//       setState(() {});
-//     });
-//   }
-//
-//   /*
-//   스캔 시작/정지 함수
-//   */
-//   scan() async {
-//     if (!_isScanning) {
-//       // 스캔 중이 아니라면
-//       // 기존에 스캔된 리스트 삭제
-//       scanResultList.clear();
-//       // 스캔 시작, 제한 시간 2초
-//       FlutterBluePlus.startScan(timeout: Duration(seconds: 8));
-//       // 스캔 결과 리스너
-//       FlutterBluePlus.scanResults.listen((results) {
-//         // List<ScanResult> 형태의 results 값을 scanResultList에 복사
-//         print("스캔 시작함수");
-//         generateDummyData(); // 내가 임의로 넣음
-//         results.forEach((element) {
-//           if (element.device.name == targetDeviceName) {
-//             if (scanResultList
-//                     .indexWhere((e) => e.device.id == element.device.id) <
-//                 0) {
-//               // 찾는 장치명이고 scanResultList에 등록된적이 없는 장치라면 리스트에 추가
-//               scanResultList.add(element);
-//             }
-//           }
-//         });
-//         scanResultList = results;
-//         // UI 갱신
-//         setState(() {});
-//       });
-//     } else {
-//       // 스캔 중이라면 스캔 정지
-//       print("스캔 정지함수");
-//
-//       FlutterBluePlus.stopScan();
-//       scanResultList.clear();
-//     }
-//   }
-//
-//   /*
-//    여기서부터는 장치별 출력용 함수들
-//   */
-//   /*  장치의 신호값 위젯  */
-//   Widget deviceSignal(ScanResult r) {
-//     return Text(r.rssi.toString());
-//   }
-//
-//   /* 장치의 MAC 주소 위젯  */
-//   Widget deviceMacAddress(ScanResult r) {
-//     return Text(r.device.id.id);
-//   }
-//
-//   /* 장치의 명 위젯  */
-//   Widget deviceName(ScanResult r) {
-//     String name = '';
-//
-//     if (r.device.name.isNotEmpty) {
-//       // device.name에 값이 있다면
-//       name = r.device.name;
-//     } else if (r.advertisementData.localName.isNotEmpty) {
-//       // advertisementData.localName에 값이 있다면
-//       name = r.advertisementData.localName;
-//     } else {
-//       // 둘다 없다면 이름 알 수 없음...
-//       name = 'N/A';
-//     }
-//     return Text(name);
-//   }
-//
-//   /* BLE 아이콘 위젯 */
-//   Widget leading(ScanResult r) {
-//     return CircleAvatar(
-//       child: Icon(
-//         Icons.bluetooth,
-//         color: Colors.white,
-//       ),
-//       backgroundColor: Colors.cyan,
-//     );
-//   }
-//
-//   /* 장치 아이템을 탭 했을때 호출 되는 함수 */
-//   // void onTap(ScanResult r) {
-//   //   // 단순히 이름만 출력
-//   //   print('${r.device.name}');
-//   //   Navigator.push(
-//   //     context,
-//   //    MaterialPageRoute(builder: (context) => DeviceScreen(device: r.device)),
-//   //   );
-//   // }
-//
-//
-//
-//   /* 장치 아이템 위젯 */
-//   Widget listItem(ScanResult r) {
-//     return ListTile(
-//       // onTap: () => onTap(r),
-//       leading: leading(r),
-//       title: deviceName(r),
-//       subtitle: deviceMacAddress(r),
-//       trailing: deviceSignal(r),
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         /* 장치 리스트 출력 */
-//         child: ListView.separated(
-//           itemCount: scanResultList.length,
-//           itemBuilder: (context, index) {
-//             return listItem(scanResultList[index]);
-//           },
-//           separatorBuilder: (BuildContext context, int index) {
-//             return Divider();
-//           },
-//         ),
-//       ),
-//       /* 장치 검색 or 검색 중지  */
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: scan,
-//         // 스캔 중이라면 stop 아이콘을, 정지상태라면 search 아이콘으로 표시
-//         child: Icon(_isScanning ? Icons.stop : Icons.search),
-//       ),
-//     );
-//   }
-// }
-
+//원래 pubsepc.lock
+// flutter_blue_plus:
+// dependency: "direct main"
+// description:
+// name: flutter_blue_plus
+// sha256: "35494cd7b303814a156a57e4ec00a29427c59a62f3d44079b772ef685ae4914f"
+// url: "https://pub.dev"
+// source: hosted
+// version: "1.32.2"

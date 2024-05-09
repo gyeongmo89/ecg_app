@@ -1,373 +1,178 @@
-// // 패치수령후 BLE 테스트 코드
-// import 'dart:async';
-// import 'dart:io';
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-//
-// import 'device_screen.dart';
-// import '../utils/snackbar.dart';
-// import '../widgets/system_device_tile.dart';
-// import '../widgets/scan_result_tile.dart';
-// import '../utils/extra.dart';
-//
-// class ScanScreen extends StatefulWidget {
-//   const ScanScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<ScanScreen> createState() => _ScanScreenState();
-// }
-//
-// class _ScanScreenState extends State<ScanScreen> {
-//   List<BluetoothDevice> _systemDevices = [];
-//   List<ScanResult> _scanResults = [];
-//   bool _isScanning = false;
-//   late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
-//   late StreamSubscription<bool> _isScanningSubscription;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     _scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
-//       _scanResults = results;
-//       setState(() {});
-//     }, onError: (e) {
-//       Snackbar.show(ABC.b, prettyException("Scan Error:", e), success: false);
-//     });
-//
-//     _isScanningSubscription = FlutterBluePlus.isScanning.listen((state) {
-//       _isScanning = state;
-//       setState(() {});
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _scanResultsSubscription.cancel();
-//     _isScanningSubscription.cancel();
-//     super.dispose();
-//   }
-//
-//   Future onScanPressed() async {
-//     try {
-//       _systemDevices = await FlutterBluePlus.systemDevices;
-//     } catch (e) {
-//       Snackbar.show(ABC.b, prettyException("System Devices Error:", e), success: false);
-//     }
-//
-//     try {
-//       // android is slow when asking for all advertisments,
-//       // so instead we only ask for 1/8 of them
-//       int divisor = Platform.isAndroid ? 8 : 1;
-//       await FlutterBluePlus.startScan(
-//           timeout: const Duration(seconds: 15), continuousUpdates: true, continuousDivisor: divisor);
-//     } catch (e) {
-//       Snackbar.show(ABC.b, prettyException("Start Scan Error:", e), success: false);
-//     }
-//     setState(() {}); // force refresh of systemDevices
-//   }
-//
-//   Future onStopPressed() async {
-//     try {
-//       FlutterBluePlus.stopScan();
-//     } catch (e) {
-//       Snackbar.show(ABC.b, prettyException("Stop Scan Error:", e), success: false);
-//     }
-//   }
-//
-//   void onConnectPressed(BluetoothDevice device) {
-//     device.connectAndUpdateStream().catchError((e) {
-//       Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
-//     });
-//     MaterialPageRoute route = MaterialPageRoute(
-//         builder: (context) => DeviceScreen(device: device), settings: RouteSettings(name: '/DeviceScreen'));
-//     Navigator.of(context).push(route);
-//   }
-//
-//   Future onRefresh() {
-//     if (_isScanning == false) {
-//       FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
-//     }
-//     setState(() {});
-//     return Future.delayed(Duration(milliseconds: 500));
-//   }
-//
-//   Widget buildScanButton(BuildContext context) {
-//     if (FlutterBluePlus.isScanningNow) {
-//       return FloatingActionButton(
-//         child: const Icon(Icons.stop),
-//         onPressed: onStopPressed,
-//         backgroundColor: Colors.red,
-//       );
-//     } else {
-//       return FloatingActionButton(child: const Text("SCAN"), onPressed: onScanPressed);
-//     }
-//   }
-//
-//   List<Widget> _buildSystemDeviceTiles(BuildContext context) {
-//     return _systemDevices
-//         .map(
-//           (d) => SystemDeviceTile(
-//         device: d,
-//         onOpen: () => Navigator.of(context).push(
-//           MaterialPageRoute(
-//             builder: (context) => DeviceScreen(device: d),
-//             settings: RouteSettings(name: '/DeviceScreen'),
-//           ),
-//         ),
-//         onConnect: () => onConnectPressed(d),
-//       ),
-//     )
-//         .toList();
-//   }
-//
-//   List<Widget> _buildScanResultTiles(BuildContext context) {
-//     return _scanResults
-//         .map(
-//           (r) => ScanResultTile(
-//         result: r,
-//         onTap: () => onConnectPressed(r.device),
-//       ),
-//     )
-//         .toList();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ScaffoldMessenger(
-//       key: Snackbar.snackBarKeyB,
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: const Text('Find Devices'),
-//         ),
-//         body: RefreshIndicator(
-//           onRefresh: onRefresh,
-//           child: ListView(
-//             children: <Widget>[
-//               ..._buildSystemDeviceTiles(context),
-//               ..._buildScanResultTiles(context),
-//             ],
-//           ),
-//         ),
-//         floatingActionButton: buildScanButton(context),
-//       ),
-//     );
-//   }
-// }
+// 2024-04-12 10:20 BLE 통신테스트 코드를 IheartU에 병합 시작 1
+// 2024-04-12 10:44 BLE 통신테스트 코드를 IheartU에 병합 시작 2
+// 2024-04-12 11:30 Widget build(BuildContext context) 수정시작 1
+// 2024-04-12 15:33 Widget build(BuildContext context) 수정완료
+// 2024-04-12 15:34 검색된 HW 눌렀을때 Root 탭이동 수정 시작 1
 
-// -------------아래가 원래코드임(시연용) 블루투스 테스트하기위해서 주석처리함 2023-12-05 --------------
-// 패치 받은 후 아래의 코드로 테스트할 예정
-// Provider 추가, 날짜 관리때문에 1
-// 중간화면 채우기 시작 1 10:57
-import 'dart:async';
-import 'dart:io';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import './device_screen.dart';
-import 'package:ecg_app/bluetooth/utils/snackbar.dart';
-import 'package:ecg_app/bluetooth/widgets/connected_device_tile.dart';
-import 'package:ecg_app/bluetooth/widgets/scan_result_tile.dart';
-import 'package:ecg_app/bluetooth/utils/extra.dart';
-import 'package:provider/provider.dart';
-// 배경화면 수정
+
+// -----
+//flutter build apk --release --target-platform=android-arm64
+
+import 'device_screen.dart';
+
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   final title = 'CLtime 검색목록';
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: title,
+//       home: ScanScreen(title: title),
+//     );
+//   }
+// }
+
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({Key? key}) : super(key: key);
+  ScanScreen({Key? key, required this.title}) : super(key: key);
+  final String title;
 
   @override
-  State<ScanScreen> createState() => _ScanScreenState();
+  _ScanScreenState createState() => _ScanScreenState();
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  List<BluetoothDevice> _connectedDevices = [];
-  List<ScanResult> _scanResults = [];
-  bool _isScanning = false;
-  late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
-  late StreamSubscription<bool> _isScanningSubscription;
+  // BLE 장치의 제품명이 HolmesAI_로 시작하는 장치만 검색
+  final String targetDeviceName = 'HolmesAI_';
+  BluetoothDevice? targetDevice; // Add this line to store the target device
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
   List<ScanResult> scanResultList = [];
+  bool _isScanning = false;
+  int tapCount = 0;
+
   @override
-  void initState() {
+  initState() {
     super.initState();
+    // 블루투스 초기화
+    initBle();
+  }
 
-    FlutterBluePlus.systemDevices.then((devices) {
-      _connectedDevices = devices;
-      setState(() {});
-    });
-
-    _scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
-      _scanResults = results;
-      setState(() {});
-    }, onError: (e) {
-      Snackbar.show(ABC.b, prettyException("Scan Error:", e), success: false);
-    });
-
-    _isScanningSubscription = FlutterBluePlus.isScanning.listen((state) {
-      _isScanning = state;
+  void initBle() {
+    // BLE 스캔 상태 얻기 위한 리스너
+    flutterBlue.isScanning.listen((isScanning) {
+      _isScanning = isScanning;
       setState(() {});
     });
   }
 
-  @override
-  void dispose() {
-    _scanResultsSubscription.cancel();
-    _isScanningSubscription.cancel();
-    super.dispose();
-  }
-
-  void generateDummyData() {
-    for (int i = 0; i < 5; i++) {
-      ScanResult dummyResult = ScanResult(
-        device: BluetoothDevice(
-          remoteId: DeviceIdentifier("D$i:6E:D4:3$i:CA:BE"),
-        ),
-        advertisementData: AdvertisementData(
-          advName: "CLtime HCL_C101-0${i + 1}",
-          txPowerLevel: 0, // 여기서 적절한 값으로 변경해주세요
-          connectable: false, // 여기서 적절한 값으로 변경해주세요
-          manufacturerData: {},
-          serviceData: {},
-          serviceUuids: [],
-        ),
-        rssi: -50 + i * 2,
-        timeStamp: DateTime.now(), // 시간 정보 추가
-      );
-      scanResultList.add(dummyResult);
-    }
-  }
-
-  Future onScanPressed() async {
-    try {
-      // android is slow when asking for all advertisments,
-      // so instead we only ask for 1/8 of them
-      int divisor = Platform.isAndroid ? 8 : 1;
-      await FlutterBluePlus.startScan(
-          timeout: const Duration(seconds: 5),
-          continuousUpdates: true,
-          continuousDivisor: divisor);
-      //여기다 리스트 뿌려주는 화면
-      generateDummyData(); // 내가 임의로 넣음
-    } catch (e) {
-      Snackbar.show(ABC.b, prettyException("Start Scan Error:", e),
-          success: false);
-    }
-    setState(() {}); // force refresh of systemDevices
-  }
-
-  Future onStopPressed() async {
-    try {
-      FlutterBluePlus.stopScan();
-    } catch (e) {
-      Snackbar.show(ABC.b, prettyException("Stop Scan Error:", e),
-          success: false);
-    }
-  }
-
-  void onConnectPressed(BluetoothDevice device) {
-    // conntect되고 시리얼넘버 비교해서 정상이고, ECG 데이터를 가져오면 됨.
-    // 이때부터 측정 1일차로 기록하면 됨
-
-    final appState = Provider.of<AppState>(context, listen: false);
-    appState.saveConnectedDate(DateTime.now());
-    //-----------------------------------------------------------------
-
-    device.connectAndUpdateStream().catchError((e) {
-      Snackbar.show(ABC.c, prettyException("Connect Error:", e),
-          success: false);
-    });
-    MaterialPageRoute route = MaterialPageRoute(
-        builder: (context) => DeviceScreen(device: device),
-        settings: RouteSettings(name: '/DeviceScreen'));
-    Navigator.of(context).push(route);
-  }
-
-  Future onRefresh() {
-    if (_isScanning == false) {
-      FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
-    }
-    setState(() {});
-    return Future.delayed(Duration(milliseconds: 500));
-  }
-
-  Widget buildScanButton(BuildContext context) {
-    if (FlutterBluePlus.isScanningNow) {
-      return FloatingActionButton(
-        child: const Icon(Icons.stop,color: Colors.white,),
-        onPressed: onStopPressed,
-        backgroundColor: Colors.red,
-      );
+  /*
+  스캔 시작/정지 함수
+  */
+  scan() async {
+    if (!_isScanning) {
+      // 스캔 중이 아니라면
+      // 기존에 스캔된 리스트 삭제
+      scanResultList.clear();
+      // 스캔 시작, 제한 시간 4초
+      flutterBlue.startScan(timeout: Duration(seconds: 20));
+      // 스캔 결과 리스너
+      //--------------------------------
+      flutterBlue.scanResults.listen((results) {
+        // 결과 값을 루프로 돌림
+        results.forEach((element) {
+          //찾는 장치명인지 확인
+          if (element.device.name.contains(targetDeviceName)) {
+            // if (element.device.name == targetDeviceName) {
+            //장치의 ID를 비교해 이미 등록된 장치인지 확인
+            if (scanResultList
+                    .indexWhere((e) => e.device.id == element.device.id) <
+                0) {
+              //찾는 장치명이고 scanResultList에 등록된적이 없는 장치라면 리스트에 추가
+              scanResultList.add(element);
+            }
+          } else {
+            print('element.device.name: ${element.device.name}');
+          }
+        });
+        // results.forEach((element) {
+        //   //찾는 장치명인지 확인
+        //   if (element.device.name == targetDeviceName) {
+        //     //장치의 ID를 비교해 이미 등록된 장치인지 확인
+        //     if (scanResultList
+        //             .indexWhere((e) => e.device.id == element.device.id) <
+        //         0) {
+        //       //찾는 장치명이고 scanResultList에 등록된적이 없는 장치라면 리스트에 추가
+        //       scanResultList.add(element);
+        //     }
+        //   }
+        //   else
+        //   {
+        //     print('element.device.name: ${element.device.name}');
+        //   }
+        // });
+        // UI 갱신
+        setState(() {});
+      });
+//--------------------------------
+//       flutterBlue.scanResults.listen((results) {
+//         // 결과 값을 루프로 돌림
+//         results.forEach((element) {
+//           //찾는 장치명인지 확인
+//           if(element.device.name == targetDeviceName){
+//             //장치의 ID를 비교해 이미 등록된 장치인지 확인
+//             if (scanResultList.indexWhere((e) => e.device.id == element.device.id) < 0){
+//               //찾는 장치명이고 scanResultList에 등록된적이 없는 장치라면 리스트에 추가
+//               scanResultList.add(element);
+//             }
+//           }
+//         });
+//
+//         scanResultList = results;
+//         // UI 갱신
+//         setState(() {});
+//       });
+      //--------------------------------
     } else {
-      return FloatingActionButton(
-          backgroundColor: PRIMARY_COLOR2,
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(30.0),
-          // ),
-          child: Icon(Icons.search, color: Colors.white),
-          onPressed: onScanPressed);
-      // 여기 수정해야함
+      // 스캔 중이라면 스캔 정지
+      flutterBlue.stopScan();
     }
   }
 
-  List<Widget> _buildConnectedDeviceTiles(BuildContext context) {
-    return _connectedDevices
-        .map(
-          (d) => ConnectedDeviceTile(
-            device: d,
-            onOpen: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DeviceScreen(device: d),
-                settings: RouteSettings(name: '/DeviceScreen'),
-              ),
-            ),
-            onConnect: () => onConnectPressed(d),
-          ),
-        )
-        .toList();
+  /*
+   여기서부터는 장치별 출력용 함수들
+  */
+  /*  장치의 신호값 위젯  */
+  Widget deviceSignal(ScanResult r) {
+    return Text(
+      r.rssi.toString(),
+      style: TextStyle(
+        color: Colors.white, // Set the text color to white
+      ),
+    );
   }
 
-  List<Widget> _buildScanResultTiles(BuildContext context) {
-    return _scanResults
-        .asMap()
-        .entries
-        .map(
-          (entry) => ListTile(
-            onTap: () {
-              if (entry.key == 0) {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RootTab()));
-              } else {
-                onConnectPressed(entry.value.device);
-              }
-            },
-            leading: leading(entry.value),
-            title: deviceName(entry.value),
-            subtitle: deviceMacAddress(entry.value),
-            trailing: deviceSignal(entry.value),
-          ),
-        )
-        .toList();
+  /* 장치의 MAC 주소 위젯  */
+  Widget deviceMacAddress(ScanResult r) {
+    return Text(
+      r.device.id.id,
+      style: TextStyle(
+        color: Colors.white60, // Set the text color to white
+      ),
+    );
   }
 
-  //아래가 원래코드임 -----------시연을위해서 주석
-  //   return _scanResults
-  //       .map(
-  //         (r) => ScanResultTile(
-  //       result: r,
-  //       onTap: () => onConnectPressed(r.device),
-  //     ),
-  //   )
-  //       .toList();
-  // }
-//-------------------------------------------------
-//   /* 장치의 명 위젯  */
+  /* 장치의 명 위젯  */
   Widget deviceName(ScanResult r) {
-    String name = r.device.name.isNotEmpty
-        ? r.device.name
-        : r.advertisementData.localName.isNotEmpty
-            ? r.advertisementData.localName
-            : 'N/A';
+    String name = '';
+
+    if (r.device.name.isNotEmpty) {
+      // device.name에 값이 있다면
+      name = r.device.name;
+    } else if (r.advertisementData.localName.isNotEmpty) {
+      // advertisementData.localName에 값이 있다면
+      name = r.advertisementData.localName;
+    } else {
+      // 둘다 없다면 이름 알 수 없음...
+      name = 'N/A';
+    }
     return Text(
       name,
       style: TextStyle(
@@ -376,23 +181,6 @@ class _ScanScreenState extends State<ScanScreen> {
       ),
     );
   }
-// -------------------아래는 내가 임의 추가 시연을 위해서---그리고 주석함------
-//   /* 장치의 명 위젯  */
-//   Widget deviceName(ScanResult r) {
-//     String name = '';
-//
-//     if (r.device.name.isNotEmpty) {
-//       // device.name에 값이 있다면
-//       name = r.device.name;
-//     } else if (r.advertisementData.localName.isNotEmpty) {
-//       // advertisementData.localName에 값이 있다면
-//       name = r.advertisementData.localName;
-//     } else {
-//       // 둘다 없다면 이름 알 수 없음...
-//       name = 'N/A';
-//     }
-//     return Text(name);
-//   }
 
   /* BLE 아이콘 위젯 */
   Widget leading(ScanResult r) {
@@ -405,32 +193,22 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  /*  장치의 신호값 위젯  */
-  Widget deviceSignal(ScanResult r) {
-    return Text(
-      r.rssi.toString(),
-      style: TextStyle(
-        color: Colors.white, // Set the text color to white
-      ),
+  /* 장치 아이템을 탭 했을때 호출 되는 함수 */
+  void onTap(ScanResult r) {
+    // 단순히 이름만 출력
+    print('${r.device.name}');
+    Navigator.push(
+      context,
+      // MaterialPageRoute(builder: (context) => DeviceScreen(device: r.device)),
+      // MaterialPageRoute(builder: (context) => RootTab()),
+      MaterialPageRoute(builder: (context) => RootTab(device: r.device)),
     );
   }
 
   /* 장치 아이템 위젯 */
   Widget listItem(ScanResult r) {
     return ListTile(
-      // onTap: (){
-      //   _buildScanResultTiles(context);
-      // },
-      onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => RootTab()));
-        // if (r.device.name == 'HolmesAI-Cardio 1') {
-        //   Navigator.of(context).push(MaterialPageRoute(builder: (_) => RootTab()));
-        // }
-        // else {
-        //   onConnectPressed(r.device);
-      },
-      // onTap: () => onTap(r), // 원래 소스코드임 시연을 위해서 주석처리
+      onTap: () => onTap(r),
       leading: leading(r),
       title: deviceName(r),
       subtitle: deviceMacAddress(r),
@@ -438,45 +216,49 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  /* 장치의 MAC 주소 위젯  */
-  Widget deviceMacAddress(ScanResult r) {
-    return Text(
-      r.device.id.id ?? 'N/A',
-      style: TextStyle(
-        color: Colors.white60, // Set the text color to white
-      ),
-    );
-  }
-  // -------------------위에는 내가 임의 추가 시연을 위해서---------
+  //   Future onRefresh() {
+  //   if (_isScanning == false) {
+  //     FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
+  //   }
+  //   setState(() {});
+  //   return Future.delayed(Duration(milliseconds: 500));
+  // }
 
   @override
   Widget build(BuildContext context) {
-    // return ScaffoldMessenger(
+    //여기
     return DefaultLayout(
-      key: Snackbar.snackBarKeyB,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
-
-          title: const Text('기기(패치) 연결', style: TextStyle(color: Colors.white,),),
+          title: const Text(
+            '기기(패치) 연결',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
         ),
-        // body: Padding(
-        //   padding: const EdgeInsets.all(12.0),
-          // 배경변경하려면 위에 두줄 주석하고 아래코드 주석 풀면됨
-          body: Container(
+        body: Container(
           decoration: BoxDecoration(
-          gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-          Color(0xFF0DB2B2,),
-          Color(0xFF00A2C8,),
-          Color(0xFF0D8CD0,),
-          Color(0xFF6C70C1,),
-          ],
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(
+                  0xFF0DB2B2,
+                ),
+                Color(
+                  0xFF00A2C8,
+                ),
+                Color(
+                  0xFF0D8CD0,
+                ),
+                Color(
+                  0xFF6C70C1,
+                ),
+              ],
+            ),
           ),
-          ),
-
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -486,15 +268,13 @@ class _ScanScreenState extends State<ScanScreen> {
                 // ),
                 // 카디오 로고
                 Image.asset(
-                  // "asset/img/misc/Cardio1.png",
                   "asset/img/misc/heartCare1.png",
                   width: MediaQuery.of(context).size.width / 3,
                 ),
                 // 사용설명 박스
                 Container(
                   width: MediaQuery.of(context).size.width / 3 * 5,
-                  // height: MediaQuery.of(context).size.height / 7.2 * 2,
-                  height: MediaQuery.of(context).size.height / 6.0 * 2,
+                  height: MediaQuery.of(context).size.height / 6.0 * 1.6,
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
@@ -503,7 +283,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         color: Colors.white,
                         width: 2.0,
                       )),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -515,7 +295,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             color: BODY_TEXT_COLOR,
                           )),
                       SizedBox(
-                        height: 25.0,
+                        height: MediaQuery.of(context).size.height / 6.0 * 0.1,
                       ),
                       Text(
                           "2. 전원을 3초이상 누르면, 소리와 함께"
@@ -525,107 +305,261 @@ class _ScanScreenState extends State<ScanScreen> {
                             color: BODY_TEXT_COLOR,
                           )),
                       SizedBox(
-                        height: 25.0,
+                        height: MediaQuery.of(context).size.height / 6.0 * 0.1,
                       ),
-                      Text.rich(
+                      const Text.rich(
                         TextSpan(
                           children: [
                             TextSpan(
                               text: '3. ',
-                              style: TextStyle(fontSize: 16,color: BODY_TEXT_COLOR,), // 폰트 사이즈 변경
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: BODY_TEXT_COLOR,
+                              ), // 폰트 사이즈 변경
                             ),
                             WidgetSpan(
-                              child: Icon(Icons.search, size: 20, color: Colors.black,),
+                              child: Icon(
+                                Icons.search,
+                                size: 20,
+                                color: Colors.black,
+                              ),
                             ),
                             TextSpan(
                               text: '버튼을 누르고 기기(패치)를 연결 합니다.',
-                              style: TextStyle(fontSize: 16,color: BODY_TEXT_COLOR,), // 폰트 사이즈 변경
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: BODY_TEXT_COLOR,
+                              ), // 폰트 사이즈 변경
                             ),
                           ],
                         ),
-                      )
-            ,
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(
-                  height: 5.0,
+                  height: MediaQuery.of(context).size.height / 6.0 * 0.1,
                 ),
                 Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: onRefresh,
-                    child: ListView.separated(
-                      // 시연때문에 여기부터 임의추가함
-                      itemCount: scanResultList.length,
-                      itemBuilder: (context, index) {
-                        return listItem(scanResultList[index]);
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return Divider();
-                      },
-                    ), // 시연때문에 여기부터 임의추가함
-
-                    // 아래가 원래의 정상적인 코드임----------
-                    // child: ListView(
-                    //   children: <Widget>[
-                    //     ..._buildConnectedDeviceTiles(context),
-                    //     ..._buildScanResultTiles(context),
-                    //   ],
-                    // ),
-                    // -----------------------------------
+                  child: ListView.separated(
+                    itemCount: scanResultList.length,
+                    itemBuilder: (context, index) {
+                      return listItem(scanResultList[index]);
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Divider(
+                        color: Colors.white24,
+                      );
+                    },
                   ),
                 ),
               ],
             ),
           ),
         ),
-        floatingActionButton: buildScanButton(context),
+        /* 장치 검색 or 검색 중지  */
+        floatingActionButton: FloatingActionButton(
+          onPressed: scan,
+          // 스캔 중이라면 stop 아이콘을, 정지상태라면 search 아이콘으로 표시
+          backgroundColor: _isScanning ? Colors.red : PRIMARY_COLOR2,
+          child: Icon(_isScanning ? Icons.stop : Icons.search),
+        ),
       ),
     );
   }
-
-  DeviceScreen({required BluetoothDevice device}) {}
 }
 
-// Provider 때문에 추가함
-class AppState extends ChangeNotifier {
-  DateTime? firstConnectedDate; // 처음 연결된 날짜를 저장하기 위한 변수
-  int _connectedDays = 0; // 연결된 이후의 일 수를 저장하기 위한 변수
-
-  // late DateTime connectedDate = DateTime.now(); // 초기값으로 현재 날짜를 설정합니다.
-
-  void saveConnectedDate(DateTime date) {
-    if (firstConnectedDate == null) {
-      firstConnectedDate = date; // 처음 연결된 날짜를 저장합니다.
-    } else {
-      final difference = date.difference(firstConnectedDate!).inDays;
-      if (difference >= 1) {
-        _connectedDays = difference;
-        // 처음 연결된 날짜 이후 1일 이상 차이가 나면 연결된 일수를 업데이트합니다.
-      }
-    }
-    notifyListeners();
-  }
-
-  String getConnectedDayText() {
-    if (firstConnectedDate == null) {
-      return 'Not Connected'; // 아직 연결된 날짜가 없는 경우
-    } else {
-      final day = _connectedDays + 1; // 처음 연결된 날짜는 1일로 시작하므로 +1을 해줍니다.
-      return 'DAY $day';
-    }
-  }
-}
-// void checkAndUpdateDay() {
-//   final now = DateTime.now();
-//   final difference = now.difference(connectedDate).inDays;
+// -----
+//   // -------------------위에는 내가 임의 추가 시연을 위해서---------
+//   @override
+//   Widget build(BuildContext context) {
+//     // return ScaffoldMessenger(
+//     return DefaultLayout(
+//       key: Snackbar.snackBarKeyB,
+//       child: Scaffold(
+//         appBar: AppBar(
+//           backgroundColor: APPBAR_COLOR,
+//           title: const Text(
+//             '기기(패치) 연결',
+//             style: TextStyle(
+//               color: Colors.white,
+//             ),
+//           ),
+//         ),
+//         // body: Padding(
+//         //   padding: const EdgeInsets.all(12.0),
+//         // 배경변경하려면 위에 두줄 주석하고 아래코드 주석 풀면됨
 //
-//   if (difference >= 1) {
-//     // 하루가 지남
-//     connectedDate = now;
-//     // 연결된 날짜를 업데이트하고 상태를 알립니다.
+//         body: Container(
+//           decoration: BoxDecoration(
+//             gradient: LinearGradient(
+//               begin: Alignment.topCenter,
+//               end: Alignment.bottomCenter,
+//               colors: [
+//                 Color(
+//                   0xFF0DB2B2,
+//                 ),
+//                 Color(
+//                   0xFF00A2C8,
+//                 ),
+//                 Color(
+//                   0xFF0D8CD0,
+//                 ),
+//                 Color(
+//                   0xFF6C70C1,
+//                 ),
+//               ],
+//             ),
+//           ),
+//           child: Padding(
+//             padding: const EdgeInsets.all(12.0),
+//             child: Column(
+//               children: [
+//                 // SizedBox(
+//                 //   height: 4.0,
+//                 // ),
+//                 // 카디오 로고
+//                 Image.asset(
+//                   // "asset/img/misc/Cardio1.png",
+//                   "asset/img/misc/heartCare1.png",
+//                   width: MediaQuery.of(context).size.width / 3,
+//                 ),
+//                 // 사용설명 박스
+//                 Container(
+//                   width: MediaQuery.of(context).size.width / 3 * 5,
+//                   // height: MediaQuery.of(context).size.height / 7.2 * 2,
+//                   height: MediaQuery.of(context).size.height / 6.0 * 1.6,
+//                   padding: const EdgeInsets.all(16.0),
+//                   decoration: BoxDecoration(
+//                       borderRadius: BorderRadius.circular(10.0),
+//                       color: const Color(0xFFE6EBF0),
+//                       border: Border.all(
+//                         color: Colors.white,
+//                         width: 2.0,
+//                       )),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       Text(
+//                           "1. 기기(패치)를 앱에 등록하기 위해, "
+//                           "전원을 켜주세요.",
+//                           style: TextStyle(
+//                             fontSize: 16,
+//                             color: BODY_TEXT_COLOR,
+//                           )),
+//                       SizedBox(
+//                         height: MediaQuery.of(context).size.height / 6.0 * 0.1,
+//                       ),
+//                       Text(
+//                           "2. 전원을 3초이상 누르면, 소리와 함께"
+//                           " 버튼의 색상이 노란색으로 3번 깜빡 거립니다.",
+//                           style: TextStyle(
+//                             fontSize: 16,
+//                             color: BODY_TEXT_COLOR,
+//                           )),
+//                       SizedBox(
+//                         height: MediaQuery.of(context).size.height / 6.0 * 0.1,
+//                       ),
+//                       const Text.rich(
+//                         TextSpan(
+//                           children: [
+//                             TextSpan(
+//                               text: '3. ',
+//                               style: TextStyle(
+//                                 fontSize: 16,
+//                                 color: BODY_TEXT_COLOR,
+//                               ), // 폰트 사이즈 변경
+//                             ),
+//                             WidgetSpan(
+//                               child: Icon(
+//                                 Icons.search,
+//                                 size: 20,
+//                                 color: Colors.black,
+//                               ),
+//                             ),
+//                             TextSpan(
+//                               text: '버튼을 누르고 기기(패치)를 연결 합니다.',
+//                               style: TextStyle(
+//                                 fontSize: 16,
+//                                 color: BODY_TEXT_COLOR,
+//                               ), // 폰트 사이즈 변경
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 SizedBox(
+//                   height: MediaQuery.of(context).size.height / 6.0 * 0.1,
+//                 ),
+//                 Expanded(
+//                   child: RefreshIndicator(
+//                     onRefresh: onRefresh,
+//                     child: ListView.separated(
+//                       // 시연때문에 여기부터 임의추가함
+//                       itemCount: scanResultList.length,
+//                       itemBuilder: (context, index) {
+//                         return listItem(scanResultList[index]);
+//                       },
+//                       separatorBuilder: (BuildContext context, int index) {
+//                         return Divider();
+//                       },
+//                     ), // 시연때문에 여기부터 임의추가함
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         floatingActionButton: buildScanButton(context),
+//       ),
+//     );
+//   }
+//
+//   DeviceScreen({required BluetoothDevice device}) {}
+// }
+//
+// // Provider 때문에 추가함
+// class AppState extends ChangeNotifier {
+//   DateTime? firstConnectedDate; // 처음 연결된 날짜를 저장하기 위한 변수
+//   int _connectedDays = 0; // 연결된 이후의 일 수를 저장하기 위한 변수
+//
+//   // late DateTime connectedDate = DateTime.now(); // 초기값으로 현재 날짜를 설정합니다.
+//
+//   void saveConnectedDate(DateTime date) {
+//     if (firstConnectedDate == null) {
+//       firstConnectedDate = date; // 처음 연결된 날짜를 저장합니다.
+//     } else {
+//       final difference = date.difference(firstConnectedDate!).inDays;
+//       if (difference >= 1) {
+//         _connectedDays = difference;
+//         // 처음 연결된 날짜 이후 1일 이상 차이가 나면 연결된 일수를 업데이트합니다.
+//       }
+//     }
 //     notifyListeners();
-//     // 여기에서 +1일이라는 메시지를 출력할 수 있습니다.
-//     print('+1일');
+//   }
+//
+//   String getConnectedDayText() {
+//     if (firstConnectedDate == null) {
+//       return 'Not Connected'; // 아직 연결된 날짜가 없는 경우
+//     } else {
+//       final day = _connectedDays + 1; // 처음 연결된 날짜는 1일로 시작하므로 +1을 해줍니다.
+//       return 'DAY $day';
+//     }
 //   }
 // }
+// // void checkAndUpdateDay() {
+// //   final now = DateTime.now();
+// //   final difference = now.difference(connectedDate).inDays;
+// //
+// //   if (difference >= 1) {
+// //     // 하루가 지남
+// //     connectedDate = now;
+// //     // 연결된 날짜를 업데이트하고 상태를 알립니다.
+// //     notifyListeners();
+// //     // 여기에서 +1일이라는 메시지를 출력할 수 있습니다.
+// //     print('+1일');
+// //   }
+// // }
