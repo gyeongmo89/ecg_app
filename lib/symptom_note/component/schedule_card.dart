@@ -75,6 +75,7 @@ class _Time extends StatelessWidget {
     const textStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: PRIMARY_COLOR2,
+      // color: PRIMARY_COLOR,
       fontSize: 16.0,
     );
 
@@ -90,6 +91,12 @@ class _Time extends StatelessWidget {
           "${startTimeHour.toString().padLeft(2, "0")}:${startTimMinute.toString().padLeft(2, "0")}",
           style: textStyle,
         ),
+        // Text(
+        //   "${endTimeHour.toString().padLeft(2, "0")}:${endTimMinute.toString().padLeft(2, "0")}",
+        //   style: textStyle.copyWith(
+        //     fontSize: 12.0,
+        //   ),
+        // ),
       ],
     );
   }
@@ -141,6 +148,8 @@ class _Symptom extends StatelessWidget {
     if(etcSymptom == "기타설명에 작성해 주세요."){
       etcSymptom = content;
     }
+
+
 
     return Expanded(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,

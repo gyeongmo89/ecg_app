@@ -55,7 +55,7 @@
 <!--&lt;!&ndash;    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />&ndash;&gt;-->
     <!-- 아래 android:name=".MainActivity" 원래 이거였음 -->
     <application
-        android:label="CLtime"
+        android:label="IheartU"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
