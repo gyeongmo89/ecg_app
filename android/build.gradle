@@ -1,16 +1,18 @@
 buildscript {
 //    ext.kotlin_version = '1.7.10'
-    ext.kotlin_version = '1.9.22'
+//    ext.kotlin_version = '1.9.22'   //원래 이거였음, PUSH 메시지 때문에 아래로 변경함
+    ext.kotlin_version = '1.7.20'   //원래 이거였음, PUSH 메시지 때문에 아래로 변경함
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+//        classpath 'com.android.tools.build:gradle:7.3.0'//원래 이거였음, PUSH 메시지 때문에 아래로 변경함
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         
-        classpath 'com.google.gms:google-services:4.3.10' // FCM 때문에 추가함
+//        classpath 'com.google.gms:google-services:4.3.10' // FCM 때문에 추가함
         
     }
 }

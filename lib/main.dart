@@ -5,11 +5,19 @@
 // 2024-05-08 11:43 하루 최대 1시간 연결 후 앱 종료 시작 2(알림추가)
 // 2024-05-08 13:18 하루 최대 1시간 연결 후 앱 종료 시작 3(알림추가)
 // 2024-05-09 09:19 하루 최대 1시간 연결 후 앱 종료 시작 4(전역변수 설정)
+// 2024-05-28 11:43 local notification 추가
+
+//flutter build apk --release --target-platform=android-arm64
+//flutter build apk --debug --target-platform=android-arm64
+
 
 import 'dart:async';
 import 'dart:io';
 import 'package:ecg_app/bluetooth/ble_connection_state.dart';
+import 'package:ecg_app/common/component/menu_drawer.dart';
 import 'package:ecg_app/common/view/start_loading.dart';
+import 'package:ecg_app/test_noti/home_page.dart';
+import 'package:ecg_app/test_noti/message_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/services.dart';
@@ -17,8 +25,31 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ecg/component/ecg_card.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:ecg_app/test_noti/message_page.dart';
+import 'package:ecg_app/test_noti/local_push_notifications.dart';
+
+
+final navigatorKey = GlobalKey<NavigatorState>();
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();// 로컬 푸시 알림 초기화
+  await LocalPushNotifications.initialize();
+
+  //앱이 종료된 상태에서 푸시 알림을 탭할 때
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+  await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+    print('앱이 종료된 상태에서 푸시 알림을 탭했습니다.');
+    Future.delayed(const Duration(seconds: 1), () {
+      navigatorKey.currentState!.pushNamed('/message',arguments:
+      notificationAppLaunchDetails?.notificationResponse?.payload);
+    });
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeDateFormatting();
@@ -26,6 +57,7 @@ void main() async {
   final database = LocalDatabase();
 
   GetIt.I.registerSingleton<LocalDatabase>(
+
       database); // I 는 인스턴스라는 뜻임, 어디에서든 데이터베이스 값을 가져올 수 있다.
   //전역에서 사용하기 위해서 추가
   final timerService = TimerService(); // Create TimerService instance
@@ -45,6 +77,10 @@ void main() async {
           // dispose: (_, timerService) => timerService.dispose(), //지워야하나?
           create: (_) => timerService,
         ),
+        ChangeNotifierProvider( // Add this line
+          create: (context) => HeartRateProvider(),
+        ),
+
       ],
       child: const _App(),
     ),
@@ -126,7 +162,7 @@ class _AppState extends State<_App> {
         //전역에서 사용하기위해서 추가
         stream: timerService.timerStream, // Use timerService stream
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.hasData && snapshot.data! >= 4485 && !_isDialogShown) {
+          if (snapshot.hasData && snapshot.data! >= 900000 && !_isDialogShown) {
             Future.delayed(Duration.zero, () {
               setState(() {
                 _isDialogShown = true; // Set the flag to true
@@ -164,12 +200,20 @@ class _AppState extends State<_App> {
           } else if (!_isDialogShown) {
             print("StartLoading 실행");
             return const StartLoading();
+            // return const HomePage();  //local notification test 하기 위한 페이지
+
           }
           return SizedBox
               .shrink(); // Return an empty widget when dialog is shown
         },
       ),
+      routes: {
+        // '/': (context) => const HomePage(),
+        '/message': (context) => MessagePage(),
+        '/menu_drawer': (context) => MenuDrawer(),
+      },
     );
+
   }
 }
 

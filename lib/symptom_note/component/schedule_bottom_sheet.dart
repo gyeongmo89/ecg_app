@@ -23,6 +23,9 @@
 // 2024-04-30 13:48 증상선택 Row 아무데나 터치해도 팝업창 열리도록 수정 시작 1
 // 2024-04-30 16:39 증상선택,상황작성 Row 아무데나 터치해도 팝업창 열리도록 수정 완료
 // 2024-04-30 16:40 수정시 증상선택이 저장되었던 데이터가 적용되지않는 문제 수정 진행중 -> 데이터업로드 쪽 먼저 하려고함
+// 2024-05-13 09:40 증상노트 수정시 증상값이 불러오지 않는 문제 수정 시작1
+// 2024-05-13 16:26 증상노트 증상선택 수정값 불러오고 글씨 색상 상황별 적용 완료
+// 2024-05-13 16:45 상황작성 자동 초기화되는 문제 수정 시작1
 
 import 'dart:async';
 import 'package:drift/drift.dart' show Value;
@@ -237,16 +240,20 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           //     symptom?.toString() ?? '증상을 선택해 주세요.'),
 
                           _SymptomSelect(
+                            // symptomSaved: (String? val) {  //원래 이 코드였는데 수정시 저장된 값이 안불러와서 일단 주석처리함
+                            //   setState(() {
+                            //     symptom = val;
+                            //   });
+                            // },
                             symptomSaved: (String? val) {
-                              setState(() {
-                                symptom = val;
-                              });
+                              symptom = val;
                             },
+                            // symptomInitialValue: symptom?.toString() ?? '증상을 선택해 주세요.',
                             symptomInitialValue: symptom?.toString() ?? '',
-                                // Text(
-                                //   '증상을 선택해 주세요.',
-                                //   textAlign: TextAlign.right,
-                                // ).data!,
+                            // Text(
+                            //   '증상을 선택해 주세요.',
+                            //   textAlign: TextAlign.right,
+                            // ).data!,
                           ),
                           // ---------------------------------
                           const Divider(
@@ -381,7 +388,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       });
 
       // if (startTime == null || symptom == null || activity == null) {
-      if (startTime == null || symptom == null || content == null) {
+      // if (startTime == null || symptom == null || content == null) {
+      if (startTime == null || symptom == null) { //상황작성 필수값 해제
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -410,7 +418,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('알림'),
-              content: const Text('증상이 기타인 경우 기타 설명을 입력해 주세요.'),
+              content: const Text('증상이 기타인 경우 상황작성을 입력해 주세요.'),
               actions: [
                 CustomButton(
                   text: "확인",
@@ -834,155 +842,155 @@ class _TimeState extends State<_Time> {
 
 //
 // ------------ 증상 지속시간선택 --------------
-class _SymptomSelectDuration extends StatefulWidget {
-  final FormFieldSetter<int?> symptomDurationSaved;
-  final String? symptomDurationInitialValue;
-  final TimeOfDay? startSelectedTime;
+// class _SymptomSelectDuration extends StatefulWidget {
+//   final FormFieldSetter<int?> symptomDurationSaved;
+//   final String? symptomDurationInitialValue;
+//   final TimeOfDay? startSelectedTime;
+//
+//   // final bool startTimeStatus;
+//
+//   const _SymptomSelectDuration({
+//     required this.symptomDurationSaved,
+//     required this.symptomDurationInitialValue,
+//     required this.startSelectedTime,
+//     // required this.startTimeStatus,
+//     Key? key,
+//   }) : super(key: key);
+//
+//   @override
+//   State<_SymptomSelectDuration> createState() => _SymptomDurationSelectState();
+// // State<_SymptomSelectDuration> createState() => _SymptomDurationSelectState(startTimeStatus: startTimeStatus);
+// }
 
-  // final bool startTimeStatus;
-
-  const _SymptomSelectDuration({
-    required this.symptomDurationSaved,
-    required this.symptomDurationInitialValue,
-    required this.startSelectedTime,
-    // required this.startTimeStatus,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<_SymptomSelectDuration> createState() => _SymptomDurationSelectState();
-// State<_SymptomSelectDuration> createState() => _SymptomDurationSelectState(startTimeStatus: startTimeStatus);
-}
-
-class _SymptomDurationSelectState extends State<_SymptomSelectDuration> {
-  int? selectedSymptomDuration;
-  late bool symptomDurationStatus = false;
-  late String? symptomDurationInitialValue;
-  late TimeOfDay? startSelectedTime;
-
-  @override
-  void didUpdateWidget(covariant _SymptomSelectDuration oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.startSelectedTime != oldWidget.startSelectedTime) {
-      setState(() {
-        startSelectedTime = widget.startSelectedTime;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    symptomDurationStatus = false;
-    symptomDurationInitialValue = widget.symptomDurationInitialValue;
-    startSelectedTime = widget.startSelectedTime;
-    print("이닛 startSelectedTime---> $startSelectedTime");
-
-    // print("widget.startSelectedTime 진짜---> ${widget.startSelectedTime}");
-    // _startSelectedTime = widget.startSelectedTime != null
-    // _startSelectedTime = widget.startSelectedTime;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            // input symptom image
-            const Icon(Icons.alarm_add_rounded, color: Colors.black),
-            TextButton(
-              onPressed: () async {
-                didUpdateWidget(widget);
-                print("startSelectedTime--->$startSelectedTime");
-                // print("_startSelectedTime-->제발 -> $_startSelectedTime");
-                // if (_startSelectedTime == null) {
-                // print("->startTimeStatus---> $startTimeStatus");
-                // if (_startSelectedTime == null) {
-                //   // 시작시간이 선택되지 않은 경우
-                //   // print("->_startSelectedTime---> $_startSelectedTime");
-                //   showDialog(
-                //     context: context,
-                //     builder: (BuildContext context) {
-                //       return AlertDialog(
-                //         title: Text('알림'),
-                //         content: Text('시작시간을 먼저 선택해 주세요.'),
-                //         actions: [
-                //           CustomButton(
-                //             text: "확인",
-                //             onPressed: () {
-                //               Navigator.pop(context);
-                //             },
-                //             backgroundColor: SAVE_COLOR2,
-                //           ),
-                //         ],
-                //       );
-                //     },
-                //   );
-                // } else {
-                // 시작시간이 선택된 경우
-                final selectedSymptomDuration = await showDialog<int?>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SymptomDurationDialog(
-                      onSymptomDurationSelected: (symptomDuration) {
-                        widget.symptomDurationSaved(symptomDuration);
-                        setState(() {
-                          this.selectedSymptomDuration = symptomDuration;
-                          symptomDurationStatus = true;
-                        });
-                      },
-                    );
-                  },
-                );
-                if (selectedSymptomDuration != null) {
-                  setState(() {
-                    this.selectedSymptomDuration = selectedSymptomDuration;
-                    symptomDurationStatus = true;
-                  });
-                } else {
-                  print("엘스구문");
-                }
-              },
-              // },
-              style: TextButton.styleFrom(),
-              child: RichText(
-                text: const TextSpan(
-                  text: '증상지속시간',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    color: BODY_TEXT_COLOR,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (symptomDurationStatus == true)
-          Text(
-            "$selectedSymptomDuration" + "분", // 선택된 증상을 표시
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14.0,
-              color: BODY_TEXT_COLOR,
-            ),
-          ),
-        if (selectedSymptomDuration == null && symptomDurationStatus == false)
-          Text(
-            "${symptomDurationInitialValue ?? 0}",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14.0,
-              color: SUB_TEXT_COLOR,
-            ),
-          ),
-      ],
-    );
-  }
-}
+// class _SymptomDurationSelectState extends State<_SymptomSelectDuration> {
+//   int? selectedSymptomDuration;
+//   late bool symptomDurationStatus = false;
+//   late String? symptomDurationInitialValue;
+//   late TimeOfDay? startSelectedTime;
+//
+//   @override
+//   void didUpdateWidget(covariant _SymptomSelectDuration oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (widget.startSelectedTime != oldWidget.startSelectedTime) {
+//       setState(() {
+//         startSelectedTime = widget.startSelectedTime;
+//       });
+//     }
+//   }
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     symptomDurationStatus = false;
+//     symptomDurationInitialValue = widget.symptomDurationInitialValue;
+//     startSelectedTime = widget.startSelectedTime;
+//     print("이닛 startSelectedTime---> $startSelectedTime");
+//
+//     // print("widget.startSelectedTime 진짜---> ${widget.startSelectedTime}");
+//     // _startSelectedTime = widget.startSelectedTime != null
+//     // _startSelectedTime = widget.startSelectedTime;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       mainAxisAlignment: MainAxisAlignment.start,
+//       children: [
+//         Row(
+//           children: [
+//             // input symptom image
+//             const Icon(Icons.alarm_add_rounded, color: Colors.black),
+//             TextButton(
+//               onPressed: () async {
+//                 didUpdateWidget(widget);
+//                 print("startSelectedTime--->$startSelectedTime");
+//                 // print("_startSelectedTime-->제발 -> $_startSelectedTime");
+//                 // if (_startSelectedTime == null) {
+//                 // print("->startTimeStatus---> $startTimeStatus");
+//                 // if (_startSelectedTime == null) {
+//                 //   // 시작시간이 선택되지 않은 경우
+//                 //   // print("->_startSelectedTime---> $_startSelectedTime");
+//                 //   showDialog(
+//                 //     context: context,
+//                 //     builder: (BuildContext context) {
+//                 //       return AlertDialog(
+//                 //         title: Text('알림'),
+//                 //         content: Text('시작시간을 먼저 선택해 주세요.'),
+//                 //         actions: [
+//                 //           CustomButton(
+//                 //             text: "확인",
+//                 //             onPressed: () {
+//                 //               Navigator.pop(context);
+//                 //             },
+//                 //             backgroundColor: SAVE_COLOR2,
+//                 //           ),
+//                 //         ],
+//                 //       );
+//                 //     },
+//                 //   );
+//                 // } else {
+//                 // 시작시간이 선택된 경우
+//                 final selectedSymptomDuration = await showDialog<int?>(
+//                   context: context,
+//                   builder: (BuildContext context) {
+//                     return SymptomDurationDialog(
+//                       onSymptomDurationSelected: (symptomDuration) {
+//                         widget.symptomDurationSaved(symptomDuration);
+//                         setState(() {
+//                           this.selectedSymptomDuration = symptomDuration;
+//                           symptomDurationStatus = true;
+//                         });
+//                       },
+//                     );
+//                   },
+//                 );
+//                 if (selectedSymptomDuration != null) {
+//                   setState(() {
+//                     this.selectedSymptomDuration = selectedSymptomDuration;
+//                     symptomDurationStatus = true;
+//                   });
+//                 } else {
+//                   print("엘스구문");
+//                 }
+//               },
+//               // },
+//               style: TextButton.styleFrom(),
+//               child: RichText(
+//                 text: const TextSpan(
+//                   text: '증상지속시간',
+//                   style: TextStyle(
+//                     fontSize: 16.0,
+//                     fontWeight: FontWeight.w600,
+//                     color: BODY_TEXT_COLOR,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//         if (symptomDurationStatus == true)
+//           Text(
+//             "$selectedSymptomDuration" + "분", // 선택된 증상을 표시
+//             textAlign: TextAlign.center,
+//             style: const TextStyle(
+//               fontSize: 14.0,
+//               color: BODY_TEXT_COLOR,
+//             ),
+//           ),
+//         if (selectedSymptomDuration == null && symptomDurationStatus == false)
+//           Text(
+//             "${symptomDurationInitialValue ?? 0}",
+//             textAlign: TextAlign.center,
+//             style: const TextStyle(
+//               fontSize: 14.0,
+//               color: SUB_TEXT_COLOR,
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
 
 // ------------ 증상 선택 --------------
 class _SymptomSelect extends StatefulWidget {
@@ -1024,6 +1032,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
                 widget.symptomSaved(symptom);
                 setState(() {
                   this.selectedSymptom = symptom;
+                  symptomStatus = true; // 증상 선택 상태로 변경
                 });
               },
             );
@@ -1032,6 +1041,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
         if (selectedSymptom != null) {
           setState(() {
             this.selectedSymptom = selectedSymptom;
+            symptomStatus = true; // 증상 선택 상태로 변경
           });
         }
       },
@@ -1052,7 +1062,8 @@ class _SymptomSelectState extends State<_SymptomSelect> {
                         onSymptomSelected: (symptom) {
                           widget.symptomSaved(symptom);
                           setState(() {
-                            this.selectedSymptom = symptom;
+                            this.selectedSymptom = symptom; //테스트 수정
+                            symptomStatus = true; // 증상 선택 상태로 변경
                           });
                         },
                       );
@@ -1061,6 +1072,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
                   if (selectedSymptom != null) {
                     setState(() {
                       this.selectedSymptom = selectedSymptom;
+                      symptomStatus = true; // 증상 선택 상태로 변경
                     });
                   }
                 },
@@ -1091,21 +1103,45 @@ class _SymptomSelectState extends State<_SymptomSelect> {
           SizedBox(
             width: MediaQuery.of(context).size.width / 20.0,
           ),
-          if (selectedSymptom == null)
-            Text(
-              '증상을 선택해 주세요.',
-              style: TextStyle(
-                fontSize: 14.0,
-                color: SUB_TEXT_COLOR,
+          // if (symptomStatus == true)
+          //   Text(
+          //     symptomInitialValue, // 선택된 증상을 표시
+          //     // "$selectedSymptom",
+          //     style: TextStyle(
+          //       fontSize: 14.0,
+          //       color: BODY_TEXT_COLOR,
+          //     ),
+          //   )
+          // else
+          //   Text(
+          //     '증상을 선택해 주세요',
+          //     style: TextStyle(
+          //       fontSize: 14.0,
+          //       color: SUB_TEXT_COLOR,
+          //     ),
+          //   )
+          if (symptomStatus == true)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                "$selectedSymptom", // 선택된 증상을 표시
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  color: BODY_TEXT_COLOR,
+                ),
               ),
-            )
-          else
+            ),
+          if (selectedSymptom == null && symptomStatus == false)
+            // if (symptomInitialValue.isNotEmpty && symptomStatus == false)
             Text(
-
-              selectedSymptom!,  //에헴
+              symptomInitialValue.isEmpty ? '증상을 선택해 주세요.' : symptomInitialValue,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.0,
-                color: BODY_TEXT_COLOR,
+                color: symptomInitialValue.isEmpty
+                    ? SUB_TEXT_COLOR
+                    : BODY_TEXT_COLOR,
               ),
             )
         ],
@@ -1113,7 +1149,7 @@ class _SymptomSelectState extends State<_SymptomSelect> {
     );
   }
 
-  // 전체 Row를 아무데나 터치해도 증상선택 팝업이 뜨도록 하는 코드 작성을 위해 임시 주석
+  // // 전체 Row를 아무데나 터치해도 증상선택 팝업이 뜨도록 하는 코드 작성을 위해 임시 주석
   // @override
   // Widget build(BuildContext context) {
   //   return Row(
@@ -1375,7 +1411,7 @@ class _ActivitySelectState extends State<_ActivitySelect> {
 
 // ----------------------------------------------
 // ------------ 내용 입력 팝업--------------
-class _ContentPopup extends StatelessWidget {
+class _ContentPopup extends StatefulWidget {
   final FormFieldSetter<String> onSaved;
   final String initialValue;
 
@@ -1383,256 +1419,384 @@ class _ContentPopup extends StatelessWidget {
       {required this.onSaved, required this.initialValue, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    String? content = ''; // 추가: 팝업 내용을 저장할 변수
-    // if (initialValue.isNotEmpty) {
-    //   // 초기값이 있을 때만 사용
-    //   content = initialValue;
-    // }
+  State<_ContentPopup> createState() => _ContentPopupState();
+}
+class _ContentPopupState extends State<_ContentPopup> {
+  late TextEditingController _controller;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('상황작성'),
-                  content: TextField(
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    controller: TextEditingController(text: initialValue),
-                    onChanged: (value) {
-                      content = value;
-                    },
-                    decoration: InputDecoration(
-                      hintText: initialValue.isNotEmpty
-                          ? null
-                          : '증상 발생 시 상황 또는 활동을 작성',
-                    ),
-                  ),
-                  actions: [
-                    CustomButton(
-                      text: "취소",
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      backgroundColor: CANCEL_COLOR2,
-                    ),
-                    CustomButton(
-                      text: "저장",
-                      onPressed: () {
-                        Navigator.pop(context, content);
-                      },
-                      backgroundColor: SAVE_COLOR2,
-                    ),
-                  ],
-                );
-              },
-            ).then((result) {
-              if (result != null) {
-                onSaved(result);
-              }
-            });
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('상황작성'),
+              content: TextField(
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                controller: _controller,
+                // onSubmitted: (value){
+                //   // content = value;
+                //   _controller.text = value;
+                // },
+
+                // onChanged: (value) {
+                //   // 내용이 변경될 때마다 변수에 저장
+                //   _controller.text = value;
+                // },
+                  onSubmitted: (value) {
+                  if (value != null) {
+                    _controller.text = value;
+                  }
+                },
+
+                decoration: InputDecoration(
+                  hintText: widget.initialValue.isNotEmpty
+                      ? null
+                      : '증상 발생 시 상황 또는 활동을 작성',
+                ),
+              ),
+              actions: [
+                CustomButton(
+                  text: "취소",
+                  onPressed: () {
+                    _controller.text = widget.initialValue; // 취소 버튼을 누르면 초기값으로 되돌림
+                    Navigator.pop(context);
+                  },
+                  backgroundColor: CANCEL_COLOR2,
+                ),
+                CustomButton(
+                  text: "저장",
+                  onPressed: () {
+                    // 저장 버튼이 눌리면 내용을 전달
+                    Navigator.pop(context, _controller.text);
+                  },
+                  backgroundColor: SAVE_COLOR2,
+                ),
+              ],
+            );
           },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
+        ).then((result) {
+          // 팝업이 닫힌 후의 처리
+          if (result != null) {
+            // 저장 버튼이 눌렸을 때만 처리
+            widget.onSaved(result);
+          }
+        });
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.directions_run_outlined,
-                      color: Colors.black),
-                  //상황 작성 텍스트 버튼
-                  TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('상황작성'),
-                            content: TextField(
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              controller:
-                                  TextEditingController(text: initialValue),
-                              onChanged: (value) {
-                                // 내용이 변경될 때마다 변수에 저장
-                                content = value;
-                              },
-                              decoration: InputDecoration(
-                                hintText: initialValue.isNotEmpty
-                                    ? null
-                                    : '증상 발생 시 상황 또는 활동을 작성',
-                              ),
-                            ),
-                            actions: [
-                              CustomButton(
-                                text: "취소",
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                backgroundColor: CANCEL_COLOR2,
-                              ),
-                              CustomButton(
-                                text: "저장",
-                                onPressed: () {
-                                  // 저장 버튼이 눌리면 내용을 전달
-                                  Navigator.pop(context, content);
-                                },
-                                backgroundColor: SAVE_COLOR2,
-                              ),
-                            ],
-                          );
-                        },
-                      ).then((result) {
-                        // 팝업이 닫힌 후의 처리
-                        if (result != null) {
-                          // 저장 버튼이 눌렸을 때만 처리
-                          onSaved(result);
-                        }
-                      });
-                    },
-                    style: TextButton.styleFrom(),
-                    child: RichText(
-                      text: const TextSpan(
-                        text: '상황작성      ',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          color: BODY_TEXT_COLOR,
-                        ),
-                      ),
+              const Icon(Icons.directions_run_outlined,
+                  color: Colors.black),
+              //상황 작성 텍스트 버튼
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(),
+                child: RichText(
+                  text: const TextSpan(
+                    text: '상황작성      ',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                      color: BODY_TEXT_COLOR,
                     ),
                   ),
-                ],
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 20.0,
-              ),
-              Text(
-                initialValue.isEmpty
-                    ? "상황을 작성 해주세요."
-                    : (initialValue.length > 12)
-                        ? '${initialValue.substring(0, 12)} ...' // 15자 이상이면 일부만 출력
-                        : initialValue,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color:
-                      initialValue.isEmpty ? SUB_TEXT_COLOR : BODY_TEXT_COLOR,
                 ),
               ),
             ],
           ),
-        ),
-
-        // Row(
-        //   children: [
-        //     // const Icon(Icons.edit, color: Colors.black),
-        //     //활동 아이콘
-        //     const Icon(Icons.directions_run_outlined, color: Colors.black),
-        //     TextButton(
-        //       onPressed: () {
-        //         showDialog(
-        //           context: context,
-        //           builder: (BuildContext context) {
-        //             return AlertDialog(
-        //               title: const Text('상황작성'),
-        //               content: TextField(
-        //                 maxLines: null,
-        //                 keyboardType: TextInputType.multiline,
-        //                 // controller: TextEditingController(text: initialValue),
-        //
-        //                 controller: TextEditingController(text: initialValue),
-        //
-        //                 onChanged: (value) {
-        //                   // 추가: 내용이 변경될 때마다 변수에 저장
-        //                   content = value;
-        //                 },
-        //                 decoration: InputDecoration(
-        //                   hintText: initialValue.isNotEmpty
-        //                       ? null
-        //                       : '증상 발생 시 상황 또는 활동을 작성',
-        //                 ),
-        //                 // decoration: InputDecoration(
-        //                 //   hintText: '내용을 입력하세요.',
-        //                 // ),
-        //               ),
-        //               actions: [
-        //                 CustomButton(
-        //                   text: "취소",
-        //                   onPressed: () {
-        //                     Navigator.pop(context);
-        //                   },
-        //                   backgroundColor: CANCEL_COLOR2,
-        //                 ),
-        //                 CustomButton(
-        //                   text: "저장",
-        //                   onPressed: () {
-        //                     // 추가: 저장 버튼이 눌리면 내용을 전달
-        //                     Navigator.pop(context, content);
-        //                   },
-        //                   backgroundColor: SAVE_COLOR2,
-        //                 ),
-        //               ],
-        //             );
-        //           },
-        //         ).then((result) {
-        //           // 추가: 팝업이 닫힌 후의 처리
-        //           if (result != null) {
-        //             // 저장 버튼이 눌렸을 때만 처리
-        //             print("저장된 내용: $result");
-        //             onSaved(result);
-        //           }
-        //         });
-        //       },
-        //       style: TextButton.styleFrom(),
-        //       child: RichText(
-        //         text: const TextSpan(
-        //           // text: '상황작성 (',
-        //           text: '상황작성      ',
-        //           // style: DefaultTextStyle.of(context).style,
-        //           style: TextStyle(
-        //             fontSize: 16.0,
-        //             fontWeight: FontWeight.w600,
-        //             color: BODY_TEXT_COLOR,
-        //           ),
-        //           // children: <TextSpan>[
-        //           //   TextSpan(
-        //           //     text: '*',
-        //           //     style: TextStyle(
-        //           //       color: Colors.red,
-        //           //       fontWeight: FontWeight.bold,
-        //           //     ),
-        //           //   ),
-        //           //   TextSpan(text: ')'),
-        //           // ],
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
-        // SizedBox(
-        //   width: MediaQuery.of(context).size.width / 20.0,
-        // ),
-        // Text(
-        //   initialValue.isEmpty
-        //       ? "상황을 작성 해주세요."
-        //       : (initialValue.length > 20)
-        //           ? '${initialValue.substring(0, 15)} ...' // 10자 이상이면 일부만 출력
-        //           : initialValue,
-        //   style: TextStyle(
-        //     fontSize: 14.0,
-        //     color: initialValue.isEmpty ? SUB_TEXT_COLOR : BODY_TEXT_COLOR,
-        //   ),
-        // ),
-      ],
+          SizedBox(
+            width: MediaQuery.of(context).size.width / 20.0,
+          ),
+          Text(
+            _controller.text.isEmpty
+                ? "기타 & 상황을 작성 해주세요."
+                : (_controller.text.length > 12)
+                    ? '${_controller.text.substring(0, 12)} ...' // 15자 이상이면 일부만 출력
+                    : _controller.text,
+            style: TextStyle(
+              fontSize: 14.0,
+              color: _controller.text.isEmpty ? SUB_TEXT_COLOR : BODY_TEXT_COLOR,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
+
+// class _ContentPopupState extends State<_ContentPopup> {
+//   late TextEditingController _controller;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = TextEditingController(text: widget.initialValue);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     String? content = ''; // 추가: 팝업 내용을 저장할 변수
+//     if (widget.initialValue.isNotEmpty) {
+//       // 초기값이 있을 때만 사용
+//       content = widget.initialValue;
+//     }
+//
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       mainAxisAlignment: MainAxisAlignment.start,
+//       children: [
+//         GestureDetector(
+//
+//           onTap: () {
+//             showDialog(
+//               context: context,
+//               builder: (BuildContext context) {
+//                 return AlertDialog(
+//                   title: const Text('상황작성'),
+//                   content: TextField(
+//                     maxLines: null,
+//                     keyboardType: TextInputType.multiline,
+//                     controller: TextEditingController(text: widget.initialValue),
+//                     // onChanged: (value) {
+//                     //   content = value;
+//                     // },
+//                     decoration: InputDecoration(
+//                       hintText: widget.initialValue.isNotEmpty
+//                           ? null
+//                           : '증상 발생 시 상황 또는 활동을 작성',
+//                     ),
+//                   ),
+//                   actions: [
+//                     CustomButton(
+//                       text: "취소",
+//                       onPressed: () {
+//                         Navigator.pop(context);
+//                       },
+//                       backgroundColor: CANCEL_COLOR2,
+//                     ),
+//                     CustomButton(
+//                       text: "저장",
+//                       onPressed: () {
+//                         Navigator.pop(context, content);
+//                       },
+//                       backgroundColor: SAVE_COLOR2,
+//                     ),
+//                   ],
+//                 );
+//               },
+//             ).then((result) {
+//               if (result != null) {
+//                 widget.onSaved(result);
+//               }
+//             });
+//           },
+//           child: Row(
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             mainAxisAlignment: MainAxisAlignment.start,
+//             children: [
+//               Row(
+//                 children: [
+//                   const Icon(Icons.directions_run_outlined,
+//                       color: Colors.black),
+//                   //상황 작성 텍스트 버튼
+//                   TextButton(
+//                     onPressed: () {
+//                       showDialog(
+//                         context: context,
+//                         builder: (BuildContext context) {
+//                           return AlertDialog(
+//                             title: const Text('상황작성'),
+//                             content: TextField(
+//                               maxLines: null,
+//                               keyboardType: TextInputType.multiline,
+//                               controller:
+//                                   TextEditingController(text: widget.initialValue),
+//                               onChanged: (value) {
+//                                 // 내용이 변경될 때마다 변수에 저장
+//                                 content = value;
+//                               },
+//                               decoration: InputDecoration(
+//                                 hintText: widget.initialValue.isNotEmpty
+//                                     ? null
+//                                     : '증상 발생 시 상황 또는 활동을 작성',
+//                               ),
+//                             ),
+//                             actions: [
+//                               CustomButton(
+//                                 text: "취소",
+//                                 onPressed: () {
+//                                   Navigator.pop(context);
+//                                 },
+//                                 backgroundColor: CANCEL_COLOR2,
+//                               ),
+//                               CustomButton(
+//                                 text: "저장",
+//                                 onPressed: () {
+//                                   // 저장 버튼이 눌리면 내용을 전달
+//                                   Navigator.pop(context, content);
+//                                 },
+//                                 backgroundColor: SAVE_COLOR2,
+//                               ),
+//                             ],
+//                           );
+//                         },
+//                       ).then((result) {
+//                         // 팝업이 닫힌 후의 처리
+//                         if (result != null) {
+//                           // 저장 버튼이 눌렸을 때만 처리
+//                           widget.onSaved(result);
+//                         }
+//                       });
+//                     },
+//                     style: TextButton.styleFrom(),
+//                     child: RichText(
+//                       text: const TextSpan(
+//                         text: '상황작성      ',
+//                         style: TextStyle(
+//                           fontSize: 16.0,
+//                           fontWeight: FontWeight.w600,
+//                           color: BODY_TEXT_COLOR,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               SizedBox(
+//                 width: MediaQuery.of(context).size.width / 20.0,
+//               ),
+//               Text(
+//                 widget.initialValue.isEmpty
+//                     ? "상황을 작성 해주세요."
+//                     : (widget.initialValue.length > 12)
+//                         ? '${widget.initialValue.substring(0, 12)} ...' // 15자 이상이면 일부만 출력
+//                         : widget.initialValue,
+//                 style: TextStyle(
+//                   fontSize: 14.0,
+//                   color:
+//                       widget.initialValue.isEmpty ? SUB_TEXT_COLOR : BODY_TEXT_COLOR,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//         // Row(
+//         //   children: [
+//         //     // const Icon(Icons.edit, color: Colors.black),
+//         //     //활동 아이콘
+//         //     const Icon(Icons.directions_run_outlined, color: Colors.black),
+//         //     TextButton(
+//         //       onPressed: () {
+//         //         showDialog(
+//         //           context: context,
+//         //           builder: (BuildContext context) {
+//         //             return AlertDialog(
+//         //               title: const Text('상황작성'),
+//         //               content: TextField(
+//         //                 maxLines: null,
+//         //                 keyboardType: TextInputType.multiline,
+//         //                 // controller: TextEditingController(text: initialValue),
+//         //
+//         //                 controller: TextEditingController(text: initialValue),
+//         //
+//         //                 onChanged: (value) {
+//         //                   // 추가: 내용이 변경될 때마다 변수에 저장
+//         //                   content = value;
+//         //                 },
+//         //                 decoration: InputDecoration(
+//         //                   hintText: initialValue.isNotEmpty
+//         //                       ? null
+//         //                       : '증상 발생 시 상황 또는 활동을 작성',
+//         //                 ),
+//         //                 // decoration: InputDecoration(
+//         //                 //   hintText: '내용을 입력하세요.',
+//         //                 // ),
+//         //               ),
+//         //               actions: [
+//         //                 CustomButton(
+//         //                   text: "취소",
+//         //                   onPressed: () {
+//         //                     Navigator.pop(context);
+//         //                   },
+//         //                   backgroundColor: CANCEL_COLOR2,
+//         //                 ),
+//         //                 CustomButton(
+//         //                   text: "저장",
+//         //                   onPressed: () {
+//         //                     // 추가: 저장 버튼이 눌리면 내용을 전달
+//         //                     Navigator.pop(context, content);
+//         //                   },
+//         //                   backgroundColor: SAVE_COLOR2,
+//         //                 ),
+//         //               ],
+//         //             );
+//         //           },
+//         //         ).then((result) {
+//         //           // 추가: 팝업이 닫힌 후의 처리
+//         //           if (result != null) {
+//         //             // 저장 버튼이 눌렸을 때만 처리
+//         //             print("저장된 내용: $result");
+//         //             onSaved(result);
+//         //           }
+//         //         });
+//         //       },
+//         //       style: TextButton.styleFrom(),
+//         //       child: RichText(
+//         //         text: const TextSpan(
+//         //           // text: '상황작성 (',
+//         //           text: '상황작성      ',
+//         //           // style: DefaultTextStyle.of(context).style,
+//         //           style: TextStyle(
+//         //             fontSize: 16.0,
+//         //             fontWeight: FontWeight.w600,
+//         //             color: BODY_TEXT_COLOR,
+//         //           ),
+//         //           // children: <TextSpan>[
+//         //           //   TextSpan(
+//         //           //     text: '*',
+//         //           //     style: TextStyle(
+//         //           //       color: Colors.red,
+//         //           //       fontWeight: FontWeight.bold,
+//         //           //     ),
+//         //           //   ),
+//         //           //   TextSpan(text: ')'),
+//         //           // ],
+//         //         ),
+//         //       ),
+//         //     ),
+//         //   ],
+//         // ),
+//         // SizedBox(
+//         //   width: MediaQuery.of(context).size.width / 20.0,
+//         // ),
+//         // Text(
+//         //   initialValue.isEmpty
+//         //       ? "상황을 작성 해주세요."
+//         //       : (initialValue.length > 20)
+//         //           ? '${initialValue.substring(0, 15)} ...' // 10자 이상이면 일부만 출력
+//         //           : initialValue,
+//         //   style: TextStyle(
+//         //     fontSize: 14.0,
+//         //     color: initialValue.isEmpty ? SUB_TEXT_COLOR : BODY_TEXT_COLOR,
+//         //   ),
+//         // ),
+//       ],
+//     );
+//   }
+// }
 
 // ------------ 내용 입력 --------------
 class _Content extends StatelessWidget {

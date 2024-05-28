@@ -1,5 +1,7 @@
 // 2024-02-02 15:09 Setting 의 Light, Dark, System 모드 설정 추가
-// 2024-02-05- 10:42 테스트
+// 2024-02-05 10:42 테스트
+// 2024-05-28 15:55 Serialnumber 디바이스명 적용
+
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/view/about_info.dart';
@@ -15,6 +17,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ecg_app/common/view/patch_info.dart';
+import 'package:ecg_app/global_variables.dart';
+
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
@@ -26,6 +30,7 @@ class MenuDrawer extends StatefulWidget {
 class _MenuDrawerState extends State<MenuDrawer> {
   ThemeMode _themeMode = ThemeMode.dark;
   ThemeProvider? _themeProvider;
+  String deviceName = globalDeviceName;
 
   @override
   void didChangeDependencies() {
@@ -45,6 +50,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
   @override
   void initState() {
     super.initState();
+    deviceName = globalDeviceName;
+    print("deviceName: $deviceName");
     if (_themeProvider != null) {
       _themeMode = _themeProvider!.themeMode;
       _themeProvider!.addListener(_updateThemeMode);
@@ -249,8 +256,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
                         width: MediaQuery.of(context).size.width / 15,
                       ),
                       Text(
-                        // "Holmes-Cardio-001",
-                        "HCL_C101-0001",
+                        // "HCL_C101-0001",
+                        // globalDeviceName,
+                        deviceName,
                         style: TextStyle(
                           color: Colors.white,
                           // color: SUB_TEXT_COLOR,
