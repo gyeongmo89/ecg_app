@@ -1,12 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- FCM 으로 추가함 -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+<!--    <uses-permission android:name="android.permission.INTERNET"/>-->
+<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>-->
+<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
+<!--    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>-->
+    <!-- FCM 으로 추가함 -->
+    <!-- 로컬 푸쉬메시지로 추가함 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
-    <!-- FCM 으로 추가함 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+
+
+
+
+    <!-- 로컬 푸쉬메시지로 추가함 -->
 
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -70,7 +83,7 @@
 
             android:showWhenLocked="true"
             android:turnScreenOn="true">
-            <!-- 위에 두줄 FCM 으로 추가함 -->
+            <!-- 위에 두줄 로컬푸쉬메시지로 추가함 -->
 
 
 

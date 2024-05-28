@@ -10,32 +10,52 @@
 // 2024-04-16 18:45 수집 데이터 AVG, MIN, MAX bpm 출력 완료
 // 2024-04-16 18:46 avg 출력은 모두 완료했으나 정지후 AVG가 점점 줄어드는것을 막고, AVG 3자리수 일때 화면 넘어가므로 글씨크기 줄일것
 // 2024-05-02 12:54 HR 차트 적용 시작1
-
+// 2024-05-09 18:14 HR bpm hr_chart로 데이터 전달 시작1
+// 2024-05-09 20:10 HR bpm hr_chart로 데이터 전달하려고 Provider 적용했지만 아직 avgBpm 값이 전달되지 않음(빈배열)
+// 2024-05-10 14:45 avgBpm 전달완료
+// 2024-05-10 14:46 실시간 Bpm 전달시작
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:ecg_app/bluetooth/screens/device_screen.dart';
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/ecg/component/ecg_chart.dart';
 import 'package:ecg_app/ecg/component/hr_chart.dart';
-import 'package:ecg_app/ecg/view/ecg_test.dart';
-import 'package:ecg_app/main.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
-import 'dart:collection';
+
+// HeartRateProvider 클래스를 정의합니다.
+// class HeartRateProvider with ChangeNotifier {
+//   double _avgBpm = 0.0;
+//
+//   double get avgBpm => _avgBpm;
+//
+//   set avgBpm(double value) {
+//     _avgBpm = value;
+//     notifyListeners();
+//   }
+// }
+class HeartRateProvider with ChangeNotifier {
+  double _bpm = 0.0;
+
+  double get bpm => _bpm;
+
+  set bpm(double value) {
+    _bpm = value;
+    notifyListeners();
+  }
+}
+
+
 
 class DeviceScreen extends StatefulWidget {
   final Widget cardioImage;
   final BluetoothDevice device;
   DeviceScreen({required this.cardioImage, required this.device, super.key});
-
-//   @override
-//   State<EcgCard> createState() => _EcgCardState();
-// }
 
   @override
   _DeviceScreenState createState() => _DeviceScreenState();
@@ -48,11 +68,19 @@ class _DeviceScreenState extends State<DeviceScreen> {
   DateTime now = DateTime.now();
   Timer? recordingTimer;
   int dataIndex = 0;
+  // List<FlSpot> avgBpm = []; // avgBpm을 상태로 관리
+  //
+  // // avgBpm 값을 업데이트하는 메소드
+  // void updateAvgBpm(List<FlSpot> newAvgBpm) {
+  //   setState(() {
+  //     avgBpm = newAvgBpm;
+  //   });
+  // }
 
   final Paint backgroundPaint = Paint()
-  // // 배경색을 회색으로 설정
-  // ..color = Colors.grey
-  // 배경색을 검정색으로 설정
+    // // 배경색을 회색으로 설정
+    // ..color = Colors.grey
+    // 배경색을 검정색으로 설정
     ..color = Colors.black
     ..strokeWidth = 0.5;
 
@@ -73,8 +101,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   List<BluetoothService> bluetoothService = [];
 
-  //
-  // Map<String, List<int>> notifyDatas = {};
   Map<String, List<double>> notifyDatas = {};
 
   double bpm = 0.0; // 심박수를 저장하는 상태 변수
@@ -118,15 +144,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
     super.initState();
     // startTimer();
     // Recording Time 타이머 시작
-    recordingTimer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getCurrentTime());
+    recordingTimer =
+        Timer.periodic(Duration(seconds: 1), (Timer t) => _getCurrentTime());
 
     // 심박수 계산 타이머 시작
     heartRateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       // bpm = calculateHeartRate();
       updateHeartRate();
     });
-
-
 
     // 상태 연결 리스너 등록
     _stateListener = widget.device.state.listen((event) {
@@ -165,22 +190,35 @@ class _DeviceScreenState extends State<DeviceScreen> {
     });
   }
 
-
   // 심박수를 계산하고 bpm 상태 변수를 업데이트하는 메서드
   void updateHeartRate() {
-  double heartRate = calculateHeartRate();
+    double heartRate = calculateHeartRate();
 
-  setState(() {
-    bpm = heartRate;
-    if (heartRate != 0.0) {
-      // 심박수가 0이 아닌 경우에만 bpmValues 리스트에 추가
-      bpmValues.add(heartRate);
-    }
-    avgBpm = bpmValues.isNotEmpty ? bpmValues.reduce((a, b) => a + b) / bpmValues.length : 0.0; // 리스트가 비어 있지 않은 경우에만 평균을 계산
-    minBpm = bpmValues.isNotEmpty && bpmValues.where((bpm) => bpm > 0).isNotEmpty ? bpmValues.where((bpm) => bpm > 0).reduce(min) : 0.0; // 리스트가 비어 있지 않은 경우에만 최소값을 계산
-    maxBpm = bpmValues.isNotEmpty && bpmValues.where((bpm) => bpm < 250).isNotEmpty ? bpmValues.where((bpm) => bpm < 250).reduce(max) : 0.0; // 리스트에서 250 미만의 값 중 최대값을 계산
-  });
-}
+    setState(() {
+      bpm = heartRate;
+      if (heartRate != 0.0) {
+        // 심박수가 0이 아닌 경우에만 bpmValues 리스트에 추가
+        bpmValues.add(heartRate);
+      }
+      avgBpm = bpmValues.isNotEmpty
+          ? bpmValues.reduce((a, b) => a + b) / bpmValues.length
+          : 0.0; // 리스트가 비어 있지 않은 경우에만 평균을 계산
+      minBpm =
+          bpmValues.isNotEmpty && bpmValues.where((bpm) => bpm > 0).isNotEmpty
+              ? bpmValues.where((bpm) => bpm > 0).reduce(min)
+              : 0.0; // 리스트가 비어 있지 않은 경우에만 최소값을 계산
+      maxBpm =
+          bpmValues.isNotEmpty && bpmValues.where((bpm) => bpm < 250).isNotEmpty
+              ? bpmValues.where((bpm) => bpm < 250).reduce(max)
+              : 0.0; // 리스트에서 250 미만의 값 중 최대값을 계산
+
+      // avgBpm 값을 HeartRateProvider에 업데이트합니다.
+      // Provider.of<HeartRateProvider>(context, listen: false).avgBpm = avgBpm;
+      Provider.of<HeartRateProvider>(context, listen: false).bpm = bpm;
+      // print("HeartRateProvider avgBpm: ${Provider.of<HeartRateProvider>(context, listen: false).avgBpm}");
+      print("HeartRateProvider avgBpm: ${Provider.of<HeartRateProvider>(context, listen: false).bpm}");
+    });
+  }
 
   @override
   void setState(VoidCallback fn) {
@@ -189,10 +227,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
       super.setState(fn);
     }
   }
-//갱신시작 11:25
+
   /* 연결 상태 갱신 */
   void setBleConnectionState(BluetoothDeviceState event) {
-
     // final connectionState = Provider.of<ConnectionState>(context, listen: false); // 상태관리를 위해 추가(2024-04-12 15:48)
     switch (event) {
       case BluetoothDeviceState.disconnected:
@@ -202,9 +239,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
         connectButtonText = 'Connect';
         ecgData.clear();
         if (recordingTimer != null && recordingTimer!.isActive) {
-          print("FLAG10");
           recordingTimer?.cancel();
-          print("FLAG11");
         } else {
           print("Timer is null or already cancelled");
         }
@@ -218,9 +253,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
         // 버튼 상태 변경
         connectButtonText = 'Disconnect';
         ecgData.clear();
-        recordingTimer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getCurrentTime()); // 연결이 되면 다시 타이머를 시작
-        // connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
-        // discoverServices();
+        recordingTimer = Timer.periodic(Duration(seconds: 1),
+            (Timer t) => _getCurrentTime()); // 연결이 되면 다시 타이머를 시작
+
         break;
       case BluetoothDeviceState.connecting:
         stateText = 'Connecting...';
@@ -239,12 +274,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
       debugPrint('Device is already connected');
       return Future.value(true);
     }
-    // setState(() {
-    //   /* 상태 표시를 Connecting으로 변경 */
-    //   stateText = 'Connecting?????';
-    //
-    // });
-
     /*
       타임아웃을 10초(15000ms)로 설정 및 autoconnect 해제
        참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
@@ -310,15 +339,16 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
                     // 각 문자열을 double로 변환
 
-
-                    print("ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
+                    print(
+                        "ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
                     // Uint8List originalData = Uint8List.fromList(value);
                     // print("ecg_card_심전도 기기로부터 받는 value2: $originalData, Type: ${originalData.runtimeType}");
                     // String asciiString = String.fromCharCodes(originalData);
                     // print("ecg_card_심전도 기기로부터 받는 value3: $asciiString, Type: ${asciiString.runtimeType}");
 
                     String asciiString = String.fromCharCodes(value);
-                    print("ecg_card_심전도 기기로부터 받는 value3: $asciiString, Type: ${asciiString.runtimeType}");
+                    print(
+                        "ecg_card_심전도 기기로부터 받는 value3: $asciiString, Type: ${asciiString.runtimeType}");
 
                     List<String> stringParts = asciiString.split(',');
                     print(
@@ -327,7 +357,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     //     stringParts.map((s) => double.parse(s)).toList();
 
                     // List<double> dividedValue = stringParts.map((s) => double.parse(s.replaceAll('\n', ''))).toList();
-
 
                     List<String> lines = asciiString.split('\n');
                     List<double?> dividedValue = [];
@@ -342,14 +371,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         }
                       }));
                     }
-                    print("dividedValue --------0> $dividedValue, Type: ${dividedValue.runtimeType}");
+                    print(
+                        "dividedValue --------0> $dividedValue, Type: ${dividedValue.runtimeType}");
                     // HW 완료후 null 대신 EVENT 로 정의된 값을 넣으면 됨
                     // if (listEquals(dividedValue, [null])) {
                     // if (dividedValue.any((element) => element == null)) {
                     if (dividedValue.any((element) => element == 119)) {
                       print(" EVENT값이 null이라고 가정하고 프린트 출력");
                       eventDialog(context, dividedValue);
-
                     } else {
                       print("Value 10이 아닐때");
                     }
@@ -401,21 +430,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
   /* 연결 해제 */
   void disconnect() {
     try {
-      // // 연결이 해제되면 ecgData 배열을 비웁니다.
-      // print("Disconnect에서 clear 함수 실행1");
-      // ecgData.clear();
-      // print("Disconnect에서 clear 함수 실행2");
-      print("FLAG3---");
-      // timer?.cancel(); // 타이머를 취소(안그러면 재연결시 속도가 빨라짐)
       ecgData.clear();
-      print("FLAG3---");
-
       setState(() {
-        // print("Disconnect에서 clear 함수 실행3");
         stateText = 'Disconnect';
         ecgData.clear();
-
-        print("Disconnect에서 clear 함수 실행_ecg_card");
       });
       widget.device.disconnect();
     } catch (e) {
@@ -447,10 +465,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
         }
       }));
     }
-
     print("dividedValue --------> $dividedValue");
-
-
     // Remove 0.0 from dividedValue
     dividedValue = dividedValue.where((item) => item != 0.0).toList();
 
@@ -458,8 +473,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
     print('Number of data points added: ${dividedValue.length}');
 
     setState(() {
-      // ecgData = dividedValue; // dividedValue를 ecgData에 할당
-      // ecgData.addAll(dividedValue); // dividedValue를 ecgData에 추가
       ecgData.addAll(dividedValue
           .where((item) => item != null)
           .map((item) => item!)
@@ -467,16 +480,17 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
       // Remove the same number of oldest data points from ecgData
       // if (ecgData.length > 250) { // 데이터가 500개 이상일 때만 삭제(삭제속도)
-      if (ecgData.length > 200) { // 이게 베스트 프로토타입 250Hz일때
-      //   if (ecgData.length > 245) { // 기기판 250Hz일때
-      // if (ecgData.length > 200) { // 기기판 250Hz일때
-      // if (ecgData.length > 150) { // 기기판 250Hz일때
+      if (ecgData.length > 200) {
+        // 이게 베스트 프로토타입 250Hz일때
+        //   if (ecgData.length > 245) { // 기기판 250Hz일때
+        // if (ecgData.length > 200) { // 기기판 250Hz일때
+        // if (ecgData.length > 150) { // 기기판 250Hz일때
 
         ecgData.removeRange(0, dividedValue.length);
       }
-
     });
   }
+
   void eventDialog(BuildContext context, List<double?> dividedValue) {
     showDialog(
       context: context,
@@ -512,28 +526,26 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     );
                   },
                 );
-
-
               },
             ),
           ],
         );
       },
     );
-
-}
+  }
 
   //---ECG 차트 추가
-
-  //--------------
-
   // 아래는 ECG 화면
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
-    // 심박수 계산
-    // double bpm = calculateHeartRate();
+    final heartRateProvider = context.watch<HeartRateProvider>();
+    // print("짠 avgBpm: ${heartRateProvider.avgBpm}");
+    // HrChart(avgBpm: heartRateProvider.avgBpm);
+    print("짠 avgBpm: ${heartRateProvider.bpm}");
+    HrChart(bpm: heartRateProvider.bpm);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -549,9 +561,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     borderRadius: BorderRadius.circular(4.0),
                     child: widget.cardioImage,
                   ),
-                  // SizedBox(
-                  //   width: deviceWidth / 9 / 4,
-                  // ),
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -609,18 +618,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   children: [
                     Container(
                       height: 55,
-                      // height: deviceHeight / 9,
                       width: 40,
                       alignment: Alignment.center,
                     ),
-                    // Text( //bpm 출력
-                    //   (bpm - 80).toStringAsFixed(
-                    //       0), // Subtract 80 from the calculated bpm value
-                    //   style: const TextStyle(
-                    //     fontSize: 40,
-                    //     color: BODY_TEXT_COLOR,
-                    //   ),
-                    // ),
                     Text(
                       bpm.toStringAsFixed(0), // 실제 계산된 bpm 값으로 변경
                       style: const TextStyle(
@@ -628,14 +628,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         color: BODY_TEXT_COLOR,
                       ),
                     ),
-                    // Text(
-                    //   // heartRate.toString(), // HR 랜덤값
-                    //   "80", // HR 랜덤값
-                    //   style: const TextStyle(
-                    //     fontSize: 40,
-                    //     color: BODY_TEXT_COLOR,
-                    //   ),
-                    // ),
                     const Text(
                       " bpm",
                       style: TextStyle(fontSize: 18, color: Colors.white60),
@@ -646,12 +638,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
             ],
           ),
 // --------------------------------------------------
-//           SizedBox(height: deviceHeight/67),
           SizedBox(height: deviceHeight / 180),
+          //Recording Time 함수
           Row(
             children: [
-              // Text("Recording Time  14:07"),
-              Text("Recording Time  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}"),
+              Text(
+                  "Recording Time  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}"),
             ],
           ),
           SizedBox(height: deviceHeight / 100),
@@ -676,8 +668,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                       Column(
                         children: [
                           Text(
-                            // avg.toString(), //
-                            // "80", // HR 랜덤값
                             avgBpm.toStringAsFixed(0), // 실제 계산된 avgBpm 값으로 변경
                             style: TextStyle(
                               fontSize: 40.0,
@@ -696,7 +686,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
               SizedBox(
                   height: deviceHeight / 14,
                   child: VerticalDivider(
-                    // color: PRIMARY_COLOR2,
                     color: Colors.white,
                     thickness: 1.0,
                   )),
@@ -811,8 +800,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
                       ),
                       // EcgChart2(),  //여기에 EcgChartPainter(ecgData)를 넣어야함
                       CustomPaint(
-                        painter: EcgChartPainter(
-                            ecgData,backgroundPaint), // device_screen.dart 에서 EcgChartPainter(ecgData)를 호출
+                        painter: EcgChartPainter(ecgData,
+                            backgroundPaint), // device_screen.dart 에서 EcgChartPainter(ecgData)를 호출
                         // size: Size(double.infinity, 101),
                         size: Size(double.infinity, 150.5),
                       )
@@ -829,7 +818,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
 // -------------------- BODY HR --------------------
           Container(
             // height: deviceHeight/3.2,
-            height: deviceHeight / 4.8,
+            // height: deviceHeight / 4.8,
+            height: deviceHeight / 4.35,
 
             width: deviceWidth,
 
@@ -837,37 +827,31 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 borderRadius: BorderRadius.circular(8.0),
                 color: Colors.white,
                 border: Border.all(
-                  color: const Color(0xFFFFF5FF),
+                  // color: const Color(0xFFFFF5FF),
+                  color: Colors.black,
+
                   width: 1.0,
                 )),
-            child: Column(
-              children: [
-                Container(
-                  // height: 220.0,
-                  // width: deviceWidth / 1.25,
-                  width: deviceWidth / 1.25,
-                  child: Column(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text("HR",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: BODY_TEXT_COLOR,
-                              )),
-                        ],
-                      ),
-                      // HrChart(),
-                      HrChart(avgBpm: avgBpm),
-
+                      Text("HR",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: BODY_TEXT_COLOR,
+                          )),
                     ],
                   ),
-                ),
-              ],
+                  HrChart(bpm: heartRateProvider.bpm),
+                ],
+              ),
             ),
           ),
-// --------------------------------------------------
         ],
       ),
     );
@@ -1333,4 +1317,3 @@ class _DeviceScreenState extends State<DeviceScreen> {
 //     );
 //   }
 // }
-

@@ -3,13 +3,13 @@
 // 2024-04-12 11:30 Widget build(BuildContext context) 수정시작 1
 // 2024-04-12 15:33 Widget build(BuildContext context) 수정완료
 // 2024-04-12 15:34 검색된 HW 눌렀을때 Root 탭이동 수정 시작 1
-
+// 2024-05-28 15:42 디바이스장치 명 전역변수 설정(Drawer에 적용하기위해)
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
+import 'package:ecg_app/global_variables.dart';
 // -----
 //flutter build apk --release --target-platform=android-arm64
 
@@ -40,6 +40,8 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+  // String globalDeviceName = '';
+
   // BLE 장치의 제품명이 HolmesAI_로 시작하는 장치만 검색
   final String targetDeviceName = 'HolmesAI_';
   BluetoothDevice? targetDevice; // Add this line to store the target device
@@ -158,7 +160,7 @@ class _ScanScreenState extends State<ScanScreen> {
       ),
     );
   }
-
+  // String globalDeviceName = '';
   /* 장치의 명 위젯  */
   Widget deviceName(ScanResult r) {
     String name = '';
@@ -166,6 +168,9 @@ class _ScanScreenState extends State<ScanScreen> {
     if (r.device.name.isNotEmpty) {
       // device.name에 값이 있다면
       name = r.device.name;
+      globalDeviceName = name;
+      print("globalDevice Name확인: $globalDeviceName");
+      // deviceNameReturn();
     } else if (r.advertisementData.localName.isNotEmpty) {
       // advertisementData.localName에 값이 있다면
       name = r.advertisementData.localName;
@@ -173,6 +178,8 @@ class _ScanScreenState extends State<ScanScreen> {
       // 둘다 없다면 이름 알 수 없음...
       name = 'N/A';
     }
+    // globalDeviceName = name;
+
     return Text(
       name,
       style: TextStyle(
@@ -368,6 +375,12 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 }
+// void deviceNameReturn(){
+//   String deviceName = globalDeviceName;
+//   print('deviceName: $deviceName');
+//   globalDeviceName = deviceName;
+// }
+
 
 // -----
 //   // -------------------위에는 내가 임의 추가 시연을 위해서---------
