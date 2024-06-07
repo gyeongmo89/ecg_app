@@ -392,13 +392,13 @@ void postDataToServer(BuildContext context) async {
     String adjustedEndString =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedEndTime);
 
-
-    print("handWritten --> $schedule['content'],타입: ${schedule['content'].runtimeType}");
-    print("symptomActivity --> ${[mappedActivity]}, 타입: ${[mappedActivity].runtimeType}");
-    print("symptomStartDatetime --> $adjustedStartString, 타입: ${adjustedStartString.runtimeType}");
-    print("symptomEndDatetime --> $adjustedEndString, 타입: ${adjustedEndString.runtimeType}");
-    print("symptomType --> ${[mappedSymptom]}, 타입: ${[mappedSymptom].runtimeType}");
-    print("mappedActivity --> $mappedActivity, ${mappedActivity.runtimeType}");
+    print("patchSn --> serial_00001");
+    print("handWritten --> $schedule['content'],타입: ${schedule['content'].runtimeType}, 길이: ${schedule['content'].length}");
+    print("symptomActivity --> ${[mappedActivity]}, 타입: ${[mappedActivity].runtimeType}, 길이: ${[mappedActivity].length}");
+    print("symptomStartDatetime --> $adjustedStartString, 타입: ${adjustedStartString.runtimeType}, 길이: ${adjustedStartString.length}");
+    print("symptomEndDatetime --> $adjustedEndString, 타입: ${adjustedEndString.runtimeType}, 길이: ${adjustedEndString.length}");
+    print("symptomType --> ${[mappedSymptom]}, 타입: ${[mappedSymptom].runtimeType}, 길이: ${[mappedSymptom].length}");
+    print("mappedActivity --> $mappedActivity, ${mappedActivity.runtimeType}, 길이: ${mappedActivity.length}");
     //스웨거 확인 http://112.218.170.60:8080/swagger-ui.html -> symptom-note-controller -> /symptom-note/app
     print('postData: $postData');
 
@@ -525,12 +525,12 @@ void postDataToServer(BuildContext context) async {
 
 void dataTransferSuccessToast() {
   Fluttertoast.showToast(
-    msg: "데이터 전송이 완료 되었습니다.",
+    msg: "데이터 업로드가 완료 되었습니다.",
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
     timeInSecForIosWeb: 1,
-    backgroundColor: Colors.green,
-    textColor: Colors.white,
+    // backgroundColor: Colors.green,
+    // textColor: Colors.white,
     fontSize: 16.0,
   );
 }

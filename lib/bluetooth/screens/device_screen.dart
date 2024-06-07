@@ -20,6 +20,10 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:typed_data';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
+// import 'package:encrypt/encrypt.dart' as encrypt;
 
 class DeviceScreen extends StatefulWidget {
   DeviceScreen({Key? key, required this.device}) : super(key: key);
@@ -31,10 +35,21 @@ class DeviceScreen extends StatefulWidget {
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
+  List<double> ecgData = []; // 수신된 데이터 저장용
   List<double> dividedValue = []; // 클래스 멤버 변수로 선언
-  List<double> ecgData = [];
   Timer? timer;
   int dataIndex = 0;
+  // AES-128, 암호화 로 추가
+  // String decryptAES128(Uint8List encryptedData, String key) {
+  //   final keyForAES = encrypt.Key.fromUtf8(key);
+  //   final ivForAES = encrypt.IV.fromLength(16);
+  //
+  //   final encrypter = encrypt.Encrypter(encrypt.AES(keyForAES));
+  //
+  //   final decryptedData = encrypter.decrypt64(base64UrlEncode(encryptedData), iv: ivForAES);
+  //
+  //   return decryptedData;
+  // }
 
   // flutterBlue
   FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
@@ -132,7 +147,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   //   setState(() {});
   // }
 
-  Future<bool> connect() async {
+  Future<bool> connect() async {  //여기 실행않됨 ecgCard에서 실행됨
     Future<bool>? returnValue;
 
     // Check if the device is already connected
@@ -140,16 +155,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
       debugPrint('Device is already connected');
       return Future.value(true);
     }
-    // setState(() {
-    //   /* 상태 표시를 Connecting으로 변경 */
-    //   stateText = 'Connecting?????';
-    //
-    // });
 
-    /*
-      타임아웃을 10초(15000ms)로 설정 및 autoconnect 해제
-       참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
-     */
     await widget.device
         // .connect(autoConnect: false)
         .connect(autoConnect: true)
@@ -186,6 +192,28 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
             print('\t\tindicate: ${c.properties.indicate}');
 
+
+            // Check if the service is the Device Information service
+            if (service.uuid == Guid('0000180a-0000-1000-8000-00805f9b34fb')) {
+              print("??");
+              // Check if the characteristic is the Manufacturer Name String
+              if (c.uuid == Guid('00002a29-0000-1000-8000-00805f9b34fb')) {
+                print("???");
+                c.read().then((value) {
+                  print("????");
+                  print(
+                      '\t\tManufacturer Name: ${String.fromCharCodes(value)}');
+                });
+              }
+              // Check if the characteristic is the Firmware Revision String
+              else if (c.uuid == Guid('00002a26-0000-1000-8000-00805f9b34fb')) {
+                c.read().then((value) {
+                  print(
+                      '\t\tFirmware Revision: ${String.fromCharCodes(value)}');
+                });
+              }
+            }
+
             // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
             // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
             if (c.properties.notify && c.descriptors.isNotEmpty) {
@@ -208,6 +236,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     // Uint8List를 String으로 변환, 이렇게 하면 각 숫자가 해당하는 ASCII 문자로 변환 됨
                     // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
                     // 각 문자열을 double로 변환
+                    print(
+                        "기기로 부터 수신된 데이터 값: $value, 데이터 타입: ${value.runtimeType}");
+                    //AES-128, 암호화 KEY = 8439thRgeIo90j34Q
+
+                    String key = '8439thRgeIo90j34Q'; //AES-128, 암호화 KEY
 
                     Uint8List originalData = Uint8List.fromList(value);
                     String asciiString = String.fromCharCodes(originalData);
@@ -247,7 +280,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                           .map((item) => item!)
                           .toList();
                       // _onDataReceived(value);  04-18 ecgData데이터 3번연속 출력 때문에 임시주석
-
                     });
                   });
 
@@ -642,14 +674,12 @@ class EcgChartPainter extends CustomPainter {
       // 데이터를 정규화합니다.
       print("ecgData-------------------------------> $ecgData");
       print("FLAG1");
-       //here it is
-       print("FLAG2");
+      //here it is
+      print("FLAG2");
       // final List<double> normalizedData =
       //     ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz
 
-
       // here
-
 
       final List<double> normalizedData =
           ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz

@@ -316,6 +316,25 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
             print('\t\tindicate: ${c.properties.indicate}');
 
+
+            // if (service.uuid == Guid('0000180a-0000-1000-8000-00805f9b34fb')) {
+            //   if (c.uuid == Guid('00002a24-0000-1000-8000-00805f9b34fb')) {
+            //     print("케릭터리스틱 확인 플래그");
+            //     c.read().then((value) {
+            //       print(
+            //           '\t\t홈즈 패치로 부터 받은 모델 넘버 : ${String.fromCharCodes(value)}');
+            //     });
+            //   }
+            //
+            //   // if (c.uuid == Guid('00002a26-0000-1000-8000-00805f9b34fb')) {
+            //   //   c.read().then((value) {
+            //   //
+            //   //     print(
+            //   //         '\t\t홈즈 패치로 부터 받은 Firmware Revision: ${String.fromCharCodes(value)}');
+            //   //   });
+            //   // }
+            // }
+
             // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
             // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
             if (c.properties.notify && c.descriptors.isNotEmpty) {
@@ -334,29 +353,19 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   // 받을 데이터 변수 Map 형식으로 키 생성
                   notifyDatas[c.uuid.toString()] = List.empty();
                   c.value.listen((value) {
-                    // 수신받는 value 는 아스키코드로 인코딩된 문자열임
-                    // Uint8List를 String으로 변환, 이렇게 하면 각 숫자가 해당하는 ASCII 문자로 변환 됨
+                    // 수신받는 value 는 아스키코드로 인코딩된 int임
+                    // int를 아스키 문자의 문자(String)으로 변환
                     // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
                     // 각 문자열을 double로 변환
 
                     print(
                         "ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
-                    // Uint8List originalData = Uint8List.fromList(value);
-                    // print("ecg_card_심전도 기기로부터 받는 value2: $originalData, Type: ${originalData.runtimeType}");
-                    // String asciiString = String.fromCharCodes(originalData);
-                    // print("ecg_card_심전도 기기로부터 받는 value3: $asciiString, Type: ${asciiString.runtimeType}");
-
                     String asciiString = String.fromCharCodes(value);
                     print(
-                        "ecg_card_심전도 기기로부터 받는 value3: $asciiString, Type: ${asciiString.runtimeType}");
-
+                        "ecg_card_심전도 기기로부터 받는 value2: $asciiString, Type: ${asciiString.runtimeType}");
                     List<String> stringParts = asciiString.split(',');
                     print(
                         "ecg_card_In setNotifyValue stringParts: $stringParts,Tyep: ${stringParts.runtimeType}");
-                    // List<double> dividedValue = // 여기서 문제 발생
-                    //     stringParts.map((s) => double.parse(s)).toList();
-
-                    // List<double> dividedValue = stringParts.map((s) => double.parse(s.replaceAll('\n', ''))).toList();
 
                     List<String> lines = asciiString.split('\n');
                     List<double?> dividedValue = [];
@@ -446,7 +455,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     String asciiString = String.fromCharCodes(originalData);
     List<String> stringParts = asciiString.split(',');
     print(
-        "In _onDataReceived() stringParts: $stringParts,Tyep: ${stringParts.runtimeType}");
+        "In _onDataReceived() stringParts: $stringParts,Type: ${stringParts.runtimeType}");
     // List<double> dividedValue =   // 여기서 문제 발생
     //     stringParts.map((s) => double.parse(s)).toList();
 
