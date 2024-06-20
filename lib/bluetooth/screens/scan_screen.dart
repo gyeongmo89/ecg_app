@@ -4,6 +4,8 @@
 // 2024-04-12 15:33 Widget build(BuildContext context) 수정완료
 // 2024-04-12 15:34 검색된 HW 눌렀을때 Root 탭이동 수정 시작 1
 // 2024-05-28 15:42 디바이스장치 명 전역변수 설정(Drawer에 적용하기위해)
+// 2024-06-19 16:55 flutter_blue_plus library 업데이트 시작
+
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
@@ -45,7 +47,7 @@ class _ScanScreenState extends State<ScanScreen> {
   // BLE 장치의 제품명이 HolmesAI_로 시작하는 장치만 검색
   final String targetDeviceName = 'HolmesAI_';
   BluetoothDevice? targetDevice; // Add this line to store the target device
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus();
   List<ScanResult> scanResultList = [];
   bool _isScanning = false;
   int tapCount = 0;
@@ -59,7 +61,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   void initBle() {
     // BLE 스캔 상태 얻기 위한 리스너
-    flutterBlue.isScanning.listen((isScanning) {
+    FlutterBluePlus.isScanning.listen((isScanning) {
       _isScanning = isScanning;
       setState(() {});
     });
@@ -74,10 +76,11 @@ class _ScanScreenState extends State<ScanScreen> {
       // 기존에 스캔된 리스트 삭제
       scanResultList.clear();
       // 스캔 시작, 제한 시간 4초
-      flutterBlue.startScan(timeout: Duration(seconds: 20));
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 15),androidUsesFineLocation: true);
       // 스캔 결과 리스너
       //--------------------------------
-      flutterBlue.scanResults.listen((results) {
+      // flutterBlue.scanResults.listen((results) {
+      FlutterBluePlus.onScanResults.listen((results) {
         // 결과 값을 루프로 돌림
         results.forEach((element) {
           //찾는 장치명인지 확인
@@ -134,7 +137,7 @@ class _ScanScreenState extends State<ScanScreen> {
       //--------------------------------
     } else {
       // 스캔 중이라면 스캔 정지
-      flutterBlue.stopScan();
+      FlutterBluePlus.stopScan();
     }
   }
 
@@ -233,6 +236,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     //여기
     return DefaultLayout(
       child: Scaffold(
