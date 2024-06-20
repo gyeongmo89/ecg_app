@@ -10,7 +10,7 @@ class AboutInfo extends StatelessWidget {
 
   final List<Map<String, String>> infoList = [
     {"앱 정보": ""},
-    {"제품 명": "  IheartU"},
+    {"제품 명": "  CLheart"},
     {"모델 명": "  HCL_M101"},
     {"최신 버전": "  Ver 1.0.0"},
     {"앱 버전": "  Ver 1.0.0\n"},
@@ -68,7 +68,7 @@ class AboutInfo extends StatelessWidget {
                 SizedBox(width: deviceWidth / 20 * 1),
                 Column(
                   children: [
-                    Text("IheartU",
+                    Text("CLheart",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold)),
                     //image

@@ -62,7 +62,7 @@ class DefaultLayout extends StatelessWidget {
               children: [
                 // const Text("Holmes AI Note",style: TextStyle(color: Colors.white),),
                 // const Text("healthHub",style: TextStyle(color: Colors.white, ),),
-                const Text("IheartU",),
+                const Text("CLheart",),
                 SizedBox(width: screenWidth/3,),
                 Text(dayText, ),
                 // Text(dayText, style: TextStyle(color: Colors.white),),

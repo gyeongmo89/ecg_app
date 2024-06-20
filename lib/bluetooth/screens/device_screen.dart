@@ -11,6 +11,8 @@
 // 2024-04-12 17:03 ecg_card 코드 병합
 // 2024-04-18 10:28 차트 배경색 추가 시작 1
 // 2024-05-07 15:26 Event 버튼 클릭시 팝업창 뜨도록 하는 함수 추가 시작1
+// 2024-06-19 16:55 flutter_blue_plus library 업데이트 시작
+
 import 'dart:async';
 import 'package:ecg_app/common/const/colors2.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
@@ -52,7 +54,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   // }
 
   // flutterBlue
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+  // FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus();
 
   // 연결 상태 표시 문자열
   String stateText = 'Connecting';
@@ -61,10 +64,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
   String connectButtonText = 'Disconnect';
 
   // 현재 연결 상태 저장용
-  BluetoothDeviceState deviceState = BluetoothDeviceState.disconnected;
+  BluetoothConnectionState deviceState = BluetoothConnectionState.disconnected;
 
   // 연결 상태 리스너 핸들 화면 종료시 리스너 해제를 위함
-  StreamSubscription<BluetoothDeviceState>? _stateListener;
+  StreamSubscription<BluetoothConnectionState>? _stateListener;
 
   List<BluetoothService> bluetoothService = [];
 
@@ -85,7 +88,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
         return;
       }
       // 연결 상태 정보 변경
-      // setBleConnectionState(event);
+      setBleConnectionState(event);
     });
     // 연결 시작
     connect();
@@ -113,52 +116,53 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   /* 연결 상태 갱신 */
-  // void setBleConnectionState(BluetoothDeviceState event) {
-  //   final connectionState = Provider.of<ConnectionState>(context, listen: false); // 상태관리를 위해 추가(2024-04-12 15:48)
-  //   switch (event) {
-  //     case BluetoothDeviceState.disconnected:
-  //       connectionState.stateText = 'Disconnected';
-  //       stateText = 'Disconnected';
-  //       // 버튼 상태 변경
-  //       connectButtonText = 'Connect';
-  //       ecgData.clear();
-  //       connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
-  //       break;
-  //     case BluetoothDeviceState.disconnecting:
-  //       connectionState.stateText = 'Disconnecting';
-  //       stateText = 'Disconnecting';
-  //       break;
-  //     case BluetoothDeviceState.connected:
-  //       connectionState.stateText = 'Connected';
-  //       stateText = 'Connected';
-  //       // 버튼 상태 변경
-  //       connectButtonText = 'Disconnect';
-  //
-  //       // connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
-  //       // discoverServices();
-  //       break;
-  //     case BluetoothDeviceState.connecting:
-  //       connectionState.stateText = 'Connecting...';
-  //       stateText = 'Connecting...';
-  //       break;
-  //   }
-  //   //이전 상태 이벤트 저장
-  //   deviceState = event;
-  //   setState(() {});
-  // }
+  void setBleConnectionState(BluetoothConnectionState event) {
+    final connectionState = Provider.of<ConnectionState>(context, listen: false); // 상태관리를 위해 추가(2024-04-12 15:48)
+    switch (event) {
+      case BluetoothConnectionState.disconnected:
+        connectionState.stateText = 'Disconnected';
+        stateText = 'Disconnected';
+        // 버튼 상태 변경
+        connectButtonText = 'Connect';
+        ecgData.clear();
+        connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
+        break;
+      case BluetoothConnectionState.disconnecting:
+        connectionState.stateText = 'Disconnecting';
+        stateText = 'Disconnecting';
+        break;
+      case BluetoothConnectionState.connected:
+        connectionState.stateText = 'Connected';
+        stateText = 'Connected';
+        // 버튼 상태 변경
+        connectButtonText = 'Disconnect';
+
+        // connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
+        // discoverServices();
+        break;
+      case BluetoothConnectionState.connecting:
+        connectionState.stateText = 'Connecting...';
+        stateText = 'Connecting..';
+        break;
+    }
+    //이전 상태 이벤트 저장
+    deviceState = event;
+    setState(() {});
+  }
 
   Future<bool> connect() async {  //여기 실행않됨 ecgCard에서 실행됨
     Future<bool>? returnValue;
 
     // Check if the device is already connected
-    if (widget.device.state == BluetoothDeviceState.connected) {
+    if (widget.device.state == BluetoothConnectionState.connected) {
       debugPrint('Device is already connected');
       return Future.value(true);
     }
 
     await widget.device
         // .connect(autoConnect: false)
-        .connect(autoConnect: true)
+        // .connect(autoConnect: false, mtu: null)
+        .connect(autoConnect: true, mtu: null)  //true로 하면 에러남
         .timeout(Duration(milliseconds: 15000), onTimeout: () {
       //타임아웃 발생
       //returnValue를 false로 설정
@@ -220,9 +224,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
               // 진짜 0x2902 가 있는지 단순 체크용!
               for (BluetoothDescriptor d in c.descriptors) {
                 print('BluetoothDescriptor uuid ${d.uuid}');
-                if (d.uuid == BluetoothDescriptor.cccd) {
-                  print('d.lastValue: ${d.lastValue}');
-                }
+                // if (d.uuid == BluetoothDescriptor.cccd) {
+                //   print('d.lastValue: ${d.lastValue}');
+                // }
               }
 
               // notify가 설정 안되었다면...
@@ -682,7 +686,8 @@ class EcgChartPainter extends CustomPainter {
       // here
 
       final List<double> normalizedData =
-          ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz
+      ecgData.map((v) => v / 1000).toList(); //이게 베스트 프로토 타입 250Hz** 원래 아래꺼 였는데 이걸로 변경함
+          // ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz***
       // ecgData.map((v) => v / 300).toList(); //기기판 250Hz
       // ecgData.map((v) => v / 200).toList(); //기기판 250Hz
       // ecgData.map((v) => v / 150).toList(); //기기판 250Hz
@@ -690,7 +695,8 @@ class EcgChartPainter extends CustomPainter {
       path.moveTo(
           0,
           chartHeight *
-              (1 - ecgData.first / 600)); // 시작 위치를 아래로 조정함(이게 베스트 프로토 타입 250Hz)
+              (1 - ecgData.first / 600)+50); // 시작 위치를 아래로 조정함(이게 베스트 프로토 타입 250Hz)
+              // (1 - ecgData.first / 600)); // 시작 위치를 아래로 조정함(이게 베스트 프로토 타입 250Hz) 원래이거였음
       // chartHeight * (1 - ecgData.first / 300) -50); // 시작 위치를 아래로 조정함(기기판 250Hz)
 
       for (int i = 1; i < normalizedData.length; i++) {

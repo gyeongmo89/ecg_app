@@ -9,7 +9,7 @@
 
 //flutter build apk --release --target-platform=android-arm64
 //flutter build apk --debug --target-platform=android-arm64
-
+// flutter pub cache repair
 
 import 'dart:async';
 import 'dart:io';
