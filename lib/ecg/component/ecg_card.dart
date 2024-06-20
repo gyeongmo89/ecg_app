@@ -14,6 +14,8 @@
 // 2024-05-09 20:10 HR bpm hr_chart로 데이터 전달하려고 Provider 적용했지만 아직 avgBpm 값이 전달되지 않음(빈배열)
 // 2024-05-10 14:45 avgBpm 전달완료
 // 2024-05-10 14:46 실시간 Bpm 전달시작
+// 2024-06-19 17:02 flutter_blue_plus library 업데이트 시작
+
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
@@ -85,19 +87,20 @@ class _DeviceScreenState extends State<DeviceScreen> {
     ..strokeWidth = 0.5;
 
   // flutterBlue
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus();
 
   // 연결 상태 표시 문자열
-  String stateText = 'Connecting...';
+  String stateText = 'Connecting..';
 
   // 연결 버튼 문자열
   String connectButtonText = 'Disconnect';
 
   // 현재 연결 상태 저장용
-  BluetoothDeviceState deviceState = BluetoothDeviceState.disconnected;
+  BluetoothConnectionState deviceState = BluetoothConnectionState.disconnected;
 
   // 연결 상태 리스너 핸들 화면 종료시 리스너 해제를 위함
-  StreamSubscription<BluetoothDeviceState>? _stateListener;
+  // StreamSubscription<BluetoothDeviceState>? _stateListener;
+  StreamSubscription<BluetoothConnectionState>? _stateListener;
 
   List<BluetoothService> bluetoothService = [];
 
@@ -229,10 +232,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   /* 연결 상태 갱신 */
-  void setBleConnectionState(BluetoothDeviceState event) {
+  void setBleConnectionState(BluetoothConnectionState event) {
     // final connectionState = Provider.of<ConnectionState>(context, listen: false); // 상태관리를 위해 추가(2024-04-12 15:48)
     switch (event) {
-      case BluetoothDeviceState.disconnected:
+      case BluetoothConnectionState.disconnected:
         disconnect();
         stateText = 'Disconnected';
         // 버튼 상태 변경
@@ -245,10 +248,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
         }
         connect(); // 연결이 다시 활성화되면 서비스를 다시 발견하고 특성에 대한 알림을 다시 설정 //04-11 추가(자동 연결시 데이터 다시 자동으로 불러와야하기 때문)
         break;
-      case BluetoothDeviceState.disconnecting:
+      case BluetoothConnectionState.disconnecting:
         stateText = 'Disconnecting';
         break;
-      case BluetoothDeviceState.connected:
+      case BluetoothConnectionState.connected:
         stateText = 'Connected';
         // 버튼 상태 변경
         connectButtonText = 'Disconnect';
@@ -257,51 +260,60 @@ class _DeviceScreenState extends State<DeviceScreen> {
             (Timer t) => _getCurrentTime()); // 연결이 되면 다시 타이머를 시작
 
         break;
-      case BluetoothDeviceState.connecting:
-        stateText = 'Connecting...';
+      case BluetoothConnectionState.connecting:
+        stateText = 'ecg_Card_Connecting...';
         break;
     }
     //이전 상태 이벤트 저장
     deviceState = event;
     setState(() {});
   }
-
+// 18:46 수정시작
   Future<bool> connect() async {
     Future<bool>? returnValue;
 
     // Check if the device is already connected
-    if (widget.device.state == BluetoothDeviceState.connected) {
+    if (widget.device.state == BluetoothConnectionState.connected) {
       debugPrint('Device is already connected');
       return Future.value(true);
     }
-    /*
-      타임아웃을 10초(15000ms)로 설정 및 autoconnect 해제
-       참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
-     */
-    await widget.device
-        // .connect(autoConnect: false)
-        .connect(autoConnect: true)
-        .timeout(Duration(milliseconds: 15000), onTimeout: () {
-      //타임아웃 발생
-      //returnValue를 false로 설정
-      returnValue = Future.value(false);
-      debugPrint('timeout failed');
 
-      //연결 상태 disconnected로 변경
-      setBleConnectionState(BluetoothDeviceState.disconnected);
-    }).then((data) async {
-      bluetoothService.clear();
-      if (returnValue == null) {
-        //returnValue가 null이면 timeout이 발생한 것이 아니므로 연결 성공
-        debugPrint('connection successful');
-        print('start discover service');
+    try {
+      // Enable auto connect without mtu argument
+      await widget.device.connect(autoConnect: true, mtu: null);
+
+      // Wait until the connection state is connected
+      await widget.device.connectionState
+          .where((val) => val == BluetoothConnectionState.connected)
+          .first;
+
+      // Connection successful, proceed with discovering services
+      debugPrint('connection successful');
+      print('start discover service');
+
+      // Check if the device is connected before discovering services
+      // if (widget.device.state == BluetoothConnectionState.connected) {
+      // print("widget.device.connectionState: ${widget.device.connectionState}");
+      // print("BluetoothConnectionState.connected: ${BluetoothConnectionState.connected}");
+      //
+      // print("widget.device.state: ${widget.device.state}, $runtimeType{widget.device.state}");
+      // print("BluetoothDeviceState.connected: ${BluetoothConnectionState.connected}, $runtimeType{BluetoothConnectionState.connected},");
+      // print("디바이스상태${widget.device.state}");
+      // widget.device.state.listen((BluetoothConnectionState state) {
+      //   print('Connection state디바이스상태: $state, $runtimeType{state}');
+      // });
+      // if (widget.device.connectionState == BluetoothConnectionState.connected) {
+
+      // if (widget.device.state == BluetoothConnectionState.connected) {
+        print("진입!");
         List<BluetoothService> bleServices =
-            await widget.device.discoverServices();
+        await widget.device.discoverServices();
         setState(() {
           bluetoothService = bleServices;
           ecgData.clear();
           print("Connect에서 clear 함수 실행");
         });
+
         // 각 속성을 디버그에 출력
         for (BluetoothService service in bleServices) {
           print('============================================');
@@ -316,34 +328,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
             print('\t\tindicate: ${c.properties.indicate}');
 
-
-            // if (service.uuid == Guid('0000180a-0000-1000-8000-00805f9b34fb')) {
-            //   if (c.uuid == Guid('00002a24-0000-1000-8000-00805f9b34fb')) {
-            //     print("케릭터리스틱 확인 플래그");
-            //     c.read().then((value) {
-            //       print(
-            //           '\t\t홈즈 패치로 부터 받은 모델 넘버 : ${String.fromCharCodes(value)}');
-            //     });
-            //   }
-            //
-            //   // if (c.uuid == Guid('00002a26-0000-1000-8000-00805f9b34fb')) {
-            //   //   c.read().then((value) {
-            //   //
-            //   //     print(
-            //   //         '\t\t홈즈 패치로 부터 받은 Firmware Revision: ${String.fromCharCodes(value)}');
-            //   //   });
-            //   // }
-            // }
-
             // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
             // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
             if (c.properties.notify && c.descriptors.isNotEmpty) {
               // 진짜 0x2902 가 있는지 단순 체크용!
               for (BluetoothDescriptor d in c.descriptors) {
                 print('BluetoothDescriptor uuid ${d.uuid}');
-                if (d.uuid == BluetoothDescriptor.cccd) {
-                  print('d.lastValue: ${d.lastValue}');
-                }
               }
 
               // notify가 설정 안되었다면...
@@ -417,11 +407,187 @@ class _DeviceScreenState extends State<DeviceScreen> {
           }
         }
         returnValue = Future.value(true);
-      }
-    });
+      // } else {
+      //   print('Else Device is not connected, cannot discover services');
+      //   returnValue = Future.value(false);
+      // }
+    } catch (e) {
+      // Handle connection errors here
+      print('Connection failed: $e');
+      setBleConnectionState(BluetoothConnectionState.disconnected);
+      returnValue = Future.value(false);
+    }
 
     return returnValue ?? Future.value(false);
   }
+
+//   Future<bool> connect() async {
+//     Future<bool>? returnValue;
+//
+//     // Check if the device is already connected
+//     if (widget.device.state == BluetoothConnectionState.connected) {
+//       debugPrint('Device is already connected');
+//       return Future.value(true);
+//     }
+//
+//     /*
+//       타임아웃을 10초(15000ms)로 설정 및 autoconnect 해제
+//        참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
+//      */
+//     // 18:44 수정시작
+//
+//     await widget.device
+//         // .connect(autoConnect: false)
+//         // .connect(autoConnect: false, mtu: null)
+//         .connect(autoConnect: true, mtu: null)  //true로 하면 에러남
+//         .timeout(Duration(milliseconds: 15000), onTimeout: () {
+//
+//
+//       //타임아웃 발생
+//       //returnValue를 false로 설정
+//       returnValue = Future.value(false);
+//       debugPrint('timeout failed');
+//
+//       //연결 상태 disconnected로 변경
+//       setBleConnectionState(BluetoothConnectionState.disconnected);
+//     }).then((data) async {
+//       bluetoothService.clear();
+//       if (returnValue == null) {
+//         //returnValue가 null이면 timeout이 발생한 것이 아니므로 연결 성공
+//         debugPrint('connection successful');
+//         print('start discover service');
+//         List<BluetoothService> bleServices =
+//             await widget.device.discoverServices();
+//         setState(() {
+//           bluetoothService = bleServices;
+//           ecgData.clear();
+//           print("Connect에서 clear 함수 실행");
+//         });
+//         // 각 속성을 디버그에 출력
+//         for (BluetoothService service in bleServices) {
+//           print('============================================');
+//           print('Service UUID: ${service.uuid}');
+//           for (BluetoothCharacteristic c in service.characteristics) {
+//             print('\tcharacteristic UUID: ${c.uuid.toString()}');
+//             print('\t\twrite: ${c.properties.write}');
+//             print('\t\tread: ${c.properties.read}');
+//             print('\t\tnotify: ${c.properties.notify}');
+//             print('\t\tisNotifying: ${c.isNotifying}');
+//             print(
+//                 '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
+//             print('\t\tindicate: ${c.properties.indicate}');
+//
+//
+//             // if (service.uuid == Guid('0000180a-0000-1000-8000-00805f9b34fb')) {
+//             //   if (c.uuid == Guid('00002a24-0000-1000-8000-00805f9b34fb')) {
+//             //     print("케릭터리스틱 확인 플래그");
+//             //     c.read().then((value) {
+//             //       print(
+//             //           '\t\t홈즈 패치로 부터 받은 모델 넘버 : ${String.fromCharCodes(value)}');
+//             //     });
+//             //   }
+//             //
+//             //   // if (c.uuid == Guid('00002a26-0000-1000-8000-00805f9b34fb')) {
+//             //   //   c.read().then((value) {
+//             //   //
+//             //   //     print(
+//             //   //         '\t\t홈즈 패치로 부터 받은 Firmware Revision: ${String.fromCharCodes(value)}');
+//             //   //   });
+//             //   // }
+//             // }
+//
+//             // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
+//             // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
+//             if (c.properties.notify && c.descriptors.isNotEmpty) {
+//               // 진짜 0x2902 가 있는지 단순 체크용!
+//               for (BluetoothDescriptor d in c.descriptors) {
+//                 print('BluetoothDescriptor uuid ${d.uuid}');
+//                 // if (d.uuid == BluetoothDescriptor.cccd) {
+//                 //   print('d.lastValue: ${d.lastValue}');
+//                 // }
+//               }
+//
+//               // notify가 설정 안되었다면...
+//               if (!c.isNotifying) {
+//                 try {
+//                   await c.setNotifyValue(true);
+//                   // 받을 데이터 변수 Map 형식으로 키 생성
+//                   notifyDatas[c.uuid.toString()] = List.empty();
+//                   c.value.listen((value) {
+//                     // 수신받는 value 는 아스키코드로 인코딩된 int임
+//                     // int를 아스키 문자의 문자(String)으로 변환
+//                     // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
+//                     // 각 문자열을 double로 변환
+//
+//                     print(
+//                         "ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
+//                     String asciiString = String.fromCharCodes(value);
+//                     print(
+//                         "ecg_card_심전도 기기로부터 받는 value2: $asciiString, Type: ${asciiString.runtimeType}");
+//                     List<String> stringParts = asciiString.split(',');
+//                     print(
+//                         "ecg_card_In setNotifyValue stringParts: $stringParts,Tyep: ${stringParts.runtimeType}");
+//
+//                     List<String> lines = asciiString.split('\n');
+//                     List<double?> dividedValue = [];
+//                     for (var line in lines) {
+//                       List<String> stringParts = line.split(',');
+//                       dividedValue.addAll(stringParts.map((s) {
+//                         try {
+//                           return double.parse(s);
+//                         } catch (e) {
+//                           print('Unable to parse "$s" into a double.');
+//                           return null;
+//                         }
+//                       }));
+//                     }
+//                     print(
+//                         "dividedValue --------0> $dividedValue, Type: ${dividedValue.runtimeType}");
+//                     // HW 완료후 null 대신 EVENT 로 정의된 값을 넣으면 됨
+//                     // if (listEquals(dividedValue, [null])) {
+//                     // if (dividedValue.any((element) => element == null)) {
+//                     if (dividedValue.any((element) => element == 119)) {
+//                       print(" EVENT값이 null이라고 가정하고 프린트 출력");
+//                       eventDialog(context, dividedValue);
+//                     } else {
+//                       print("Value 10이 아닐때");
+//                     }
+//                     // 데이터 읽기 처리!
+//                     print(
+//                         'CLtime 으로 부터 수신되는 UUID와 Data 값 : ${c.uuid}: $dividedValue');
+//                     // print('타입 : ${c.uuid}: ${dividedValue.runtimeType}');
+//                     // Uint8List : 8비트 부호 없는 정수의 리스트 로 타입이 찍힘
+//                     setState(() {
+//                       // 받은 데이터 저장 화면 표시용
+//                       // notifyDatas[c.uuid.toString()] = dividedValue;
+//                       notifyDatas[c.uuid.toString()] = dividedValue
+//                           .where((item) => item != null)
+//                           .map((item) => item!)
+//                           .toList();
+//                       _onDataReceived(value);
+//                     });
+//                   });
+//
+//                   // 설정 후 일정시간 지연
+//                   await Future.delayed(const Duration(milliseconds: 500));
+//                 } catch (e) {
+//                   print('error ${c.uuid} $e');
+//                 }
+//               }
+//             }
+//           }
+//         }
+//         returnValue = Future.value(true);
+//       }
+//     });
+//
+//
+//
+// // // disable auto connect
+// //     await widget.device.disconnect();
+//
+//     return returnValue ?? Future.value(false);
+//   }
 
   // /* 연결 해제 */
   // void disconnect() {
@@ -625,21 +791,24 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Container(
-                      height: 55,
-                      width: 40,
-                      alignment: Alignment.center,
-                    ),
+                    // Container(
+                    //   height: 55,
+                    //   // width: 40,
+                    //   width: 10,
+                    //
+                    //   alignment: Alignment.center,
+                    // ),
                     Text(
                       bpm.toStringAsFixed(0), // 실제 계산된 bpm 값으로 변경
                       style: const TextStyle(
-                        fontSize: 40,
+                        fontSize: 34,
+                        // fontSize: 14,
                         color: BODY_TEXT_COLOR,
                       ),
                     ),
-                    const Text(
+                    Text(
                       " bpm",
-                      style: TextStyle(fontSize: 18, color: Colors.white60),
+                      style: TextStyle(fontSize: 16, color: Colors.white60),
                     ),
                   ],
                 ),

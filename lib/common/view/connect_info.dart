@@ -3,6 +3,7 @@
 // 2024-05-09 13:43 프로바이더 변경2
 import 'dart:async';
 
+import 'package:ecg_app/bluetooth/screens/bluetooth_off_screen.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
@@ -50,6 +51,7 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
 
   @override
   Widget build(BuildContext context) {
+
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
     final timerService =
@@ -239,6 +241,7 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                             try {
                               if (Platform.isAndroid) {
                                 // scan_screen.dart로 이동
+                                await FlutterBluePlus.turnOn();
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => ScanScreen(
