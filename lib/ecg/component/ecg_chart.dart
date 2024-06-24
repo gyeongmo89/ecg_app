@@ -120,6 +120,7 @@ class _EcgChartState extends State<EcgChart> {
       maxX: 10,
       minY: 0,
       maxY: 5,
+
       lineBarsData: [
         LineChartBarData(
           spots: ecgData.isEmpty ? [const FlSpot(0, 0)] : ecgData, // 초기화  // 추가

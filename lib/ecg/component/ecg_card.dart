@@ -377,7 +377,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     // if (dividedValue.any((element) => element == null)) {
                     if (dividedValue.any((element) => element == 119)) {
                       print(" EVENT값이 null이라고 가정하고 프린트 출력");
-                      eventDialog(context, dividedValue);
+                      // 2차 개발시 EVENT 값 받으면 아래 주석 해제 하면됨
+                      // eventDialog(context, dividedValue);
                     } else {
                       print("Value 10이 아닐때");
                     }

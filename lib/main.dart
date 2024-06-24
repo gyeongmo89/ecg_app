@@ -77,7 +77,7 @@ void main() async {
           // dispose: (_, timerService) => timerService.dispose(), //지워야하나?
           create: (_) => timerService,
         ),
-        ChangeNotifierProvider( // Add this line
+        ChangeNotifierProvider(   //검서 종료되면 푸시메시지
           create: (context) => HeartRateProvider(),
         ),
 
@@ -162,14 +162,18 @@ class _AppState extends State<_App> {
         //전역에서 사용하기위해서 추가
         stream: timerService.timerStream, // Use timerService stream
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.hasData && snapshot.data! >= 900000 && !_isDialogShown) {
+          //제한시간 설정
+          // if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
+          if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
+            print("제한시간1");
             Future.delayed(Duration.zero, () {
+              print("제한시간2");
               setState(() {
                 _isDialogShown = true; // Set the flag to true
               });
             });
+            print("제한시간3");
             WidgetsBinding.instance.addPostFrameCallback((_) {
-
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -188,10 +192,7 @@ class _AppState extends State<_App> {
                     ],
                   );
                 },
-              // ).then((_) {
-              //   _isDialogShown =
-              //       false; // Reset the flag when the dialog is dismissed
-              // });
+
               ).then((_) {
                 _isDialogShown =
                 true; // Reset the flag when the dialog is dismissed
@@ -199,19 +200,19 @@ class _AppState extends State<_App> {
             });
           } else if (!_isDialogShown) {
             print("StartLoading 실행");
+
             return const StartLoading();
             // return const HomePage();  //local notification test 하기 위한 페이지
-
           }
           return SizedBox
               .shrink(); // Return an empty widget when dialog is shown
         },
       ),
-      routes: {
-        // '/': (context) => const HomePage(),
-        '/message': (context) => MessagePage(),
-        '/menu_drawer': (context) => MenuDrawer(),
-      },
+      // routes: {
+      //   // '/': (context) => const HomePage(),
+      //   '/message': (context) => MessagePage(),
+      //   '/menu_drawer': (context) => MenuDrawer(),
+      // },
     );
 
   }
