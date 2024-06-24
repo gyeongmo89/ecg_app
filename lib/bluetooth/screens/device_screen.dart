@@ -686,7 +686,7 @@ class EcgChartPainter extends CustomPainter {
       // here
 
       final List<double> normalizedData =
-      ecgData.map((v) => v / 1000).toList(); //이게 베스트 프로토 타입 250Hz** 원래 아래꺼 였는데 이걸로 변경함
+      ecgData.map((v) => v / 1100).toList(); //이게 베스트 프로토 타입 250Hz** 원래 아래꺼 였는데 이걸로 변경함
           // ecgData.map((v) => v / 700).toList(); //이게 베스트 프로토 타입 250Hz***
       // ecgData.map((v) => v / 300).toList(); //기기판 250Hz
       // ecgData.map((v) => v / 200).toList(); //기기판 250Hz

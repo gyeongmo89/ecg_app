@@ -330,6 +330,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             title: Text("Upload"),
             onTap: () {
               postDataToServer(context);
+              print("업로드 버튼 클릭");
               // Fluttertoast.showToast(
               //   msg: "데이터 전송이 완료 되었습니다.",
               //   toastLength: Toast.LENGTH_SHORT,

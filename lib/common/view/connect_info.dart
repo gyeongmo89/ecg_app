@@ -64,7 +64,8 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
     //     stream: context.watch<TimerService>().timerStream,
       stream: timerService.timerStream, // Use timerStream from TimerService
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.hasData && snapshot.data! >= 900000 && !_isDialogShown) {
+          // if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
+          if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               setState(() {
                 _isDialogShown = true; // Set the flag to true

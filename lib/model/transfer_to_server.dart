@@ -67,7 +67,7 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
     Dio dio = Dio();
 
     // 서버 URL
-    String url = "http://112.218.170.60:8080/"; // 테스트 서버
+    String url = "http://112.218.170.60:8083/"; // 테스트 서버
     String path = "code";
     String symptomParam = "?domain=note&name=symptom";
     String symptomGetURL = url + path + symptomParam;
@@ -84,6 +84,7 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
 
     if (symptomResponse.statusCode == 200) {
       // 응답이 성공적으로 도착했을 때의 처리
+      print("응답이 성공적으로 도착했을 때의 처리 진입");
       final responseData = symptomResponse.data;
       if (responseData != null && responseData.containsKey('data')) {
         List<dynamic>? dataList = responseData['data'];
@@ -147,7 +148,8 @@ Future<List<int>> fetchKeyActivityCodesFromServer() async {
     // Dio 인스턴스 생성
     Dio dio = Dio();
     // 서버 URL
-    String url = "http://112.218.170.60:8080/"; // 테스트 서버
+    // String url = "http://112.218.170.60:8080/"; // 테스트 서버
+    String url = "http://112.218.170.60:8083/"; // 테스트 서버
     String path = "code";
     String activityParam = "?domain=note&name=activity";
     String activityGetURL = url + path + activityParam;
@@ -249,7 +251,8 @@ void postDataToServer(BuildContext context) async {
   // int fatigueKey = symptomCodeKeys[5]; // 피로
   // int symptomEtcKey = symptomCodeKeys[6]; // 기타
 // -- 증상선택 공통 코드 변수--
-  int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함
+  print("symptomCodeKeys: $symptomCodeKeys");
+  int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함   //여기서 문제발생
   int discomfortArmsNeckChinetcKey = symptomCodeKeys[1]; // 팔, 목, 턱 등이 불편함
   int palpitaitionRapidHeartbeatKey = symptomCodeKeys[2]; // 심계항진(빠른 심장박동)
   int shortnessOfBreathKey = symptomCodeKeys[3]; // 호흡곤란
@@ -470,7 +473,7 @@ void postDataToServer(BuildContext context) async {
 
   // 서버 URL
   // String url = "http://192.168.0.21:8080/"; // 엄팀장 서버
-  String url = "http://112.218.170.60:8080/"; // 테스트 서버
+  String url = "http://112.218.170.60:8083/"; // 테스트 서버
   String path = "symptom-note/app";
   String symptomURL = url + path;
 
