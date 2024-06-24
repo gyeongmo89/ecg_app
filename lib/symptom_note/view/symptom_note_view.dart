@@ -124,35 +124,35 @@ void initState() {
   }
 }
 
-class _EventPopup extends StatefulWidget {
-  const _EventPopup({super.key});
-
-  @override
-  State<_EventPopup> createState() => _EventPopupState();
-}
-
-class _EventPopupState extends State<_EventPopup> {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('CLtime의 EVENT\n버튼을 누르셨습니다.\n증상 노트를 작성\n하시겠습니까?'),
-      actions: <Widget>[
-        TextButton(
-          child: Text('나중에'),
-          onPressed: () {
-            // Add your code here to handle the "나중에" button press
-          },
-        ),
-        TextButton(
-          child: Text('증상작성'),
-          onPressed: () {
-            // Add your code here to handle the "증상작성" button press
-          },
-        ),
-      ],
-    );
-  }
-}
+// class _EventPopup extends StatefulWidget {
+//   const _EventPopup({super.key});
+//
+//   @override
+//   State<_EventPopup> createState() => _EventPopupState();
+// }
+//
+// class _EventPopupState extends State<_EventPopup> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return AlertDialog(
+//       title: Text('CLtime의 EVENT\n버튼을 누르셨습니다.\n증상 노트를 작성\n하시겠습니까?'),
+//       actions: <Widget>[
+//         TextButton(
+//           child: Text('나중에'),
+//           onPressed: () {
+//             // Add your code here to handle the "나중에" button press
+//           },
+//         ),
+//         TextButton(
+//           child: Text('증상작성'),
+//           onPressed: () {
+//             // Add your code here to handle the "증상작성" button press
+//           },
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 
 
