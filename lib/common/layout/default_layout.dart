@@ -5,7 +5,9 @@
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/component/menu_drawer.dart';
 import 'package:ecg_app/bluetooth/screens/scan_screen.dart';
+import 'package:ecg_app/global_variables.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 
 class DefaultLayout extends StatelessWidget {
@@ -13,22 +15,24 @@ class DefaultLayout extends StatelessWidget {
   final Widget child;
   final String? title;
   final Widget? bottomNavigationBar;
+  final BluetoothDevice? device;
 
   // const DefaultLayout({
   //   required this.child,
   //   super.key});
-  const DefaultLayout({
+  DefaultLayout({
     required this.child,
     this.backgroundColor,
     this.title,
     this.bottomNavigationBar,
+    this.device,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // 현재 화면 크기를 얻어옴.
-
+    print("Default_layout Device~~~~: $device");
 
 
     return Scaffold(
@@ -37,7 +41,7 @@ class DefaultLayout extends StatelessWidget {
       // 입력을 받지 않으면 기본색깔인 흰색으로
       // appBar: renderAppBar(),
       appBar: renderAppBar(context),
-      drawer: const MenuDrawer(),
+      drawer: MenuDrawer(device: device,),
       body: child,
       bottomNavigationBar: bottomNavigationBar,
     );

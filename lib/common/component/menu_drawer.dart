@@ -1,9 +1,10 @@
 // 2024-02-02 15:09 Setting 의 Light, Dark, System 모드 설정 추가
 // 2024-02-05 10:42 테스트
 // 2024-05-28 15:55 Serialnumber 디바이스명 적용
-
+// 2024-06-25 09:48 Home 버튼 로직 수정
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
+import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/about_info.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:ecg_app/ecg/component/ecg_card.dart';
@@ -12,6 +13,7 @@ import 'package:ecg_app/main.dart';
 import 'package:ecg_app/model/transfer_to_server.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +23,8 @@ import 'package:ecg_app/global_variables.dart';
 
 
 class MenuDrawer extends StatefulWidget {
-  const MenuDrawer({super.key});
+  const MenuDrawer({Key? key, required this.device}) : super(key: key);
+  final BluetoothDevice? device;
 
   @override
   State<MenuDrawer> createState() => _MenuDrawerState();
@@ -31,6 +34,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
   ThemeMode _themeMode = ThemeMode.dark;
   ThemeProvider? _themeProvider;
   String deviceName = globalDeviceName;
+  // BluetoothDevice? get device => widget.device;
+
+
 
   @override
   void didChangeDependencies() {
@@ -356,7 +362,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => RootTab(device: null),
+                  builder: (_) => RootTab(device: widget.device),
                 ),
               );
             },

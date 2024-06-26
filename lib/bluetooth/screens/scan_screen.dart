@@ -6,6 +6,7 @@
 // 2024-05-28 15:42 디바이스장치 명 전역변수 설정(Drawer에 적용하기위해)
 // 2024-06-19 16:55 flutter_blue_plus library 업데이트 시작
 
+import 'package:ecg_app/common/component/menu_drawer.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
@@ -51,6 +52,10 @@ class _ScanScreenState extends State<ScanScreen> {
   List<ScanResult> scanResultList = [];
   bool _isScanning = false;
   int tapCount = 0;
+
+
+
+
 
   @override
   initState() {
@@ -204,16 +209,35 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   /* 장치 아이템을 탭 했을때 호출 되는 함수 */
+  // void onTap(ScanResult r) {
+  //   // 단순히 이름만 출력
+  //   print('${r.device.name}');
+  //   Navigator.push(
+  //     context,
+  //     // MaterialPageRoute(builder: (context) => DeviceScreen(device: r.device)),
+  //     // MaterialPageRoute(builder: (context) => RootTab()),
+  //
+  //     MaterialPageRoute(builder: (context) => RootTab(device: r.device)),
+  //   );
+  //   // MenuDrawer(device: r.device);
+  // }
+
   void onTap(ScanResult r) {
-    // 단순히 이름만 출력
-    print('${r.device.name}');
-    Navigator.push(
-      context,
-      // MaterialPageRoute(builder: (context) => DeviceScreen(device: r.device)),
-      // MaterialPageRoute(builder: (context) => RootTab()),
-      MaterialPageRoute(builder: (context) => RootTab(device: r.device)),
-    );
-  }
+  print('onTap 디바이스 네임: ${r.device.name}');
+  print("r.device: ${r.device}");
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => DefaultLayout(
+        device: r.device, // Pass the device here
+        child: RootTab(
+          device: r.device, // Pass the device here
+        ),
+        // device: r.device, // Pass the device here
+      ),
+    ),
+  );
+}
 
   /* 장치 아이템 위젯 */
   Widget listItem(ScanResult r) {
@@ -239,6 +263,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     //여기
     return DefaultLayout(
+      //
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
@@ -376,6 +401,7 @@ class _ScanScreenState extends State<ScanScreen> {
           child: Icon(_isScanning ? Icons.stop : Icons.search),
         ),
       ),
+       // Pass the device here
     );
   }
 }

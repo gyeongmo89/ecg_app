@@ -77,7 +77,7 @@ void main() async {
           // dispose: (_, timerService) => timerService.dispose(), //지워야하나?
           create: (_) => timerService,
         ),
-        ChangeNotifierProvider(   //검서 종료되면 푸시메시지
+        ChangeNotifierProvider(   //검사 종료되면 푸시메시지
           create: (context) => HeartRateProvider(),
         ),
 
@@ -163,8 +163,8 @@ class _AppState extends State<_App> {
         stream: timerService.timerStream, // Use timerService stream
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
           //제한시간 설정
+          if (snapshot.hasData && snapshot.data! >= 3600000 && !_isDialogShown) {
           // if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
-          if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
             print("제한시간1");
             Future.delayed(Duration.zero, () {
               print("제한시간2");
