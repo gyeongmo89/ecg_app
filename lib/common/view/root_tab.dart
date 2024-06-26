@@ -48,6 +48,15 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print("widget.device: ${widget.device}");
+    if (widget.device == null) {
+      return Scaffold(
+        body: Center(
+          child: Text('연결된 장치가 없습니다.'),
+        ),
+      );
+    }
+
     return DefaultLayout(
       title: 'ECG Monitoring',
       bottomNavigationBar: BottomNavigationBar( // 하단 네비게이션 바

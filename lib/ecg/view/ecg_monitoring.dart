@@ -8,7 +8,7 @@ class EcgMonitoringScreen extends StatefulWidget {
 
   EcgMonitoringScreen({Key? key, required this.device}) : super(key: key);
   // 장치 정보 전달 받기
-  final BluetoothDevice device;
+  final BluetoothDevice? device;
 
   @override
   State<EcgMonitoringScreen> createState() => _EcgMonitoringScreenState();
@@ -17,9 +17,8 @@ class EcgMonitoringScreen extends StatefulWidget {
 class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true; // 이 부분이 상태 유지를 위한 설정입니다.
-
-
   final int noteIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     DateTime selectedDay = DateTime.utc(
@@ -29,6 +28,15 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
       DateTime.now().day,
     );
 
+    // if (widget.device == null) {
+    //   return Scaffold(
+    //     body: Center(
+    //       child: Text('No device connected'),
+    //     ),
+    //   );
+    // }
+
+
     return Scaffold(
       backgroundColor:
           Colors.transparent, // Set the background color to transparent
@@ -36,17 +44,6 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              // Color(0xFFFFE8F7),
-              // Color(0xFFFFF5FF),
-              // Color(0xFFF1F1E6),
-              // Color(0xFFFAFAEC),
-              // Colors.white,
-              //핑크계열
-              // Color(0xFF666F9A,),
-              // Color(0xFF8974A3,),
-              // Color(0xFFAB79A6,),
-              // Color(0xFFCA7FA1,),
-              //------
               //그린계열
               Color(0xFF0DB2B2),
               Color(0xFF00A2C8),
@@ -59,7 +56,7 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
         ),
         // child: DeviceScreen(device: r.device),
         child: DeviceScreen(
-          device: widget.device,
+          device: widget.device!,
           cardioImage: Transform.rotate(
             angle: 3.14 * 1.5, // 270도 회전 (라디안 단위)
             child: Image.asset(
