@@ -75,7 +75,6 @@ class _Time extends StatelessWidget {
     const textStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: PRIMARY_COLOR2,
-      // color: PRIMARY_COLOR,
       fontSize: 16.0,
     );
 
@@ -91,41 +90,10 @@ class _Time extends StatelessWidget {
           "${startTimeHour.toString().padLeft(2, "0")}:${startTimMinute.toString().padLeft(2, "0")}",
           style: textStyle,
         ),
-        // Text(
-        //   "${endTimeHour.toString().padLeft(2, "0")}:${endTimMinute.toString().padLeft(2, "0")}",
-        //   style: textStyle.copyWith(
-        //     fontSize: 12.0,
-        //   ),
-        // ),
       ],
     );
   }
 }
-
-//     int startTimeHour = (startTime ~/ 60).floor().toInt();
-//     int startTimeMinute = (startTime % 60).floor().toInt();
-//     int startTimeSecond = ((startTime % 60) * 60).floor().toInt(); // 소수 부분을 초로 변환
-//
-//     int endTimeHour = (endTime ~/ 60).floor().toInt();
-//     int endTimeMinute = (endTime % 60).floor().toInt();
-//     int endTimeSecond = ((endTime % 60) * 60).floor().toInt(); // 소수 부분을 초로 변환
-//
-//     return Column(
-//       children: [
-//         Text(
-//           "${startTimeHour.toString().padLeft(2, "0")}:${startTimeMinute.toString().padLeft(2, "0")}:${startTimeSecond.toString().padLeft(2, "0")}",
-//           style: textStyle,
-//         ),
-//         Text(
-//           "${endTimeHour.toString().padLeft(2, "0")}:${endTimeMinute.toString().padLeft(2, "0")}:${endTimeSecond.toString().padLeft(2, "0")}",
-//           style: textStyle.copyWith(
-//             fontSize: 12.0,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class _Content extends StatelessWidget {
   final String content;
@@ -148,8 +116,6 @@ class _Symptom extends StatelessWidget {
     if(etcSymptom == "기타설명에 작성해 주세요."){
       etcSymptom = content;
     }
-
-
 
     return Expanded(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,

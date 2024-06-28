@@ -1,8 +1,5 @@
 import 'dart:async';
 
-// It is essentially a stream but:
-//  1. we cache the latestValue of the stream
-//  2. the "latestValue" is re-emitted whenever the stream is listened to
 class StreamControllerReemit<T> {
   T? _latestValue;
 
@@ -26,14 +23,12 @@ class StreamControllerReemit<T> {
   }
 }
 
-// return a new stream that imediately emits an initial value
 extension _StreamNewStreamWithInitialValue<T> on Stream<T> {
   Stream<T> newStreamWithInitialValue(T initialValue) {
     return transform(_NewStreamWithInitialValueTransformer(initialValue));
   }
 }
 
-// Helper for 'newStreamWithInitialValue' method for streams.
 class _NewStreamWithInitialValueTransformer<T> extends StreamTransformerBase<T, T> {
   final T initialValue;
 
