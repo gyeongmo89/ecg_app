@@ -1,6 +1,5 @@
 // 2024-02-05 18:05 시작
 // Patch info 화면
-// Patch 정보를 보여주는 화면
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +31,6 @@ class PatchInfo extends StatelessWidget {
     final titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 20,
-      // color: Colors.black,
       color: PRIMARY_COLOR2,
     );
 
@@ -54,7 +52,6 @@ class PatchInfo extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            //image
             SizedBox(height: deviceHeight / 30 * 1),
             Row(
               children: [
@@ -63,12 +60,6 @@ class PatchInfo extends StatelessWidget {
                   width: deviceWidth / 2 * 1,
                   fit: BoxFit.fill,
                 ),
-                //input image mountingPosition_3.png
-                // Image.asset(
-                //   "asset/img/misc/heartCare2.png",
-                //   width: deviceWidth / 1.5 * 1,
-                //   fit: BoxFit.contain,
-                // ),
                 Image.asset(
                   "asset/img/misc/heartCare2.png",
                   width: deviceWidth / 2 * 1,
@@ -76,13 +67,11 @@ class PatchInfo extends StatelessWidget {
                 ),
               ],
             ),
-            //왼쪽정렬
             SizedBox(height: deviceHeight / 30 * 1),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   width: deviceWidth / 4 * 5,
-                  // height: deviceHeight / 5 * 2.31,
                   height: deviceHeight / 5 * 2.8,
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(

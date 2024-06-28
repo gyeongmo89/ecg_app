@@ -2,7 +2,6 @@ import 'package:ecg_app/common/component/calendar.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
-import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:ecg_app/symptom_note/component/schedule_card.dart';
 import 'package:ecg_app/symptom_note/component/today_banner.dart';
@@ -34,12 +33,6 @@ class _SymptomNote2State extends State<SymptomNote2> {
 void initState() {
   super.initState();
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return _EventPopup();
-    //   },
-    // );
   });
 }
 
@@ -267,6 +260,7 @@ class _ScheduleListState extends State<_ScheduleList> {
                         });
                       },
                       // 스와이프 했을때 그 순간 이벤트를 받으려면 onDismissed
+                      // 등록된 증상노트 수정하는 부분(등록된 카드 눌렀을때)
                       child: GestureDetector(
                         onTap: () {
                           showModalBottomSheet(

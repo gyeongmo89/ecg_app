@@ -10,7 +10,7 @@ class MessagePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Message Page'),
+        title: Text('심전도 검사 종료 알림'),
       ),
       body: Center(
         child: Text(data.toString()),
