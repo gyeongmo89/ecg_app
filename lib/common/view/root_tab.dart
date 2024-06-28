@@ -69,7 +69,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         ],
       ),
       child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),  // 스크롤 비활성화
+        physics: const NeverScrollableScrollPhysics(),  // 스크롤 비활성화
         controller: controller,
         children: const [
           EcgMonitoringScreen(),  // ECG 화면

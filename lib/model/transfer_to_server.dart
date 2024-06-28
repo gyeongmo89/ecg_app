@@ -7,7 +7,6 @@ import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart';
 import 'package:intl/intl.dart';
 
 void setupLocator() {
@@ -163,8 +162,8 @@ void postDataToServer(BuildContext context) async {
     DateTime endDate = DateTime.parse(formattedEndDate);
 
     // 9시간을 뺀 시간 계산
-    DateTime adjustedStartTime = StartDate.subtract(Duration(hours: 9));
-    DateTime adjustedEndTime = endDate.subtract(Duration(hours: 9));
+    DateTime adjustedStartTime = StartDate.subtract(const Duration(hours: 9));
+    DateTime adjustedEndTime = endDate.subtract(const Duration(hours: 9));
 
     // 변경된 시간을 다시 문자열로 변환
     String adjustedStartString =
@@ -300,7 +299,7 @@ void postDataToServer(BuildContext context) async {
             // builder: (BuildContext context) {
             builder: (BuildContext dialogContext) { // 이 부분 수정
               return AlertDialog(
-                title: Text("전송 실패"),
+                title: const Text("전송 실패"),
                 content: Text("전송이 실패 되었습니다. 에러코드 : ${response.data["error"]}"),
                 actions: <Widget>[
                   CustomButton(
@@ -324,7 +323,7 @@ void postDataToServer(BuildContext context) async {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("전송 요청 실패"),
+              title: const Text("전송 요청 실패"),
               content: Text("전송 요청이 실패 되었습니다. 에러코드 : ${response.statusCode}"),
               actions: <Widget>[
                 CustomButton(
@@ -370,8 +369,8 @@ void showEmptyDataDialog(BuildContext context) {
     context: context,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: Text("알림"),
-        content: Text("전송할 데이터가 없습니다."),
+        title: const Text("알림"),
+        content: const Text("전송할 데이터가 없습니다."),
         actions: <Widget>[
           CustomButton(
             text: "확인",
@@ -391,8 +390,8 @@ void showSuccessDialog(BuildContext context) {
     context: context,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: Text("전송 완료"),
-        content: Text("데이터가 성공적으로 전송되었습니다."),
+        title: const Text("전송 완료"),
+        content: const Text("데이터가 성공적으로 전송되었습니다."),
         actions: <Widget>[
           CustomButton(
             text: "확인",
@@ -412,7 +411,7 @@ void showFailureDialog(BuildContext context, String errorMessage) {
     context: context,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: Text("전송 실패"),
+        title: const Text("전송 실패"),
         content: Text("전송이 실패 되었습니다. 에러코드 : $errorMessage"),
         actions: <Widget>[
           CustomButton(

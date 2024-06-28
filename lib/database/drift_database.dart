@@ -3,9 +3,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:ecg_app/model/category_color.dart';
 import 'package:ecg_app/model/schedule.dart';
-import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 // 마커때문에 수정 11:42

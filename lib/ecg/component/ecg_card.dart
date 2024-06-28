@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/ecg/component/ecg_chart.dart';
 import 'package:ecg_app/ecg/component/hr_chart.dart';
 import 'package:ecg_app/ecg/view/ecg_test.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +113,7 @@ class _EcgCardState extends State<EcgCard> {
 // --------------------------------------------------
 //           SizedBox(height: deviceHeight/7),
           SizedBox(height: deviceHeight / 67),
-          Row(
+          const Row(
             children: [
               Text("Recording Time  14:07"),
             ],
@@ -126,7 +125,7 @@ class _EcgCardState extends State<EcgCard> {
             children: [
               Column(
                 children: [
-                  Text(
+                  const Text(
                     "AVG",
                     style: TextStyle(
                         fontSize: 18.0,
@@ -141,13 +140,13 @@ class _EcgCardState extends State<EcgCard> {
                         children: [
                           Text(
                             avg.toString(), //
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 44.0,
                             ),
                           ),
                         ],
                       ),
-                      Text(
+                      const Text(
                         "bpm",
                         style: TextStyle(
                             fontSize: 14.0, color: SUB_TEXT_COLOR),
@@ -156,7 +155,7 @@ class _EcgCardState extends State<EcgCard> {
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                   height: 45.0,
                   child: VerticalDivider(
                     color: PRIMARY_COLOR2,
@@ -164,7 +163,7 @@ class _EcgCardState extends State<EcgCard> {
                   )),
               Column(
                 children: [
-                  Text(
+                  const Text(
                     "MIN",
                     style: TextStyle(
                         fontSize: 18.0,
@@ -177,11 +176,11 @@ class _EcgCardState extends State<EcgCard> {
                     children: [
                       Text(
                         min.toString(), //
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 44.0,
                         ),
                       ),
-                      Text(
+                      const Text(
                         "bpm",
                         style: TextStyle(
                             fontSize: 14.0, color: SUB_TEXT_COLOR),
@@ -190,7 +189,7 @@ class _EcgCardState extends State<EcgCard> {
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                   height: 45.0,
                   child: VerticalDivider(
                     color: PRIMARY_COLOR2,
@@ -198,7 +197,7 @@ class _EcgCardState extends State<EcgCard> {
                   )),
               Column(
                 children: [
-                  Text(
+                  const Text(
                     "MAX",
                     style: TextStyle(
                         fontSize: 18.0,
@@ -212,11 +211,11 @@ class _EcgCardState extends State<EcgCard> {
                     children: [
                       Text(
                         max.toString(), //
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 44.0,
                         ),
                       ),
-                      Text(
+                      const Text(
                         "bpm",
                         style: TextStyle(
                             fontSize: 14.0, color: SUB_TEXT_COLOR),
@@ -246,12 +245,12 @@ class _EcgCardState extends State<EcgCard> {
                 )),
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   // height: deviceHeight,
                   width: deviceWidth / 1.25,
                   // height: 220.0,
                   // width: 320.0,
-                  child: Column(
+                  child: const Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -290,7 +289,7 @@ class _EcgCardState extends State<EcgCard> {
                 )),
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   // height: 220.0,
                   width: deviceWidth / 1.25,
                   child: const Column(

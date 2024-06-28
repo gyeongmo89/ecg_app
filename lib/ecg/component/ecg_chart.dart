@@ -4,7 +4,6 @@
 // 사이즈 조정 시작
 import 'dart:async';
 import 'dart:math';
-import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/const/colors2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +83,7 @@ class _EcgChartState extends State<EcgChart> {
     return LineChartData(
       backgroundColor: Colors.black,
 
-      clipData: FlClipData.horizontal(),
+      clipData: const FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
@@ -122,7 +121,7 @@ class _EcgChartState extends State<EcgChart> {
       maxY: 5,
       lineBarsData: [
         LineChartBarData(
-          spots: ecgData.isEmpty ? [FlSpot(0, 0)] : ecgData, // 초기화  // 추가
+          spots: ecgData.isEmpty ? [const FlSpot(0, 0)] : ecgData, // 초기화  // 추가
           // spots: const [
           //   FlSpot(0, 3),
           //   FlSpot(2.6, 2),

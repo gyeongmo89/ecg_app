@@ -167,10 +167,8 @@ import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import './device_screen.dart';
 import 'package:ecg_app/bluetooth/utils/snackbar.dart';
 import 'package:ecg_app/bluetooth/widgets/connected_device_tile.dart';
-import 'package:ecg_app/bluetooth/widgets/scan_result_tile.dart';
 import 'package:ecg_app/bluetooth/utils/extra.dart';
 import 'package:provider/provider.dart';
 
@@ -279,7 +277,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
     MaterialPageRoute route = MaterialPageRoute(
         builder: (context) => DeviceScreen(device: device),
-        settings: RouteSettings(name: '/DeviceScreen'));
+        settings: const RouteSettings(name: '/DeviceScreen'));
     Navigator.of(context).push(route);
   }
 
@@ -288,21 +286,21 @@ class _ScanScreenState extends State<ScanScreen> {
       FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     }
     setState(() {});
-    return Future.delayed(Duration(milliseconds: 500));
+    return Future.delayed(const Duration(milliseconds: 500));
   }
 
   Widget buildScanButton(BuildContext context) {
     if (FlutterBluePlus.isScanningNow) {
       return FloatingActionButton(
-        child: const Icon(Icons.stop),
         onPressed: onStopPressed,
         backgroundColor: Colors.red,
+        child: const Icon(Icons.stop),
       );
     } else {
       return FloatingActionButton(
           backgroundColor: PRIMARY_COLOR2,
-          child: Icon(Icons.search),
-          onPressed: onScanPressed);
+          onPressed: onScanPressed,
+          child: const Icon(Icons.search));
       // 여기 수정해야함
     }
   }
@@ -315,7 +313,7 @@ class _ScanScreenState extends State<ScanScreen> {
             onOpen: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => DeviceScreen(device: d),
-                settings: RouteSettings(name: '/DeviceScreen'),
+                settings: const RouteSettings(name: '/DeviceScreen'),
               ),
             ),
             onConnect: () => onConnectPressed(d),
@@ -333,7 +331,7 @@ class _ScanScreenState extends State<ScanScreen> {
             onTap: () {
               if (entry.key == 0) {
                 Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RootTab()));
+                    .push(MaterialPageRoute(builder: (_) => const RootTab()));
               } else {
                 onConnectPressed(entry.value.device);
               }
@@ -387,12 +385,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   /* BLE 아이콘 위젯 */
   Widget leading(ScanResult r) {
-    return CircleAvatar(
+    return const CircleAvatar(
+      backgroundColor: Colors.cyan,
       child: Icon(
         Icons.bluetooth,
         color: Colors.white,
       ),
-      backgroundColor: Colors.cyan,
     );
   }
 
@@ -409,7 +407,7 @@ class _ScanScreenState extends State<ScanScreen> {
       // },
       onTap: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => RootTab()));
+            .push(MaterialPageRoute(builder: (_) => const RootTab()));
         // if (r.device.name == 'HolmesAI-Cardio 1') {
         //   Navigator.of(context).push(MaterialPageRoute(builder: (_) => RootTab()));
         // }
@@ -445,7 +443,7 @@ class _ScanScreenState extends State<ScanScreen> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 4.0,
               ),
               // 카디오 로고
@@ -515,7 +513,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5.0,
               ),
               Expanded(
@@ -528,7 +526,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       return listItem(scanResultList[index]);
                     },
                     separatorBuilder: (BuildContext context, int index) {
-                      return Divider();
+                      return const Divider();
                     },
                   ), // 시연때문에 여기부터 임의추가함
 

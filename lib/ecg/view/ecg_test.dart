@@ -75,6 +75,8 @@ class EcgChartPainter extends CustomPainter {
 }
 
 class EcgChart2 extends StatefulWidget {
+  const EcgChart2({super.key});
+
   @override
   _EcgChartState createState() => _EcgChartState();
 }
@@ -302,7 +304,7 @@ class _EcgChartState extends State<EcgChart2> {
         ),
         child: CustomPaint(
           painter: EcgChartPainter(ecgData),
-          size: Size(double.infinity, 200),
+          size: const Size(double.infinity, 200),
         ),
       ),
     );
@@ -310,10 +312,12 @@ class _EcgChartState extends State<EcgChart2> {
 }
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -321,7 +325,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           // title: Text('HolmesAI RealTime ECG Chart',style: TextStyle(color: Colors.pinkAccent),),
-          title: Text(
+          title: const Text(
             'HolmesAI 실시간 심전도',
             style: TextStyle(color: Colors.white),
           ),
@@ -329,8 +333,8 @@ class MyApp extends StatelessWidget {
           backgroundColor: APPBAR_COLOR,
         ),
         backgroundColor: Colors.black,
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
+        body: const Padding(
+          padding: EdgeInsets.all(8.0),
           child: Center(child: EcgChart2()),
         ),
       ),

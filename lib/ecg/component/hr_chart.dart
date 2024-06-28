@@ -78,7 +78,7 @@ class _HrChartState extends State<HrChart> {
   LineChartData mainData() {
     return LineChartData(
       backgroundColor: Colors.black,
-      clipData: FlClipData.horizontal(),
+      clipData: const FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
@@ -116,7 +116,7 @@ class _HrChartState extends State<HrChart> {
       maxY: 10,
       lineBarsData: [
         LineChartBarData(
-          spots: ecgData.isEmpty ? [FlSpot(0, 0)] : ecgData, // 초기화  // 추가
+          spots: ecgData.isEmpty ? [const FlSpot(0, 0)] : ecgData, // 초기화  // 추가
           isCurved: true,
           gradient: LinearGradient(
             colors: gradientColors,

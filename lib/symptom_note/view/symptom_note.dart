@@ -1,9 +1,6 @@
 // 2023-11-06 Registration, History 탭 주석처리
-import 'dart:math';
 
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/common/layout/default_layout.dart';
-import 'package:ecg_app/symptom_note/view/symptom_registration.dart';
 import 'package:flutter/material.dart';
 
 class SymptomNoteScreen extends StatefulWidget {

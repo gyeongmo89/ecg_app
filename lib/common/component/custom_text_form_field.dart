@@ -34,7 +34,7 @@ class CustomTextFormField extends StatelessWidget {
       autofocus: autofocus,
       onChanged: onChanged,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.all(20),
+        contentPadding: const EdgeInsets.all(20),
         hintText: hintText,
         errorText: errorText,
         hintStyle: const TextStyle(

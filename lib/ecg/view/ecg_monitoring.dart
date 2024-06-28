@@ -40,7 +40,7 @@ class EcgMonitoringScreen extends StatelessWidget {
           );
         },
         backgroundColor: PRIMARY_COLOR2,
-        child: Icon(Icons.edit_note),
+        child: const Icon(Icons.edit_note),
       ),
     );
   }

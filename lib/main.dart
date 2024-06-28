@@ -34,16 +34,16 @@ class _App extends StatelessWidget {
           return await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('앱 종료'),
-              content: Text('앱을 종료하시겠습니까?'),
+              title: const Text('앱 종료'),
+              content: const Text('앱을 종료하시겠습니까?'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('취소'),
+                  child: const Text('취소'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('확인'),
+                  child: const Text('확인'),
                 ),
               ],
             ),

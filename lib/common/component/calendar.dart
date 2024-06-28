@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/material.dart';
@@ -91,7 +90,7 @@ class _CalendarState extends State<Calendar> {
                 shape: BoxShape.circle,
                 color: Colors.red,
               ),
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
+              margin: const EdgeInsets.symmetric(horizontal: 1.0),
             ),
           ),
         );
@@ -223,7 +222,7 @@ class _CalendarState extends State<Calendar> {
         selectedTextStyle: defaultTextStyle.copyWith(
           color: PRIMARY_COLOR2,
         ),
-        outsideDecoration: BoxDecoration(
+        outsideDecoration: const BoxDecoration(
           shape: BoxShape.rectangle,
         ),
       ),

@@ -127,7 +127,7 @@ class ConnectionInfo extends StatelessWidget {
                           await FlutterBluePlus.turnOn();
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => ScanScreen(),
+                              builder: (_) => const ScanScreen(),
                             ),
                           );
                         }
@@ -138,12 +138,12 @@ class ConnectionInfo extends StatelessWidget {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        primary: PRIMARY_COLOR2,
-                        fixedSize: Size(400, 60),
+                        backgroundColor: PRIMARY_COLOR2,
+                        fixedSize: const Size(400, 60),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         )),
-                    child: Text(
+                    child: const Text(
                       "Start",
                       style: TextStyle(
                         fontSize: 26,

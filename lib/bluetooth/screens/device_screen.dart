@@ -68,7 +68,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   void _connectToPairedDevice() async {
     try {
       // 여기서 이미 페어링된 장치 목록을 가져옵니다.
-      List<BluetoothDevice> pairedDevices = await FlutterBluePlus.connectedDevices;
+      List<BluetoothDevice> pairedDevices = FlutterBluePlus.connectedDevices;
       // List<BluetoothDevice> pairedDevices = await FlutterBlue.instance.connectedDevices;
 
       // 이미 페어링된 장치들 중에서 선택 가능한 로직을 추가합니다.
@@ -182,8 +182,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   Widget buildSpinner(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(14.0),
+    return const Padding(
+      padding: EdgeInsets.all(14.0),
       child: AspectRatio(
         aspectRatio: 1.0,
         child: CircularProgressIndicator(
@@ -216,16 +216,16 @@ class _DeviceScreenState extends State<DeviceScreen> {
       index: (_isDiscoveringServices) ? 1 : 0,
       children: <Widget>[
         TextButton(
-          child: const Text("Get Services"),
           onPressed: onDiscoverServicesPressed,
+          child: const Text("Get Services"),
         ),
         const IconButton(
           icon: SizedBox(
+            width: 18.0,
+            height: 18.0,
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation(Colors.grey),
             ),
-            width: 18.0,
-            height: 18.0,
           ),
           onPressed: null,
         )

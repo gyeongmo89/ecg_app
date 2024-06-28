@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +37,7 @@ void main() async {
       theme: ThemeData(
         fontFamily: 'NotoSans',
       ),
-      home: SymptomNote2(),
+      home: const SymptomNote2(),
     )
   );
 }

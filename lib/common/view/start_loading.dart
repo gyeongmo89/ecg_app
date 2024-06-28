@@ -15,11 +15,11 @@ class _StartLoadingState extends State<StartLoading> {
   void initState() {
     super.initState();
     // 2초간 로딩후 화면 전환
-    Future.delayed(Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => ConnectionInfo(),
+            builder: (context) => const ConnectionInfo(),
           ),
         );
       }

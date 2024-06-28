@@ -2,9 +2,7 @@
 // test 1
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/component/menu_drawer.dart';
-import 'package:ecg_app/bluetooth/screens/scan_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class DefaultLayout extends StatelessWidget {
   final Color? backgroundColor;
