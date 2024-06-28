@@ -7,6 +7,7 @@
 // 2024-05-09 09:19 하루 최대 1시간 연결 후 앱 종료 시작 4(전역변수 설정)
 // 2024-05-28 11:43 local notification 추가
 // 2024-06-28 11:47 gitlab 연동
+// 2024-06-28 11:38 gitlab 연동2
 
 //flutter build apk --release --target-platform=android-arm64
 //flutter build apk --debug --target-platform=android-arm64
