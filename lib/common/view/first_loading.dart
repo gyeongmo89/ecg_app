@@ -1,6 +1,5 @@
 // 화면이동 테스트 1
 import 'package:ecg_app/common/const/colors.dart';
-import 'package:ecg_app/common/component/custom_text_form_field.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:flutter/material.dart';
 
