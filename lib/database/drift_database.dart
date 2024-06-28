@@ -1,17 +1,13 @@
-// import는 private 값들은 불러올 수 없다.
 // categoryColors join 해제 시작 2023-11-16 16:17
+// 마커때문에 수정 11:42
+
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:ecg_app/model/category_color.dart';
 import 'package:ecg_app/model/schedule.dart';
-import 'package:ecg_app/model/schedule_with_color.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-// 마커때문에 수정 11:42
-// part 는 private 값까지 불러올 수 있다.)(import 보다 더 범위가 넓음)
-part 'drift_database.g.dart'; // g는 generated (자동으로 생성되었다는 말)
-// 현재파일의 이름.g.dart
+part 'drift_database.g.dart'; // part 는 private 값까지 불러올 수 있어서 part로 함(import 보다 더 범위가 넓음)
 
 @DriftDatabase(
   tables: [
@@ -22,30 +18,30 @@ class LocalDatabase extends _$LocalDatabase {
   LocalDatabase() : super(_openConnection());
 
   @override
-  // TODO: implement schemaVersion
-  int get schemaVersion => 1; // 버전업그레이드, 디폴트는 1부터시작
+  int get schemaVersion => 1; // 스키마 버전 표시
 
-  Future<Schedule> getScheduleById(int id) => // ID 값을 기준으로 가져온다.
+  Future<Schedule> getScheduleById(int id) => // ID 값을 기준으로 가져옴
   (select(schedules)
     ..where((tbl) => tbl.id.equals(id)))
-      .getSingle(); //getSingle(하나만 가져온다는 뜻.)
+      .getSingle(); //ID 하나만 가져옴
 
   // INSERT 쿼리
   Future<int> createSchedule(SchedulesCompanion data) =>
       into(schedules).insert(
-          data); // insert를 하면 자동으로 PRIMARY KEY(ID)를 return 받을 수 있다. int 를 리턴 받을 수 있다.
+          data); // insert를 하면 자동으로 PRIMARY KEY(ID)를 return 받을음(int)
 
+  // Color join 하는부분은 현재 불필요하여 주석처리함
   // Future<int> createCategoryColor(CategoryColorsCompanion data) =>
   //     into(categoryColors).insert(data);
   //
   // // COLOR JOIN 쿼리
   // Future<List<CategoryColor>> getCategoryColors() =>
-  //     select(categoryColors).get(); // color을 다 갖고옴.
+  //     select(categoryColors).get(); // color을 다 갖고옴
 
   // DELETE 쿼리
   Future<int> removeSchedule(int id) =>
       (delete(schedules)
-        ..where((tbl) => tbl.id.equals(id))).go(); // 모두 다 삭제됨.
+        ..where((tbl) => tbl.id.equals(id))).go(); // 모두 다 삭제
 
   // UPDATE 쿼리
   Future<int> updateScheduleById(int id, SchedulesCompanion data) =>
@@ -53,13 +49,7 @@ class LocalDatabase extends _$LocalDatabase {
         ..where((tbl) => tbl.id.equals(id))).write(data);
 
   // 모든 일정 데이터를 가져오는 메서드
-  // Future<List<Schedule>> getAllSchedules() => select(schedules).get();
   Stream<List<Schedule>> getAllSchedules() => select(schedules).watch();
-
-
-  // Stream<List<Schedule>> watchSchedules(DateTime date) =>
-  //
-  //     select(schedules).watch();
 
   // date, symptom, activity, content 필드만 가져오는 쿼리
   Future<List<Map<String, dynamic>>> getDateSymptomActivityContent() =>
@@ -72,61 +62,13 @@ class LocalDatabase extends _$LocalDatabase {
         'content': row.content,
       }).get();
 
-
-
-
   Stream<List<Schedule>> watchSchedules(DateTime date){
     // final query = select(schedules);
     //     query.where((tbl) => tbl.date.equals(date));
-    // return query.watch();  //3줄이 아래 한줄과 같은 뜻임
+    // return query.watch();  //3줄이 아래 한줄과 같은 뜻 이므로 주석처리
     return (select(schedules)..where((tbl) => tbl.date.equals(date))).watch();
   }
-  // Stream<List<Schedule>> watchSchedules(DateTime startDate, DateTime endDate) {
-  //   return (select(schedules)
-  //     ..where((tbl) => tbl.date.isBetweenValues(startDate, endDate)))
-  //       .watch();
-  // }
-
-
-
-
-
-
-
-
-
 }
-
-
-//   // 색깔은 고정되어있어서 Future로 받을 수 있지만 내용은 아니다 그래서 Stream으로 함
-//   Stream<List<ScheduleWithColor>> watchSchedules(DateTime date) {
-//     final query = select(schedules).join([
-//       // join 할때는 equalsExp, 테이블에서는 equals
-//       innerJoin(categoryColors, categoryColors.id.equalsExp(schedules.colorID))
-//       // schedules 와 categoryColors 와 join을 하는데, categoryColors.id 가 scheules.colorID와 같은 것을 join 해주겠다.
-//     ]); // 3줄이 원래는 정석
-//     query.where(schedules.date.equals(date)); // 테이블에 date와 관련된 데이터만 갖고옴
-//     query.orderBy(
-//       [
-//         // asc -> ascending 오름차순
-//         // desc -> descending 내림차순
-//         OrderingTerm.asc(schedules.startTime),
-//       ],
-//     );
-//
-//     return query.watch().map(
-//           (rows) =>
-//           rows.map(
-//                 (row) =>
-//                 ScheduleWithColor(
-//                   schedule: row.readTable(schedules),
-//                   // categoryColor: row.readTable(categoryColors),
-//                 ),
-//           ).toList(),
-//     ); // 아래 한줄과 같음
-//     // return (select(schedules)..where((tbl) => tbl.date.equals(date))).watch();  // 업데이트 되었을떄 지속적으로 없데이트 된 값을 받을 수 있음.
-//   }
-// }
 
 LazyDatabase _openConnection() {
   // 데이터베이스 생성

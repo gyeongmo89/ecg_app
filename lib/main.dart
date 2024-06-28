@@ -13,11 +13,9 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:ecg_app/bluetooth/ble_connection_state.dart';
-import 'package:ecg_app/common/component/menu_drawer.dart';
+
 import 'package:ecg_app/common/view/start_loading.dart';
-import 'package:ecg_app/test_noti/home_page.dart';
-import 'package:ecg_app/test_noti/message_page.dart';
+import 'package:ecg_app/global_variables.dart';
 import 'package:flutter/material.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/services.dart';
@@ -27,7 +25,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ecg/component/ecg_card.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:ecg_app/test_noti/message_page.dart';
 import 'package:ecg_app/test_noti/local_push_notifications.dart';
 
 
@@ -66,15 +63,13 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider( // 관련 위젯을 자동으로 다시 빌드하기위해 ChangeNotifierProvider를 사용함
           create: (context) => ThemeProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => BleConnectionState(),
         ),
-        Provider<TimerService>( // Use Provider to manage TimerService instance
-          // create: (_) => TimerService(),
-          // dispose: (_, timerService) => timerService.dispose(), //지워야하나?
+        Provider<TimerService>( // 앱 사용시간(최대 1시간)을 위한 provider
           create: (_) => timerService,
         ),
         ChangeNotifierProvider(   //검사 종료되면 푸시메시지
@@ -94,7 +89,8 @@ class _App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends State<_App> {
+// class _AppState extends State<_App> {
+  class _AppState extends State<_App> with WidgetsBindingObserver {
   late Timer _timer;
   int timer = 0;
   final StreamController<int> _streamController = StreamController<int>();
@@ -103,32 +99,38 @@ class _AppState extends State<_App> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) async {
       int newTimer = await TimeLimit().checkTimeLimit();
       setState(() {
         timer = newTimer;
         _streamController.add(timer);
       });
-      // _streamController.add(timer);  임시
-      // if (newTimer >= 940) {
-      //   print("neTimer가 940보다 크다 init state");
-      //   _streamController.add(newTimer);
-      // }
     });
   }
 
   @override
   void dispose() {
     _timer.cancel();
+    WidgetsBinding.instance?.removeObserver(this);
     _streamController.close();
     super.dispose();
   }
+  // Home 버튼을 눌러서 앱이 백그라운드로 실행될때 BLE 통신을 종료하기 위해 앱을 백그라운드 까지 종료함
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      print("홈버튼 눌러서 종료");
+      exit(0);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     //전역에서 사용하기위해서 추가
-    // final timerService = GetIt.I<TimerService>();
     final timerService = Provider.of<TimerService>(context);
 
     return MaterialApp(

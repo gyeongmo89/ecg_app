@@ -5,7 +5,7 @@ import 'package:drift/drift.dart';
 class Schedules extends Table {
   // PRIMARY KEY
   IntColumn get id =>
-      integer().autoIncrement()(); // 함수를 한번더실행 해야됨(인티저) 그래야 에러 없어짐
+      integer().autoIncrement()(); // 함수를 한번 더 실행 해야됨(integer) 그래야 에러 없음
 
    // 날짜
   DateTimeColumn get date => dateTime()();
@@ -25,11 +25,8 @@ class Schedules extends Table {
   // 기타설명
   TextColumn get content => text()();
 
-  // // Category Color Table ID
-  // IntColumn get colorID => integer()();
-
   // 생성날짜
   DateTimeColumn get createAt => dateTime().clientDefault(
-        () => DateTime.now(), // 생성날짜 자동으로 입력 되도록 함.
+        () => DateTime.now(), // 생성 날짜 자동으로 입력
       )();
 }

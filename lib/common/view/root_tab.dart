@@ -1,7 +1,9 @@
+// 2024-06-26 device
+
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/ecg/view/ecg_monitoring.dart';
-import 'package:ecg_app/symptom_note/view/symptom_note2_view.dart';
+import 'package:ecg_app/symptom_note/view/symptom_note_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -10,12 +12,11 @@ class RootTab extends StatefulWidget {
   // 장치 정보 전달 받기
   final BluetoothDevice? device;
 
-
   @override
   State<RootTab> createState() => _RootTabState();
 }
 
-class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
+class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {// vsync는 무조건 with SingleTickerProviderStateMixin 넣어야함
   late TabController controller; // 컨트롤러 선언
   BluetoothDevice? get device => widget.device;
 
@@ -23,26 +24,23 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    controller = TabController(length: 2, vsync: this);
-    // length 는 children에 넣은 값들 여기선 ECG, Note 2개
-    // vsync는 렌더링 엔진에서 필요 한것인데 컨트롤러 현재 스테이트를 넣어주면됨
-    // vsync는 무조건 with SingleTickerProviderStateMixin 넣어야함
-
+    // 탭 컨트롤러 생성, length는 탭의 갯수
+    controller = TabController(
+        length: 2, vsync: this); // vsync는 렌더링 엔진에서 필요 한것인데 컨트롤러 현재 스테이트를 넣어주면됨
     controller.addListener(tabListener); //값이 변경이 될때마다 특정 변수를 실행하라는 뜻
   }
 
   @override
-  void dispose() { // 메모리 해제
-    // TODO: implement dispose
+  void dispose() {
     controller.removeListener(tabListener);
     super.dispose();
   }
 
-  void tabListener() {  // 컨트롤러의 인덱스가 변경될때마다 호출되는 함수
+  void tabListener() {
+    // 컨트롤러의 인덱스가 변경될때마다 호출되는 함수
     setState(() {
-      index = controller.index; // 컨트롤러의 인덱스를 업데이트
+      index = controller.index;
     });
   }
 
@@ -59,7 +57,8 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
 
     return DefaultLayout(
       title: 'ECG Monitoring',
-      bottomNavigationBar: BottomNavigationBar( // 하단 네비게이션 바
+      bottomNavigationBar: BottomNavigationBar(
+        // 하단 네비게이션 바
         backgroundColor: Colors.black,
         selectedItemColor: PRIMARY_COLOR2,
         unselectedItemColor: SUB_TEXT_COLOR,
@@ -84,11 +83,13 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         ],
       ),
       child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),  // 스크롤 비활성화
+        physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
         controller: controller,
         children: [
-          EcgMonitoringScreen(device: device!,),  // ECG 화면
-          SymptomNote2(),         // Note 화면
+          EcgMonitoringScreen(
+            device: device!,
+          ), // ECG 화면
+          SymptomNote2(), // Note 화면
         ],
       ),
     );

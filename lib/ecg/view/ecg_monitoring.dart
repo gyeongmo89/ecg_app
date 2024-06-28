@@ -7,6 +7,7 @@ import '../../common/const/colors.dart';
 class EcgMonitoringScreen extends StatefulWidget {
 
   EcgMonitoringScreen({Key? key, required this.device}) : super(key: key);
+
   // 장치 정보 전달 받기
   final BluetoothDevice? device;
 
@@ -16,7 +17,7 @@ class EcgMonitoringScreen extends StatefulWidget {
 
 class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true; // 이 부분이 상태 유지를 위한 설정입니다.
+  bool get wantKeepAlive => true; // 이 부분이 상태 유지를 위한 설정
   final int noteIndex = 1;
 
   @override
@@ -27,15 +28,6 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
       DateTime.now().month,
       DateTime.now().day,
     );
-
-    // if (widget.device == null) {
-    //   return Scaffold(
-    //     body: Center(
-    //       child: Text('No device connected'),
-    //     ),
-    //   );
-    // }
-
 
     return Scaffold(
       backgroundColor:
@@ -54,11 +46,10 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
             end: Alignment.bottomCenter,
           ),
         ),
-        // child: DeviceScreen(device: r.device),
         child: DeviceScreen(
           device: widget.device!,
           cardioImage: Transform.rotate(
-            angle: 3.14 * 1.5, // 270도 회전 (라디안 단위)
+            angle: 3.14 * 1.5, // 270도 회전
             child: Image.asset(
               "asset/img/misc/heartCare1.png",
               width: MediaQuery.of(context).size.width / 5,
@@ -75,7 +66,7 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
             isScrollControlled: true,
             builder: (_) {
               return ScheduleBottomSheet(
-                selectedDate: selectedDay, // 필요한 날짜를 전달하세요.
+                selectedDate: selectedDay, // 선택한 날짜를 전달
                 scheduleId: null,
               );
             },
@@ -90,36 +81,3 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
     );
   }
 }
-//
-//     return Scaffold(
-//       backgroundColor: Color(0xFFF1F1E6),
-//       body: EcgCard(
-//         cardioImage: Transform.rotate(
-//           angle: 3.14 * 1.5, // 270도 회전 (라디안 단위)
-//           child: Image.asset(
-//             "asset/img/misc/heartCare1.png",
-//             width: MediaQuery.of(context).size.width / 5,
-//             fit: BoxFit.cover,
-//           ),
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           // ScheduleBottomSheet를 열도록 함
-//           showModalBottomSheet(
-//             context: context,
-//             isScrollControlled: true,
-//             builder: (_) {
-//               return ScheduleBottomSheet(
-//                 selectedDate: selectedDay, // 필요한 날짜를 전달하세요.
-//                 scheduleId: null,
-//               );
-//             },
-//           );
-//         },
-//         backgroundColor: PRIMARY_COLOR2,
-//         child: Icon(Icons.edit_note, color: Colors.white,),
-//       ),
-//     );
-//   }
-// }
