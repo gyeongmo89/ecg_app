@@ -8,7 +8,7 @@
 // 2024-05-28 11:43 local notification 추가
 // 2024-06-28 11:47 gitlab 연동
 // 2024-06-28 11:38 gitlab 연동2
-
+// 2024-06-28 13:16 gitlab 연동3
 //flutter build apk --release --target-platform=android-arm64
 //flutter build apk --debug --target-platform=android-arm64
 // flutter pub cache repair
@@ -35,6 +35,7 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNo
 
 
 void main() async {
+  print("test");
   WidgetsFlutterBinding.ensureInitialized();// 로컬 푸시 알림 초기화
   await LocalPushNotifications.initialize();
 
