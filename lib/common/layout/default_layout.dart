@@ -1,11 +1,12 @@
-// 반응형 적용
-// APP BAR 색상변경
+// default_layout.dart: 기본 레이아웃 설정
 
+import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
 import 'package:ecg_app/common/component/menu_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DefaultLayout extends StatelessWidget {
+class DefaultLayout extends StatefulWidget {
   final Color? backgroundColor;
   final Widget child;
   final String? title;
@@ -22,43 +23,74 @@ class DefaultLayout extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<DefaultLayout> createState() => _DefaultLayoutState();
+}
+
+class _DefaultLayoutState extends State<DefaultLayout> {
+  String saveStartDate = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadStartDate();
+  }
+  // 시작날짜를 불러오는 함수
+  Future<void> loadStartDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    saveStartDate = prefs.getString(BluetoothManager.START_DATE_KEY) ?? '';
+    if (saveStartDate.isNotEmpty && DateTime.tryParse(saveStartDate) == null) {
+      saveStartDate = '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          backgroundColor ?? Colors.white, // 입력을 받지 않으면 기본 색깔인 흰색으로 설정
+      backgroundColor: widget.backgroundColor ?? Colors.white,
       appBar: renderAppBar(context),
       drawer: MenuDrawer(
-        device: device,
+        device: widget.device,
       ),
-      body: child,
-      bottomNavigationBar: bottomNavigationBar,
+      body: widget.child,
+      bottomNavigationBar: widget.bottomNavigationBar,
     );
   }
 
   AppBar? renderAppBar(BuildContext context) {
-    if (title == null) {
+    if (widget.title == null) {
       return null;
     } else {
-      // final appState = Provider.of<AppState>(context, listen: true); // Provider로부터 AppState 가져옴
-      // String dayText = 'DAY ${appState.getConnectedDayText()}';
       return AppBar(
         title: Builder(builder: (BuildContext context) {
-          // String dayText = 'DAY ${appState.firstConnectedDate}'; // 'DAY' 뒤에 일(day) 정보를 가져와서 텍스트 생성
-          String dayText = 'DAY 1'; // 'DAY' 뒤에 일(day) 정보를 가져와서 텍스트 생성
+          String dayText = "DAY 1"; // 기본값 설정
+          if (saveStartDate.isNotEmpty) {
+            DateTime? startDate = DateTime.tryParse(saveStartDate);
+            if (startDate != null) {
+              // startDate의 시간, 분, 초 정보를 제거
+              startDate = DateTime(startDate.year, startDate.month, startDate.day);
+              // DateTime.now()의 시간, 분, 초 정보를 제거
+              DateTime now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+              int daysDifference = now.difference(startDate).inDays + 1;  // 시작날짜부터 +1일씩 추가
+              dayText = 'DAY $daysDifference';
+            }
+          } else {
+            print("startDate is empty");
+          }
           double screenWidth = MediaQuery.of(context).size.width;
           return Row(
             children: [
-              const Text(
-                "CLheart",
+              Text(
+                widget.title!,
               ),
               SizedBox(
-                width: screenWidth / 3,
+                width: screenWidth / 3.1,
               ),
               Text(
                 dayText,
               ),
             ],
           );
+
         }),
       );
     }

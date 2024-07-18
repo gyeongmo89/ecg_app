@@ -6,21 +6,20 @@ import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:ecg_app/symptom_note/component/schedule_card.dart';
 import 'package:ecg_app/symptom_note/component/today_banner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-// 나머지 코드에서는 Flutter.Column 또는 Drift.Column을 사용하실 수 있습니다.
-
 final localDatabase = LocalDatabase(); // LocalDatabase 인스턴스 생성
 
-class SymptomNote2 extends StatefulWidget {
-  const SymptomNote2({super.key});
+class SymptomNote extends StatefulWidget {
+  const SymptomNote({super.key});
 
   @override
-  State<SymptomNote2> createState() => _SymptomNote2State();
+  State<SymptomNote> createState() => _SymptomNoteState();
 }
 
-class _SymptomNote2State extends State<SymptomNote2> {
+class _SymptomNoteState extends State<SymptomNote> {
   DateTime selectedDay = DateTime.utc(
     // utc를 해외시간 고려(시차)
     DateTime.now().year,
@@ -30,11 +29,10 @@ class _SymptomNote2State extends State<SymptomNote2> {
   DateTime focusedDay = DateTime.now();
 
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-  });
-}
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +57,7 @@ void initState() {
             ],
           ),
         ),
-      // body: SafeArea(
+        // body: SafeArea(
         child: Column(
           children: [
             Calendar(
@@ -104,10 +102,12 @@ void initState() {
       // backgroundColor: PRIMARY_COLOR,
       backgroundColor: PRIMARY_COLOR2,
       // child: Icon(Icons.add),
-      child: Icon(Icons.edit_note,color: Colors.white,),
+      child: Icon(
+        Icons.edit_note,
+        color: Colors.white,
+      ),
     );
   }
-
 
   onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
@@ -117,40 +117,7 @@ void initState() {
   }
 }
 
-// class _EventPopup extends StatefulWidget {
-//   const _EventPopup({super.key});
-//
-//   @override
-//   State<_EventPopup> createState() => _EventPopupState();
-// }
-//
-// class _EventPopupState extends State<_EventPopup> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       title: Text('CLtime의 EVENT\n버튼을 누르셨습니다.\n증상 노트를 작성\n하시겠습니까?'),
-//       actions: <Widget>[
-//         TextButton(
-//           child: Text('나중에'),
-//           onPressed: () {
-//             // Add your code here to handle the "나중에" button press
-//           },
-//         ),
-//         TextButton(
-//           child: Text('증상작성'),
-//           onPressed: () {
-//             // Add your code here to handle the "증상작성" button press
-//           },
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-
-
 class _ScheduleList extends StatefulWidget {
-  // 내가 임의 코드 추가
   final DateTime selectedDate;
 
   const _ScheduleList({required this.selectedDate, super.key});
@@ -198,17 +165,30 @@ class _ScheduleListState extends State<_ScheduleList> {
               // print(snapshot.data);
               if (!snapshot.hasData) {
                 // snapshot hasData 가 false 이면
-                return Center(child: CircularProgressIndicator());
+                return Center(
+                    child: SpinKitFadingCube(
+                  color: Colors.redAccent.withOpacity(0.7), // 투명도 0.8
+                  size: 20.0,
+                  duration: Duration(seconds: 2),
+                ));
               }
 
               if (snapshot.hasData && snapshot.data!.isEmpty) {
-                if (isTodayOrBefore && !widget.selectedDate.isAfter(DateTime.now())) {
+                if (isTodayOrBefore &&
+                    !widget.selectedDate.isAfter(DateTime.now())) {
                   return Center(
-                    child: Text("등록된 증상노트가 없습니다.", style: TextStyle(color: Colors.white),),
+                    child: Text(
+                      "등록된 증상노트가 없습니다.",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   );
                 } else if (widget.selectedDate.isAfter(DateTime.now())) {
                   return const Center(
-                    child: Text("검사가 진행되지 않은 날짜 이므로\n등록할 수 없습니다.", style: TextStyle(color: Colors.white),textAlign: TextAlign.center,),
+                    child: Text(
+                      "검사가 진행되지 않은 날짜 이므로\n등록할 수 없습니다.",
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
                   );
                 }
               }
@@ -270,8 +250,7 @@ class _ScheduleListState extends State<_ScheduleList> {
                             builder: (_) {
                               return ScheduleBottomSheet(
                                 selectedDate: widget.selectedDate,
-                                scheduleId:
-                                    schedule.id, // 카드눌렀을때 이전정보 불러와야되니까 1
+                                scheduleId: schedule.id, // 카드눌렀을때 이전정보 불러와야되니까
                               );
                             },
                           );

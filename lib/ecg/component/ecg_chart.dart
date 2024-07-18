@@ -1,7 +1,5 @@
-// 아래는 예시 1
-// 병합시작
-// 실시간 병합 시작 1
-// 사이즈 조정 시작
+// ecg_chart.dart: ecg 차트를 그리는 위젯
+
 import 'dart:async';
 import 'dart:math';
 import 'package:ecg_app/common/const/colors.dart';

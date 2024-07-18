@@ -1,5 +1,4 @@
-// categoryColors join 해제 시작 2023-11-16 16:17
-// 마커때문에 수정 11:42
+// drift_database.dart: 데이터베이스 구성 및 쿼리문 작성
 
 import 'dart:io';
 import 'package:drift/drift.dart';

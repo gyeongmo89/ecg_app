@@ -1,4 +1,4 @@
-// 2023-11-15 증상종류, 활동종류 추가
+// schedule.dart: 테이블과 컬럼을 정의
 
 import 'package:drift/drift.dart';
 

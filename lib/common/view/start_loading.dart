@@ -1,7 +1,9 @@
-import 'package:ecg_app/common/const/colors.dart';
+// start_loading.dart: 앱 최초 실행시 로딩하는 화면
+
 import 'package:ecg_app/common/view/connect_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class StartLoading extends StatefulWidget {
   const StartLoading({super.key});
@@ -14,8 +16,8 @@ class _StartLoadingState extends State<StartLoading> {
   @override
   void initState() {
     super.initState();
-    // 2초간 로딩후 화면 전환
-    Future.delayed(const Duration(seconds: 2), () async {
+    // 4초간 로딩후 화면 전환
+    Future.delayed(const Duration(seconds: 4), () async {
       if (mounted) {
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -39,10 +41,18 @@ class _StartLoadingState extends State<StartLoading> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-            Color(0xFF0DB2B2,),
-            Color(0xFF00A2C8,),
-            Color(0xFF0D8CD0,),
-            Color(0xFF6C70C1,),
+            Color(
+              0xFF0DB2B2,
+            ),
+            Color(
+              0xFF00A2C8,
+            ),
+            Color(
+              0xFF0D8CD0,
+            ),
+            Color(
+              0xFF6C70C1,
+            ),
           ])),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -55,8 +65,8 @@ class _StartLoadingState extends State<StartLoading> {
                   height: deviceHeight / (5 * 4),
                 ),
                 // 홈즈AI 로고
-                SvgPicture.asset(
-                  "asset/img/logo/HolmesAI_LOGO.svg",
+                Image.asset(
+                  "asset/img/logo/HolmesAI_LOGO.png",
                   width: deviceWidth / (3 * 1),
                 ),
                 // 패치 로고
@@ -67,9 +77,10 @@ class _StartLoadingState extends State<StartLoading> {
                   width: deviceWidth / (1.0),
                 ),
                 // 로딩 프로그레스 바
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(PRIMARY_COLOR2),
-                  strokeWidth: 3,
+                SpinKitFadingCube(
+                  color: Colors.redAccent.withOpacity(0.7),// 투명도 0.8
+                  size: 20.0,
+                  duration: Duration(seconds: 2),
                 ),
                 SizedBox(
                   height: deviceHeight / (30),

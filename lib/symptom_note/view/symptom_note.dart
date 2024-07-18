@@ -20,7 +20,7 @@ void main() async {
       theme: ThemeData(
         fontFamily: 'NotoSans',
       ),
-      home: SymptomNote2(),
+      home: SymptomNote(),
     )
   );
 }

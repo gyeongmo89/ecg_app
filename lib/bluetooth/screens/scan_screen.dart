@@ -1,10 +1,4 @@
-// 2024-04-12 10:20 BLE 통신테스트 코드를 IheartU에 병합 시작 1
-// 2024-04-12 10:44 BLE 통신테스트 코드를 IheartU에 병합 시작 2
-// 2024-04-12 11:30 Widget build(BuildContext context) 수정시작 1
-// 2024-04-12 15:33 Widget build(BuildContext context) 수정완료
-// 2024-04-12 15:34 검색된 HW 눌렀을때 Root 탭이동 수정 시작 1
-// 2024-05-28 15:42 디바이스장치 명 전역변수 설정(Drawer에 적용하기위해)
-// 2024-06-19 16:55 flutter_blue_plus library 업데이트 시작
+// scan_screen.dart: 블루투스 통신을 위해 스캔하는 화면
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
@@ -64,7 +58,7 @@ class _ScanScreenState extends State<ScanScreen> {
               scanResultList.add(element);
             }
           } else {
-            print('element.device.name: ${element.device.name}');
+            // print('element.device.name: ${element.device.name}');
           }
         });
         setState(() {});
@@ -76,7 +70,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   // 여기서부터는 장치별 출력용 함수들
-  /*  장치의 신호값 위젯  */
+  // 장치의 신호값 위젯
   Widget deviceSignal(ScanResult r) {
     return Text(
       r.rssi.toString(),
@@ -102,7 +96,6 @@ class _ScanScreenState extends State<ScanScreen> {
     if (r.device.name.isNotEmpty) {
       name = r.device.name;
       globalDeviceName = name;
-      print("globalDevice Name확인: $globalDeviceName");
     } else if (r.advertisementData.localName.isNotEmpty) {
       name = r.advertisementData.localName;
     } else {
@@ -113,7 +106,7 @@ class _ScanScreenState extends State<ScanScreen> {
       name,
       style: TextStyle(
         color: Colors.white,
-        fontWeight: FontWeight.bold, // Set the text to bold
+        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -130,7 +123,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void onTap(ScanResult r) {
-  print('선택했을때 Device Name: ${r.device.name}');
+  // print('선택했을때 Device Name: ${r.device.name}');
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -157,9 +150,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return DefaultLayout(
-      //
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: APPBAR_COLOR,
@@ -298,46 +289,3 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 }
-
-// // Provider 때문에 추가함
-// class AppState extends ChangeNotifier {
-//   DateTime? firstConnectedDate; // 처음 연결된 날짜를 저장하기 위한 변수
-//   int _connectedDays = 0; // 연결된 이후의 일 수를 저장하기 위한 변수
-//
-//   // late DateTime connectedDate = DateTime.now(); // 초기값으로 현재 날짜를 설정
-//
-//   void saveConnectedDate(DateTime date) {
-//     if (firstConnectedDate == null) {
-//       firstConnectedDate = date; // 처음 연결된 날짜를 저장
-//     } else {
-//       final difference = date.difference(firstConnectedDate!).inDays;
-//       if (difference >= 1) {
-//         _connectedDays = difference;
-//         // 처음 연결된 날짜 이후 1일 이상 차이가 나면 연결된 일수를 업데이트
-//       }
-//     }
-//     notifyListeners();
-//   }
-//
-//   String getConnectedDayText() {
-//     if (firstConnectedDate == null) {
-//       return 'Not Connected'; // 아직 연결된 날짜가 없는 경우
-//     } else {
-//       final day = _connectedDays + 1; // 처음 연결된 날짜는 1일로 시작하므로 +1을 추가함
-//       return 'DAY $day';
-//     }
-//   }
-// }
-// // void checkAndUpdateDay() {
-// //   final now = DateTime.now();
-// //   final difference = now.difference(connectedDate).inDays;
-// //
-// //   if (difference >= 1) {
-// //     // 하루가 지남
-// //     connectedDate = now;
-// //     // 연결된 날짜를 업데이트하고 상태 알림
-// //     notifyListeners();
-// //     // 여기에서 +1일이라는 메시지를 출력
-// //     print('+1일');
-// //   }
-// // }

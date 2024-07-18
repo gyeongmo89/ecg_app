@@ -1,11 +1,12 @@
-// 2024-01-12 켈린더 디자인 변경
-// 1.요일 색상 변경
-// 2.선택 날짜 색상 변경
-// 3.주말 날짜 색상 변경
+// calendar.dart: 증상노트 캘린더
 
+import 'dart:async';
+import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Event {
@@ -34,17 +35,43 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   late List<Schedule> selectedDaySchedules = [];
+  StreamSubscription<List<Schedule>>? _schedulesSubscription; // 스트림 구독 추가
+  String formattedDate = ''; // formattedDate 필드 추가
+
+
+  String calculateFinishDate(String formattedDate) {
+    DateTime startDate = DateFormat('yyyy-MM-dd HH:mm').parse(formattedDate);
+    DateTime finishDate = startDate.add(Duration(days: 7));
+    return DateFormat('yyyy-MM-dd HH:mm').format(finishDate);
+  }
+
+  Future<void> loadStartDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    formattedDate = prefs.getString(BluetoothManager.START_DATE_KEY) ?? '';
+    if (formattedDate.isNotEmpty && DateTime.tryParse(formattedDate) == null) {
+      formattedDate = '';
+    }
+  }
+
 
   void _fetchEvents() {
     Stream<List<Schedule>> schedulesStream =
         widget.localDatabase.getAllSchedules();
 
-    schedulesStream.listen((schedules) {
-      setState(() {
-        // 전체 일정 데이터가 업데이트될 때마다 selectedDaySchedules를 업데이트합니다.
-        selectedDaySchedules = schedules;
-      });
+    _schedulesSubscription = schedulesStream.listen((schedules) {
+      if (mounted) { // 위젯이 여전히 마운트되어 있는지 확인
+        setState(() {
+          // 전체 일정 데이터가 업데이트될 때마다 selectedDaySchedules를 업데이트합니다.
+          selectedDaySchedules = schedules;
+        });
+      }
     });
+    // schedulesStream.listen((schedules) {
+    //   setState(() {
+    //     // 전체 일정 데이터가 업데이트될 때마다 selectedDaySchedules를 업데이트합니다.
+    //     selectedDaySchedules = schedules;
+    //   });
+    // });
   }
   List<Widget> _getMarkersForDay(DateTime day) {
     List<Schedule> schedulesForDay = selectedDaySchedules
@@ -79,15 +106,23 @@ class _CalendarState extends State<Calendar> {
   }
 
   @override
+  void dispose() {
+    _schedulesSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    _fetchEvents(); // 데이터를 가져오는 메서드를 initState에 추가합니다.
+    loadStartDate();
+    _fetchEvents();
   }
 
   @override
   Widget build(BuildContext context) {
     final defaultBoxDeco = BoxDecoration(
       borderRadius: BorderRadius.circular(8.0),
+      shape: BoxShape.rectangle,
       color: Colors.white,
     );
 
@@ -98,6 +133,7 @@ class _CalendarState extends State<Calendar> {
 
     return TableCalendar(
       // locale: "ko_KR",
+
       locale: "en_US",
       focusedDay: widget.focusedDay,
       firstDay: DateTime(1800),
@@ -116,7 +152,14 @@ class _CalendarState extends State<Calendar> {
         //오늘날짜 표시, false로 해야 에러안남
         defaultDecoration: defaultBoxDeco,
         weekendDecoration: defaultBoxDeco,
+
+        disabledDecoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+
         selectedDecoration: BoxDecoration(
+          shape: BoxShape.rectangle,
           color: Colors.black,
 
           borderRadius: BorderRadius.circular(8.0),
@@ -147,6 +190,17 @@ class _CalendarState extends State<Calendar> {
             date.month == widget.selectedDay!.month &&
             date.day == widget.selectedDay!.day;
       },
+      // enabledDayPredicate: (day) {
+      //   // formattedDate가 빈 문자열인지 확인
+      //   print("formattedDate: $formattedDate");
+      //   if (formattedDate.isEmpty) {
+      //     return false;
+      //   }
+      //   // formattedDate를 DateTime 객체로 변환
+      //   DateTime startDate = DateFormat('yyyy-MM-dd HH:mm').parse(formattedDate);
+      //   // startDate 이전의 날짜는 선택 불가능하게 함
+      //   return day.isAfter(startDate);
+      // },
       calendarBuilders: CalendarBuilders(
         dowBuilder: (context, day) {
           switch (day.weekday) {
@@ -208,6 +262,7 @@ class _CalendarState extends State<Calendar> {
               );
           }
         },
+
         markerBuilder: (
           context,
           day,
@@ -220,8 +275,29 @@ class _CalendarState extends State<Calendar> {
           return Stack(
             children: markers,
           );
+
         },
       ),
+      enabledDayPredicate: (day) {
+        // formattedDate가 빈 문자열인지 확인
+        // print("formattedDate: $formattedDate");
+        if (formattedDate.isEmpty) {
+          return false;
+        }
+        // formattedDate를 DateTime 객체로 변환
+        DateTime startDate = DateFormat('yyyy-MM-dd HH:mm').parse(formattedDate);
+        // startDate의 시간과 분 정보를 제거
+        startDate = DateTime(startDate.year, startDate.month, startDate.day);
+        // finishDate 계산
+        DateTime finishDate = DateFormat('yyyy-MM-dd HH:mm').parse(calculateFinishDate(formattedDate));
+        // finishDate의 시간과 분 정보를 제거
+        finishDate = DateTime(finishDate.year, finishDate.month, finishDate.day);
+        // startDate 이후이고 finishDate 이전의 날짜만 선택 가능하게 함
+        return day.isAfter(startDate) && day.isBefore(finishDate);
+      },
+
+
+
     );
   }
 }

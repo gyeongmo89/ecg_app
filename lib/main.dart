@@ -1,63 +1,56 @@
-// 테마색상 추가 2024-01-29 19:33
-// 2024-02-02 15:09 Setting 의 Light, Dark, System 모드 설정 추가
-// 2024-04-12 16:06 BLE 상태관리를 위해 코드 수정
-// 2024-05-07 18:08 하루 최대 1시간 연결 후 앱 종료 시작 1
-// 2024-05-08 11:43 하루 최대 1시간 연결 후 앱 종료 시작 2(알림추가)
-// 2024-05-08 13:18 하루 최대 1시간 연결 후 앱 종료 시작 3(알림추가)
-// 2024-05-09 09:19 하루 최대 1시간 연결 후 앱 종료 시작 4(전역변수 설정)
-// 2024-05-28 11:43 local notification 추가
-// 2024-06-28 11:47 gitlab 연동
-// 2024-06-28 11:38 gitlab 연동2
-// 2024-06-28 13:16 gitlab 연동3
-//flutter build apk --release --target-platform=android-arm64
-//flutter build apk --debug --target-platform=android-arm64
-// flutter pub cache repair
+//앱 빌드(Release) 명령어: flutter build apk --release --target-platform=android-arm64
+//앱 빌드(Debug) 명령어: flutter build apk --debug --target-platform=android-arm64
+//Flutter Cache 삭제 명령어: flutter pub cache repair
 
 import 'dart:async';
 import 'dart:io';
-
-import 'package:ecg_app/common/view/start_loading.dart';
-import 'package:ecg_app/global_variables.dart';
+import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
+import 'package:ecg_app/push_msg/local_push_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:ecg_app/database/drift_database.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
+import 'common/view/start_loading.dart';
 import 'ecg/component/ecg_card.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:ecg_app/test_noti/local_push_notifications.dart';
-
-
-final navigatorKey = GlobalKey<NavigatorState>();
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
+import 'package:ecg_app/common/component/date_util.dart' as myDateUtils;
 
 void main() async {
-  print("test");
-  WidgetsFlutterBinding.ensureInitialized();// 로컬 푸시 알림 초기화
-  await LocalPushNotifications.initialize();
+  WidgetsFlutterBinding.ensureInitialized(); // 로컬 푸시 알림 초기화
+  await LocalPushNotifications.initialize(); //로컬 푸시 알림 초기화
 
-  //앱이 종료된 상태에서 푸시 알림을 탭할 때
-  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
-  await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-    print('앱이 종료된 상태에서 푸시 알림을 탭했습니다.');
-    Future.delayed(const Duration(seconds: 1), () {
-      navigatorKey.currentState!.pushNamed('/message',arguments:
-      notificationAppLaunchDetails?.notificationResponse?.payload);
-    });
-  }
+  await Workmanager().initialize(
+    callbackDispatcher, //백그라운드에서 실행할 함수(종료시 push 알림)
+    // isInDebugMode: false,
+    isInDebugMode: true, // 2024-07-17 true로 변경
+  );
+  // // 주기적인 백그라운드 작업 등록
+  // Workmanager().registerPeriodicTask(
+  //   '1',  // unique name, 작업을 취소하거나 확인하는 용도
+  //   'simplePeriodicTask',
+  //   frequency: Duration(minutes: 15), // 15분마다 실행(최소)
+  // );
 
-  WidgetsFlutterBinding.ensureInitialized();
+  // 1회성 백그라운드 작업 등록
+  // Workmanager().registerOneOffTask("oneoff-task-identifier", "simpleTask");
+  await registerTasks;  // 1회성 백그라운드 작업 등록
+
+  // 화면 회전 고정
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   await initializeDateFormatting();
 
   final database = LocalDatabase();
 
   GetIt.I.registerSingleton<LocalDatabase>(
-
       database); // I 는 인스턴스라는 뜻임, 어디에서든 데이터베이스 값을 가져올 수 있다.
   //전역에서 사용하기 위해서 추가
   final timerService = TimerService(); // Create TimerService instance
@@ -66,19 +59,21 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider( // 관련 위젯을 자동으로 다시 빌드하기위해 ChangeNotifierProvider를 사용함
+        ChangeNotifierProvider(
+          // 관련 위젯을 자동으로 다시 빌드하기위해 ChangeNotifierProvider를 사용함
           create: (context) => ThemeProvider(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => BleConnectionState(),
-        ),
-        Provider<TimerService>( // 앱 사용시간(최대 1시간)을 위한 provider
+        // ChangeNotifierProvider( //
+        //   create: (context) => BleConnectionState(),
+        // ),
+        Provider<TimerService>(
+          // 앱 사용시간(최대 1시간)을 위한 provider
           create: (_) => timerService,
         ),
-        ChangeNotifierProvider(   //검사 종료되면 푸시메시지
-          create: (context) => HeartRateProvider(),
+        ChangeNotifierProvider(
+          // ECG 데이터를 위한 provider
+          create: (context) => HeartRateProvider(), // bpm값을 위한 provider
         ),
-
       ],
       child: const _App(),
     ),
@@ -93,17 +88,18 @@ class _App extends StatefulWidget {
 }
 
 // class _AppState extends State<_App> {
-  class _AppState extends State<_App> with WidgetsBindingObserver {
+class _AppState extends State<_App> with WidgetsBindingObserver {
   late Timer _timer;
   int timer = 0;
-  final StreamController<int> _streamController = StreamController<int>();
+  final StreamController<int> _streamController = StreamController<int>(); //타이머
   bool _isDialogShown = false; // Add this line
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this); //앱이 백그라운드로 변경되었을때 감지하기 위함
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) async {
+      // 타이머 시작
       int newTimer = await TimeLimit().checkTimeLimit();
       setState(() {
         timer = newTimer;
@@ -119,6 +115,7 @@ class _App extends StatefulWidget {
     _streamController.close();
     super.dispose();
   }
+
   // Home 버튼을 눌러서 앱이 백그라운드로 실행될때 BLE 통신을 종료하기 위해 앱을 백그라운드 까지 종료함
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -128,7 +125,6 @@ class _App extends StatefulWidget {
       exit(0);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -155,29 +151,26 @@ class _App extends StatefulWidget {
       ),
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
-      //전역에서 사용하기위해서 추가----------
       builder: (context, child) {
         return Provider<TimerService>.value(
           value: timerService,
           child: child,
         );
       },
-      //전역에서 사용하기위해서 추가----------
       home: StreamBuilder<int>(
         //전역에서 사용하기위해서 추가
         stream: timerService.timerStream, // Use timerService stream
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
           //제한시간 설정
-          if (snapshot.hasData && snapshot.data! >= 3600000 && !_isDialogShown) {
-          // if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
-            print("제한시간1");
+          if (snapshot.hasData &&
+              snapshot.data! >= 3600000 &&
+              !_isDialogShown) {
+            // if (snapshot.hasData && snapshot.data! >= 3600 && !_isDialogShown) {
             Future.delayed(Duration.zero, () {
-              print("제한시간2");
               setState(() {
                 _isDialogShown = true; // Set the flag to true
               });
             });
-            print("제한시간3");
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showDialog(
                 context: context,
@@ -197,17 +190,16 @@ class _App extends StatefulWidget {
                     ],
                   );
                 },
-
               ).then((_) {
                 _isDialogShown =
-                true; // Reset the flag when the dialog is dismissed
+                    true; // Reset the flag when the dialog is dismissed
               });
             });
           } else if (!_isDialogShown) {
-            print("StartLoading 실행");
+            // print("StartLoading 실행");
 
-            return const StartLoading();
-            // return const HomePage();  //local notification test 하기 위한 페이지
+            return const StartLoading(); // Start Loading 페이지
+            // return const NotificationView();  //Push 메시지 test 하기 위한 페이지
           }
           return SizedBox
               .shrink(); // Return an empty widget when dialog is shown
@@ -215,13 +207,83 @@ class _App extends StatefulWidget {
       ),
       // routes: {
       //   // '/': (context) => const HomePage(),
-      //   '/message': (context) => MessagePage(),
-      //   '/menu_drawer': (context) => MenuDrawer(),
+      //   // '/message': (context) => MessagePage(),
+      //   '/menu_drawer': (context) => const MenuDrawer(device: null,),
       // },
     );
-
   }
 }
+
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // SharedPreferences에서 saveStartDate를 로드
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String saveStartDate =
+        prefs.getString(BluetoothManager.START_DATE_KEY) ?? '';
+
+    // saveStartDate가 현재 시간 이후인지 확인
+    print("callbackDispatcher saveStartDate: $saveStartDate");
+
+    if (saveStartDate.isNotEmpty) {
+      String finishDate =
+          myDateUtils.DateUtils.calculateFinishDate(saveStartDate);
+      DateTime finishDateTime =
+          DateFormat('yyyy-MM-dd HH:mm').parse(finishDate);
+      print("callbackDispatcher finishDateTime: $finishDateTime");
+      if (DateTime.now().isAfter(finishDateTime)) {
+        // if (DateTime.now().isBefore(finishDateTime)) {  // push메시지 테스트 하고싶으면 주석 해제하면됨
+        // finishDateTime이 현재 시간 이후라면 푸시 알림을 보냅니다.
+        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+            FlutterLocalNotificationsPlugin();
+        var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+            '심전도 측정 종료 알림', '심전도 측정 종료 알림',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: true); //showWhen true로 해야지 시간까지 출력됨
+        // var iOSPlatformChannelSpecifics = IOSInitializationSettings(
+        //   // 여기에 필요한 설정을 추가
+        //
+        // );
+        // var platformChannelSpecifics = NotificationDetails(
+        //     android: androidPlatformChannelSpecifics,
+        //     iOS: iOSPlatformChannelSpecifics);
+
+        var platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+        );
+
+        await flutterLocalNotificationsPlugin.show(0, '심전도 측정 검사 종료 알림',
+            '검사가 종료 되었습니다. 데이터를 업로드해주세요.', platformChannelSpecifics,
+            payload: '일반 푸시 알림 데이터 Payload');
+      } else {
+        print("saveStartDate가 없거나 현재 시간 이전입니다.");
+      }
+    }
+    return Future.value(true);
+  });
+}
+
+// mac 에서 추 가 작업
+void registerTasks() async {
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+
+  // Cancel all existing tasks to avoid hitting the iOS limit
+  await Workmanager().cancelAll();
+
+  // Schedule a new one-off task
+  await Workmanager().registerOneOffTask(
+    "come.youurcompany.yourapp.uniqueTaskName", "simpleTask",
+    inputData: <String, dynamic>{
+      'key': 'value'
+    }, // Optional: Data to pass to the task
+  );
+}
+
+final navigatorKey = GlobalKey<NavigatorState>();
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class ThemeProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.dark;
@@ -235,6 +297,7 @@ class ThemeProvider with ChangeNotifier {
 }
 
 class TimeLimit {
+  //앱 사용시간 설정
   static const String LAST_DATE_KEY = "last_date";
   static const String TIMER_KEY = "timer";
 
@@ -243,15 +306,15 @@ class TimeLimit {
     DateTime lastDate = DateTime.parse(
         prefs.getString(LAST_DATE_KEY) ?? DateTime.now().toString());
     int timer = prefs.getInt(TIMER_KEY) ?? 0;
-    print("TimeLimit 클래스 진입");
+    // print("TimeLimit 클래스 진입");
     if (!isSameDay(DateTime.now(), lastDate)) {
       print("앱 실행이 다른날일 경우 사용시간 0으로 리셋");
       prefs.setString(LAST_DATE_KEY, DateTime.now().toString());
       prefs.setInt(TIMER_KEY, 0);
       timer = 0;
     }
-    print("Timer 시작");
-    print("TimeLimit 클래스의 Timer 값: $timer");
+    // print("Timer 시작");
+    // print("TimeLimit 클래스의 Timer 값: $timer");
     timer++;
     prefs.setInt(TIMER_KEY, timer);
     return timer;
@@ -269,7 +332,8 @@ class TimerService {
   late Timer _timer;
   int timer = 0;
   // final StreamController<int> _streamController = StreamController<int>();
-  final StreamController<int> _streamController = StreamController<int>.broadcast();
+  final StreamController<int> _streamController =
+      StreamController<int>.broadcast(); //
 
   TimerService() {
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) async {
@@ -286,224 +350,3 @@ class TimerService {
     _streamController.close();
   }
 }
-
-// 전역에서 사용하기위해서 추가2
-// class TimerServiceProvider extends Provider<TimerService> {
-//   TimerServiceProvider({
-//     required Create<TimerService> create,
-//     Widget? child,
-//   }) : super(
-//             create: create,
-//             dispose: (_, timerService) => timerService.dispose(),
-//             child: child);
-// }
-
-// //원래코드
-// import 'dart:async';
-// import 'package:ecg_app/bluetooth/ble_connection_state.dart';
-// import 'package:ecg_app/common/view/start_loading.dart';
-// import 'package:flutter/material.dart';
-// import 'package:ecg_app/database/drift_database.dart';
-// import 'package:flutter/services.dart';
-// import 'package:get_it/get_it.dart';
-// import 'package:intl/date_symbol_data_local.dart';
-// import 'package:provider/provider.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-//
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//
-//   await initializeDateFormatting();
-//
-//   final database = LocalDatabase();
-//
-//   GetIt.I.registerSingleton<LocalDatabase>(
-//       database); // I 는 인스턴스라는 뜻임, 어디에서든 데이터베이스 값을 가져올 수 있다.
-//   // Timer.periodic(Duration(seconds: 1), (Timer t) async {
-//   //   await TimeLimit().checkTimeLimit(context);
-//   // });
-//
-//   runApp(
-//     MultiProvider(
-//       providers: [
-//         ChangeNotifierProvider(
-//           create: (context) => ThemeProvider(),
-//         ),
-//         ChangeNotifierProvider(
-//           create: (context) => BleConnectionState(),
-//         ),
-//       ],
-//       child: const _App(),
-//
-//     ),
-//   );
-// }
-//
-// class _App extends StatelessWidget {
-//   const _App({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final themeProvider = Provider.of<ThemeProvider>(context);
-//
-//     // Timer.periodic(Duration(seconds: 1), (Timer t) async {
-//     //   await TimeLimit().checkTimeLimit(context);
-//     // });
-//     Timer.periodic(Duration(seconds: 1), (Timer t) async {
-//       int timer = await TimeLimit().checkTimeLimit();
-//       if (timer >= 140) {
-//         t.cancel();
-//         print("t.cancel 1시간 이상 사용으로 인한 앱 종료");
-//         WidgetsBinding.instance.addPostFrameCallback((_) {
-//           showDialog(
-//             context: context,
-//             builder: (BuildContext context) {
-//               return AlertDialog(
-//                 title: Text('앱 종료'),
-//                 content: Text('앱 사용은 하루 최대 1시간 입니다. 앱을 종료합니다.'),
-//                 actions: <Widget>[
-//                   TextButton(
-//                     onPressed: () => Navigator.of(context).pop(false),
-//                     child: Text('확인'),
-//                   ),
-//                 ],
-//               );
-//             },
-//           );
-//         });
-//       }
-//     });
-//
-//     return MaterialApp(
-//       theme: ThemeData(
-//         brightness: Brightness.light,
-//         fontFamily: "NotoSans",
-//         appBarTheme: const AppBarTheme(
-//           elevation: 3,
-//           iconTheme: IconThemeData(color: Colors.black),
-//         ),
-//       ),
-//       darkTheme: ThemeData(
-//         brightness: Brightness.dark,
-//         fontFamily: "NotoSans",
-//         appBarTheme: const AppBarTheme(
-//           elevation: 3,
-//           iconTheme: IconThemeData(color: Colors.white),
-//         ),
-//       ),
-//       themeMode: themeProvider.themeMode,
-//       debugShowCheckedModeBanner: false,
-//       home: WillPopScope(
-//         onWillPop: () async {
-//           return await showDialog(
-//             context: context,
-//             builder: (context) => AlertDialog(
-//               title: Text('앱 종료'),
-//               content: Text('앱을 종료하시겠습니까?'),
-//               actions: <Widget>[
-//                 TextButton(
-//                   onPressed: () => Navigator.of(context).pop(false),
-//                   child: Text('취소'),
-//                 ),
-//                 TextButton(
-//                   onPressed: () => Navigator.of(context).pop(true),
-//                   child: Text('확인'),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//         child: const StartLoading(),
-//       ),
-//     );
-//   }
-// }
-//
-// class ThemeProvider with ChangeNotifier {
-//   // ThemeMode _themeMode = ThemeMode.system;
-//   ThemeMode _themeMode = ThemeMode.dark;
-//
-//   ThemeMode get themeMode => _themeMode;
-//
-//   set themeMode(ThemeMode themeMode) {
-//     _themeMode = themeMode;
-//     notifyListeners();
-//   }
-// }
-//
-// class TimeLimit {
-//   static const String LAST_DATE_KEY = "last_date";
-//   static const String TIMER_KEY = "timer";
-//
-//   Future<int> checkTimeLimit() async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     DateTime lastDate = DateTime.parse(prefs.getString(LAST_DATE_KEY) ?? DateTime.now().toString());
-//     int timer = prefs.getInt(TIMER_KEY) ?? 0;
-//     print("TimeLimit 클래스 진입");
-//     if (!isSameDay(DateTime.now(), lastDate)) {
-//       print("앱 실행이 다른날일 경우 사용시간 0으로 리셋");
-//       prefs.setString(LAST_DATE_KEY, DateTime.now().toString());
-//       prefs.setInt(TIMER_KEY, 0);
-//       timer = 0;
-//     }
-//     print("Timer 시작");
-//     print("Timer 값: $timer");
-//     timer++;
-//     prefs.setInt(TIMER_KEY, timer);
-//     return timer;
-//   }
-//
-// // // 앱 사용시간 설정
-// // class TimeLimit {
-// //   static const String LAST_DATE_KEY = "last_date";
-// //   static const String TIMER_KEY = "timer";
-// //   Future<void> checkTimeLimit(BuildContext context) async {
-// //     SharedPreferences prefs = await SharedPreferences.getInstance();
-// //     // prefs.setInt(TimeLimit.TIMER_KEY, 0); // 테스트를 위해 0으로 초기화 하는 코드, 실제때는 주석처리해야함
-// //     DateTime lastDate = DateTime.parse(prefs.getString(LAST_DATE_KEY) ?? DateTime.now().toString());
-// //     int timer = prefs.getInt(TIMER_KEY) ?? 0;
-// //     print("TimeLimit 클래스 진입");
-// //     if (!isSameDay(DateTime.now(), lastDate)) {
-// //       print("앱 실행이 다른날일 경우 사용시간 0으로 리셋");
-// //       // A new day has started
-// //       prefs.setString(LAST_DATE_KEY, DateTime.now().toString());
-// //       prefs.setInt(TIMER_KEY, 0);
-// //       timer = 0;
-// //     }
-// //       print("Timer 시작");
-// //       print("Timer 값: $timer");
-// //       // Allow the app to run and update the timer every second
-// //       Timer.periodic(Duration(seconds: 1), (Timer t) async {
-// //         timer++;
-// //         prefs.setInt(TIMER_KEY, timer);
-// //         if (timer >= 110) {
-// //           t.cancel();
-// //           print("t.cancel 1시간 이상 사용으로 인한 앱 종료");
-// //
-// //           WidgetsBinding.instance.addPostFrameCallback((_) {
-// //             showDialog(
-// //               context: Navigator.of(context).context,
-// //               builder: (BuildContext context) {
-// //                 return AlertDialog(
-// //                   title: Text('앱 종료'),
-// //                   content: Text('앱 사용은 하루 최대 1시간 입니다. 앱을 종료합니다.'),
-// //                   actions: <Widget>[
-// //                     TextButton(
-// //                       onPressed: () => Navigator.of(context).pop(false),
-// //                       child: Text('확인'),
-// //                     ),
-// //                   ],
-// //                 );
-// //               },
-// //             );
-// //           });
-// //         }
-// //         else{
-// //           print("아직 시간이 않되서 종료 않됨");
-// //         }
-// //       });
-// //   }
-//   }
-//   bool isSameDay(DateTime date1, DateTime date2) {
-//     return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
-//   }

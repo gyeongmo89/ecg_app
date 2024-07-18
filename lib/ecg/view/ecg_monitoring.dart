@@ -1,3 +1,5 @@
+// ecg_monitoring.dart: ECG 모니터링 화면을 구성
+
 import 'package:ecg_app/ecg/component/ecg_card.dart';
 import 'package:ecg_app/symptom_note/component/schedule_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,7 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
       DateTime.now().day,
     );
 
+
     return Scaffold(
       backgroundColor:
           Colors.transparent, // Set the background color to transparent
@@ -59,6 +62,7 @@ class _EcgMonitoringScreenState extends State<EcgMonitoringScreen> with Automati
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'schedule',
         onPressed: () {
           // ScheduleBottomSheet를 열도록 함
           showModalBottomSheet(

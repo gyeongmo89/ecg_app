@@ -1,3 +1,5 @@
+// colors.dart: 색상 정의
+
 import 'package:flutter/material.dart';
 
 // 테마 색상1

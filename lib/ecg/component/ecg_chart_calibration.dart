@@ -1,22 +1,8 @@
-// 2024-04-03 11:44 40~50사이의 수가 차트를 벗어나서 그려져서 차트영역 수정시작
-// 2024-04-03 13:44 수신 데이터를 차트로 바로 적용되도록 시작1
-// 2024-04-03 17:22 수신 데이터를 차트로 바로 적용되도록 완료
-// 2024-04-03 18:41 차트 출력 완료
-// 2024-04-03 18:42 차트가 시간이 갈수록 모여져서 넓게 보이도록 수정시작
-// 2024-04-09 15:21 변경된 HW 적용 시작 1
-// 2024-04-09 17:36 변경된 HW 적용 완료
-// 2024-04-11 10:35 HW가 이동되어 Disconnect 후 가까이오면 다시 Connect 되도록 추가 시작 1
-// 2024-04-11 16:26 차트 추가 삭제 갯수 동일하게 해서 x축 찌거리지는 문제 해결
-// 2024-04-11 16:27 차트가 그리드 위에 그려지도록 수정시작 1
-// 2024-04-12 17:03 ecg_card 코드 병합
-// 2024-04-18 10:28 차트 배경색 추가 시작 1
-// 2024-05-07 15:26 Event 버튼 클릭시 팝업창 뜨도록 하는 함수 추가 시작1
-// 2024-06-19 16:55 flutter_blue_plus library 업데이트 시작
+// ecg_chart_calibraion.dart: ecg 차트를 그리는 위젯
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
 
-//---------------------------------------------------
 class EcgChartPainter extends CustomPainter {
   final List<double> ecgData;
   final Paint backgroundPaint;
@@ -73,7 +59,7 @@ class EcgChartPainter extends CustomPainter {
     final Path path = Path();
     if (ecgData.isNotEmpty) {
       //데이터 켈리브레이션(정규화)
-      print("정규화 전 ecgData: $ecgData");
+      // print("정규화 전 ecgData: $ecgData");
       final List<double> normalizedData = ecgData
           .map((v) => v / 1100)
           .toList(); //v / 700 이 였는데 1100으로 조정함(HW 변경으로 인함)
@@ -94,7 +80,7 @@ class EcgChartPainter extends CustomPainter {
       }
     } else {
       ecgData.clear();
-      print("ecgData is empty");
+      // print("ecgData is empty");
     }
     canvas.drawPath(path, chartPaint);
   }

@@ -61,6 +61,9 @@ dependencies:
   local_auth: ^2.1.8
   flutter_blue_plus: ^1.32.8
   crypto: ^3.0.3
+  workmanager: ^0.5.2
+  flutter_spinkit: ^5.2.1
+
 
 
 
@@ -100,11 +103,8 @@ flutter:
     - asset/img/icon/app_icon.png
     - asset/img/icon/favicon.svg
     - asset/img/logo/HolmesAI_LOGO.png
-    - asset/img/logo/HolmesAI_LOGO.svg
     - asset/img/misc/heartCare1.png
     - asset/img/misc/heartCare2.png
-    - asset/img/misc/mountingPosition.PNG
-    - asset/img/misc/mountingPosition_2.png
     - asset/img/misc/mountingPosition_3.png
 
 

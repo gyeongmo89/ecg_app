@@ -1,6 +1,4 @@
-// 2024-02-05 18:05 시작
-// Patch info 화면
-// Patch 정보를 보여주는 화면
+// about_info.dart: Patch 정보를 보여주는 화면
 
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,4 @@
-// 2024-02-06 지문인식 추가
-// 2024-05-09 13:23 Provider 변경
-// 2024-05-09 13:43 Provider 변경2
+// connect_info.dart: 앱 실행시 로딩 후 첫화면(부착설명 및 Start 버튼) 화면
 
 import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
 import 'package:ecg_app/bluetooth/utils/snackbar.dart';
@@ -8,13 +6,13 @@ import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/common/layout/default_layout.dart';
 import 'package:ecg_app/bluetooth/screens/scan_screen.dart';
-import 'package:ecg_app/common/view/root_tab.dart';
 import 'package:ecg_app/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:ecg_app/common/view/local_auth.dart';  // 지문인식기능 (현재는 불필요하여 주석처리함)
 
 class ConnectionInfo extends StatefulWidget {
@@ -143,7 +141,8 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                       // 사용설명 박스
                       Container(
                         width: deviceWidth / 4 * 5,
-                        height: deviceHeight / 5 * 2.31,
+                        // height: deviceHeight / 5 * 2.31,
+                        height: deviceHeight / 5 * 2.20,
                         padding: const EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10.0),
@@ -163,7 +162,8 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                                   color: BODY_TEXT_COLOR,
                                 )),
                             SizedBox(
-                              height: deviceHeight / 5 * 0.2,
+                              // height: deviceHeight / 5 * 0.2,
+                              height: deviceHeight / 7 * 0.2,
                             ),
                             const Text(
                                 "✔ 1번의 쇄골 중앙지점과 2번의 왼쪽 유두 사이를 "
@@ -174,7 +174,8 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                                   color: BODY_TEXT_COLOR,
                                 )),
                             SizedBox(
-                              height: deviceHeight / 5 * 0.2,
+                              // height: deviceHeight / 5 * 0.2,
+                              height: deviceHeight / 7 * 0.2,
                             ),
                             const Text(
                                 "✔ X-ray 확인시 심장이 이보다 아래에 위치한 경우 "
@@ -184,7 +185,8 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                                   color: BODY_TEXT_COLOR,
                                 )),
                             SizedBox(
-                              height: deviceHeight / 5 * 0.2,
+                              // height: deviceHeight / 5 * 0.2,
+                              height: deviceHeight / 7 * 0.2,
                             ),
                             const Text("✔ 패치 부착 후 파형이 정상인지 확인 합니다.",
                                 style: TextStyle(
@@ -195,7 +197,7 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                         ),
                       ),
                       SizedBox(
-                        height: deviceHeight / 5 * 0.2,
+                        height: deviceHeight / 7 * 0.2,
                       ),
                       // Start 버튼
                       ElevatedButton(
@@ -205,33 +207,62 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                           // if (!authenticated) {
                           //   return;
                           // }
+                          // --------------------------------------------------
                           try {
+                            // if (Platform.isAndroid) {
                             if (Platform.isAndroid) {
                               await FlutterBluePlus.turnOn(); // 블루투스 키도록 설정
+                            } else if (Platform.isIOS){
+                              print("[FBP-iOS--- handleMethodCall: turnOn");
+                              // iPhohe 에서 자체적으로 블루투스를 키도록 알림이 출력됨
+                            }
+                              // 블루투스가 켜져 있으면 아래 코드실행
+                              SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                              String? SharedPreferencesSavedDeviceId = prefs.getString(BluetoothManager.DEVICE_ID_KEY);
+                              // print("savedDeviceId DEVICE_ID_KEY: $SharedPreferencesSavedDeviceId");
+                              //
                               BluetoothDevice? savedDevice =
                                   await BluetoothManager().getSavedDevice(context);
-                              print("savedDeviceId: $savedDevice");
-                              if (savedDevice != null) {
-                                // 저장된 장치 ID가 있으면 ECG 화면으로 이동
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DefaultLayout(
-                                      child: RootTab(
-                                        device: savedDevice,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                // 저장된 장치 ID가 없으면 스캔하는 화면으로 이동
+                              print("savedDevice_connect_info.dart: $savedDevice");
+                              print("SharedPreferencesSavedDeviceId_connect_info.dart: $SharedPreferencesSavedDeviceId");
+
+                              if (SharedPreferencesSavedDeviceId == null) { // 장치가 연결된적이 없으면
+                              // // if (SharedPreferencesSavedDeviceId != null) {
+                              //   // 저장된 장치 ID가 있으면 ECG 화면으로 이동
+                              //   Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) => DefaultLayout(
+                              //
+                              //         child: RootTab(
+                              //           device: savedDevice,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   );
+                              // } else {  // 여기수정
+                              //   // 저장된 장치 ID가 없으면 스캔하는 화면으로 이동
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => ScanScreen(title: ''),
                                   ),
                                 );
+                              //   // Navigator.push(
+                              //   //   context,
+                              //   //   MaterialPageRoute(
+                              //   //     builder: (context) => DefaultLayout(
+                              //   //
+                              //   //       child: RootTab(
+                              //   //         device: savedDevice,
+                              //   //       ),
+                              //   //     ),
+                              //   //   ),
+                              //   // );
+                              //   print("저장된 ID 없음_connect_info.dart!");
                               }
-                            }
+
+                            // }
                           } catch (e) {
                             Snackbar.show(
                               ABC.a,
@@ -239,6 +270,7 @@ class _ConnectionInfoState extends State<ConnectionInfo> {
                               success: false,
                             );
                           }
+                          // --------------------------------------------------
                         },
                         style: ElevatedButton.styleFrom(
                             primary: PRIMARY_COLOR2,

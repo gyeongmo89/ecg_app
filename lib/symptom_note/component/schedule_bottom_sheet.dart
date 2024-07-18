@@ -29,6 +29,7 @@
 
 import 'dart:async';
 import 'package:drift/drift.dart' show Value;
+import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
 import 'package:ecg_app/common/component/custom_button.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -37,6 +38,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecg_app/global_variables.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
@@ -51,10 +55,19 @@ class ScheduleBottomSheet extends StatefulWidget {
 
 class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   // late _Time _timeWidget;
+  String saveStartDate = '';
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> loadStartDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    saveStartDate = prefs.getString(BluetoothManager.START_DATE_KEY) ?? '';
+    if (saveStartDate.isNotEmpty && DateTime.tryParse(saveStartDate) == null) {
+      saveStartDate = '';
+    }
   }
 
   final GlobalKey<FormState> formKey = GlobalKey();
@@ -64,6 +77,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   String? symptom; // 증상
   String? activity; // 활동
   String? content; // 기타설명
+  TimeOfDay? _startSelectedTime; // 시작시간 선택을 위한 변수 추가
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +306,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
 
 // -------------- 아래부터는 수행함수 -------------------
 
-// -------------- 저장버튼 눌렀을때 로직 -------------------수정 시작1
+// -------------- 저장 버튼 눌렀을때 로직 -------------------수정 시작1
   void onSavePressed() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
@@ -301,6 +315,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       print("startTime : $startTime");
       print("symptom : $symptom");
       print("Content : $content");
+      print("저장버튼 눌렀을떄 로직_startSelectedTime : $_startSelectedTime");
       // DateTime now = DateTime.now();
       // DateTime startTimeDate = DateTime(now.year, now.month, now.day, startTime! ~/ 60, startTime! % 60);
       // if (startTime != null && startTimeDate.isAfter(now)) {
@@ -318,7 +333,8 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       // if (startTime == null || symptom == null || activity == null) {
       // if (startTime == null || symptom == null || content == null) {
       print('Starttime Flag 1: $startTime');
-      if (startTime == null || symptom == null) {
+      // if (startTime == null || symptom == null || _startSelectedTime == null) {
+      if (startTime == null || symptom == null && _startSelectedTime == null) {
         //상황작성 필수값 해제
         showDialog(
           context: context,
@@ -338,11 +354,18 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
             );
           },
         );
+        _startSelectedTime = TimeOfDay.now(); // 2024-06-28 15:47
         return;
       }
 
       // content 값이 null이고, symptom이 '기타'일 때 알림창 표시
-      if (content == null && symptom == '기타') {
+      setState(() {
+        symptom = symptom;
+        content = content;
+      });
+      print("기타 - content : $content type : ${content.runtimeType}");
+      print("기타 - symptom : $symptom type : ${symptom.runtimeType}");
+      if (content == null && symptom == '기타' || content == "") {
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -550,24 +573,56 @@ class _TimeState extends State<_Time> {
       print("_startSelectedTime => $_startSelectedTime");
       print("_endSelectedTime => $_endSelectedTime");
 
+      // DateTime now = DateTime.now();
+      // DateTime saveStartDateTime = DateFormat('yyyy-MM-dd HH:mm').parse(saveStartDate);
+      // DateTime startDateTime = DateTime(now.year, now.month, now.day, _startSelectedTime!.hour, _startSelectedTime!.minute);
+      // if (isStartTime == true) {
+      //   if (_startSelectedTime == null || _endSelectedTime == null) {
+      //     print("시작, 종료 널일때");
+      //     print("선택한시작시간--------- : $_startSelectedTime");
+      //     // setState(() {
+      //     //   _startSelectedTime = _startSelectedTime;
+      //     // });
+      //     // if (_startSelectedTime!.hour > now.hour ||
+      //     //     (_startSelectedTime!.hour == now.hour &&
+      //     //         _startSelectedTime!.minute > now.minute)) {
+      //     print("startDateTime.isBefore(saveStartDateTime), startDateTime : $startDateTime, saveStartDateTime : $saveStartDateTime, isBefore: ${startDateTime.isBefore(saveStartDateTime)}");
+      //     if (_startSelectedTime!.hour > now.hour ||
+      //         (_startSelectedTime!.hour == now.hour && _startSelectedTime!.minute > now.minute) ||
+      //         startDateTime.isBefore(saveStartDateTime)) {
+      //       print("시작시간이 현재 시간을 넘었는지? 넘었으면 (미래시간으로 설정하셨습니다라는) 알람");
+      //       _startSelectedTime = null;  // 2024-06-28 15:54
+      //       startTimeStatus = false;
+      //       startTimeCheck = true;
+      //       widget.onStartSaved(null); // 시작시간을 null로 설정
       DateTime now = DateTime.now();
+      DateTime? saveStartDateTime;
+      print("전역변수인 saveStartDate : $saveStartDate");
+      try {
+        saveStartDateTime = DateFormat('yyyy-MM-dd HH:mm').parse(saveStartDate);
+        print("Try saveStartDate : $saveStartDate");
+        print("Try saveStartDateTime : $saveStartDateTime");
+      } catch (e) {
+        print('saveStartDate parsing error: $e');
+      }
+      DateTime startDateTime = DateTime(now.year, now.month, now.day,
+          _startSelectedTime!.hour, _startSelectedTime!.minute);
 
       if (isStartTime == true) {
         if (_startSelectedTime == null || _endSelectedTime == null) {
           print("시작, 종료 널일때");
           print("선택한시작시간--------- : $_startSelectedTime");
-          // setState(() {
-          //   _startSelectedTime = _startSelectedTime;
-          // });
+          print(
+              "startDateTime.isBefore(saveStartDateTime), startDateTime : $startDateTime, saveStartDateTime : $saveStartDateTime, isBefore: ${saveStartDateTime != null && startDateTime.isBefore(saveStartDateTime)}");
           if (_startSelectedTime!.hour > now.hour ||
               (_startSelectedTime!.hour == now.hour &&
                   _startSelectedTime!.minute > now.minute)) {
             print("시작시간이 현재 시간을 넘었는지? 넘었으면 (미래시간으로 설정하셨습니다라는) 알람");
-            print("시작_미래시간_선택한 시작시간1 -> : $_startSelectedTime");
+            _startSelectedTime = null;
             startTimeStatus = false;
             startTimeCheck = true;
-            _startSelectedTime = null;
-            print("시작_미래시간_선택한 시작시간2 -> : $_startSelectedTime");
+            widget.onStartSaved(null);
+
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -578,6 +633,12 @@ class _TimeState extends State<_Time> {
                     CustomButton(
                       text: "확인",
                       onPressed: () {
+                        setState(() {
+                          //2024-06-28 15:47
+                          _startSelectedTime = null; //2024-06-28 15:47
+                          print(
+                              "다이얼로그 setState -> : $_startSelectedTime"); //2024-06-28 15:47
+                        }); //2024-06-28 15:47
                         // setState(() {
                         //   // startTimeStatus = false;
                         //   // startTimeStatus = false;
@@ -595,6 +656,53 @@ class _TimeState extends State<_Time> {
             );
             print("다이얼로그 이후 -> : $_startSelectedTime");
           }
+          else if (saveStartDateTime != null &&
+                  startDateTime.isBefore(saveStartDateTime)) {
+            _startSelectedTime = null;
+            startTimeStatus = false;
+            startTimeCheck = true;
+            widget.onStartSaved(null);
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('알림'),
+                  content: const Text('검사 시작전의 시간은 선택할 수 없습니다.'),
+                  actions: [
+                    CustomButton(
+                      text: "확인",
+                      onPressed: () {
+
+                        setState(() {
+                          //2024-06-28 15:47
+                          _startSelectedTime = null; //2024-06-28 15:47
+                          print(
+                              "다이얼로그 setState -> : $_startSelectedTime"); //2024-06-28 15:47
+                        }); //2024-06-28 15:47
+                        // setState(() {
+                        //   // startTimeStatus = false;
+                        //   // startTimeStatus = false;
+                        //   // startTimeCheck = true;
+                        //   _startSelectedTime = null;
+                        //   print("다이얼로그 setState -> : $_startSelectedTime");
+                        // });
+                        Navigator.pop(context);
+                      },
+                      backgroundColor: SAVE_COLOR2,
+                    ),
+                  ],
+                );
+              },
+            );
+            print("다이얼로그 이후 -> : $_startSelectedTime");
+          }
+
+
+
+
+
+
           print("다이얼로그 이후-> 이후 -> : $_startSelectedTime");
         } else {
           print("시작버튼 눌렀을때 로직");

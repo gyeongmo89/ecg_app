@@ -96,6 +96,12 @@
               android:resource="@style/NormalTheme"
               android:value="high_importance_channel"
               />
+            <!-- 아래 meta-data Push msg로 추가함 -->
+            <meta-data
+                android:name="flutterEmbedding"
+                android:value="2" />
+
+
             <!-- 위에 한줄 FCM 으로 추가함 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -1,7 +1,5 @@
-// 가져온 데이터 한개씩 변수로 맵핑 시작 1.
-// 데이터 전송 Dialog 에러 수정 시작
-// 공통코드 수정, 시리얼넘버 최 로 바꿈
-// 2024-01-22 수정 시작 서버 업로드 팝업
+// transfer_to_server.dart: 서버로 데이터(증상노트)를 전송
+
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:ecg_app/database/drift_database.dart';
@@ -9,19 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ecg_app/global_variables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void setupLocator() {
   GetIt.I.registerLazySingleton(() => LocalDatabase());
 }
 
+// 서버로부터 증상 공통 코드를 가져오는 함수
 Future<List<int>> fetchKeySymptomCodesFromServer() async {
-  // 수정된 부분: 반환 타입 변경
   try {
     // Dio 인스턴스 생성
     Dio dio = Dio();
 
     // 서버 URL
-    String url = "http://112.218.170.60:8083/"; // 테스트 서버
+    // String url = "http://112.218.170.60:8083/"; // 테스트 서버
+    String url = "https://dev.holmesai.co.kr/api/"; // 개발 서버
+    // String url = "https://report.holmesai.co.kr/api/"; // 운영 서버
+
     String path = "code";
     String symptomParam = "?domain=note&name=symptom";
     String symptomGetURL = url + path + symptomParam;
@@ -44,7 +47,7 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
         List<dynamic>? dataList = responseData['data'];
         print("Symptom dataList =======> $dataList");
 
-        // 추가된 부분: 데이터가 없거나 비어있는 경우 처리
+        // 데이터가 없거나 비어있는 경우 처리
         if (dataList == null || dataList.isEmpty) {
           print("symptom Data List 데이터가 비어있습니다.");
           return []; // 빈 리스트 반환 또는 예외 처리 방식으로 수정
@@ -95,94 +98,95 @@ Future<List<int>> fetchKeySymptomCodesFromServer() async {
   }
   return [];
 }
+// 프로젝트 초기에는 Activity 코드도 가져와야했지만 현재는 불필요하여 주석처리함
+// Future<List<int>> fetchKeyActivityCodesFromServer() async {
+//   // 수정된 부분: 반환 타입 변경
+//   try {
+//     // Dio 인스턴스 생성
+//     Dio dio = Dio();
+//     // 서버 URL
+//     // String url = "http://112.218.170.60:8080/"; // 테스트 서버
+//     // String url = "http://112.218.170.60:8083/"; // 테스트 서버
+//     String url = "https://dev.holmesai.co.kr/api/"; // 개발 서버
+//     // String url = "https://report.holmesai.co.kr/api/"; // 운영 서버
+//
+//     String path = "code";
+//     String activityParam = "?domain=note&name=activity";
+//     String activityGetURL = url + path + activityParam;
+//
+//     // Activity API 호출
+//     final activityResponse = await dio.get(
+//       activityGetURL,
+//       options: Options(
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       ),
+//     );
+//
+//     if (activityResponse.statusCode == 200) {
+//       // 응답이 성공적으로 도착했을 때의 처리
+//       final responseData = activityResponse.data;
+//       if (responseData != null && responseData.containsKey('data')) {
+//         List<dynamic>? dataList = responseData['data'];
+//         print("Activity dataList =======> $dataList");
+//         print("activityResponse.statusCode == 200 진입");
+//
+//         // 추가된 부분: 데이터가 없거나 비어있는 경우 처리
+//         if (dataList == null || dataList.isEmpty) {
+//           print("activity Data List 데이터가 비어있습니다.");
+//           return []; // 빈 리스트 반환 또는 예외 처리 방식으로 수정
+//         }
+//         print("if (dataList!.isNotEmpty) 진입");
+//
+//         int workPhysicalActivityKey =
+//         dataList[0]['codeKey']; // 1번째 {}의 codeKey, 업무(육체활동)
+//         int workNonPhysicalActivityKey =
+//         dataList[1]['codeKey']; // 2번째 {}의 codeKey, 업무(비 육체활동)
+//         int watchingTVReadingKey =
+//         dataList[2]['codeKey']; // 3번째 {}의 codeKey, TV 시청, 독서 등의 활동
+//         int walkingKey = dataList[3]['codeKey']; // 4번째 {}의 codeKey, 걷기
+//         int runningKey = dataList[4]['codeKey']; // 5번째 {}의 codeKey, 달리기
+//         int houseworkKey = dataList[5]['codeKey']; // 6번째 {}의 codeKey, 집안일
+//         int activityEtcKey = dataList[6]['codeKey']; // 7번째 {}의 codeKey, 기타
+//
+//         print("-------- 활동 코드 --------");
+//         print("1 번째 codeKey: $workPhysicalActivityKey");
+//         print("2 번째 codeKey: $workNonPhysicalActivityKey");
+//         print("3 번째 codeKey: $watchingTVReadingKey");
+//         print("4 번째 codeKey: $walkingKey");
+//         print("5 번째 codeKey: $runningKey");
+//         print("6 번째 codeKey: $houseworkKey");
+//         print("7 번째 codeKey: $activityEtcKey");
+//         print("------------------------");
+//
+//         return [
+//           workPhysicalActivityKey,
+//           workNonPhysicalActivityKey,
+//           watchingTVReadingKey,
+//           walkingKey,
+//           runningKey,
+//           houseworkKey,
+//           activityEtcKey,
+//         ];
+//       } else {
+//         print("응답이나 키가 null입니다.");
+//         print("responseData => $responseData");
+//       }
+//     } else {
+//       print("Activity else 진입");
+//     }
+//   } catch (e) {
+//     // 예외 처리
+//     print("ActivityCodes 에러 발생: $e");
+//     return [];
+//     // 에러에 대한 처리 로직 추가
+//   }
+//   return [];
+// }
 
-Future<List<int>> fetchKeyActivityCodesFromServer() async {
-  // 수정된 부분: 반환 타입 변경
-  try {
-    // Dio 인스턴스 생성
-    Dio dio = Dio();
-    // 서버 URL
-    // String url = "http://112.218.170.60:8080/"; // 테스트 서버
-    String url = "http://112.218.170.60:8083/"; // 테스트 서버
-    String path = "code";
-    String activityParam = "?domain=note&name=activity";
-    String activityGetURL = url + path + activityParam;
-
-    // Activity API 호출
-    final activityResponse = await dio.get(
-      activityGetURL,
-      options: Options(
-        headers: {
-          "Content-Type": "application/json",
-        },
-      ),
-    );
-
-    if (activityResponse.statusCode == 200) {
-      // 응답이 성공적으로 도착했을 때의 처리
-      final responseData = activityResponse.data;
-      if (responseData != null && responseData.containsKey('data')) {
-        List<dynamic>? dataList = responseData['data'];
-        print("Activity dataList =======> $dataList");
-        print("activityResponse.statusCode == 200 진입");
-
-        // 추가된 부분: 데이터가 없거나 비어있는 경우 처리
-        if (dataList == null || dataList.isEmpty) {
-          print("activity Data List 데이터가 비어있습니다.");
-          return []; // 빈 리스트 반환 또는 예외 처리 방식으로 수정
-        }
-        print("if (dataList!.isNotEmpty) 진입");
-
-        int workPhysicalActivityKey =
-        dataList[0]['codeKey']; // 1번째 {}의 codeKey, 업무(육체활동)
-        int workNonPhysicalActivityKey =
-        dataList[1]['codeKey']; // 2번째 {}의 codeKey, 업무(비 육체활동)
-        int watchingTVReadingKey =
-        dataList[2]['codeKey']; // 3번째 {}의 codeKey, TV 시청, 독서 등의 활동
-        int walkingKey = dataList[3]['codeKey']; // 4번째 {}의 codeKey, 걷기
-        int runningKey = dataList[4]['codeKey']; // 5번째 {}의 codeKey, 달리기
-        int houseworkKey = dataList[5]['codeKey']; // 6번째 {}의 codeKey, 집안일
-        int activityEtcKey = dataList[6]['codeKey']; // 7번째 {}의 codeKey, 기타
-
-        print("-------- 활동 코드 --------");
-        print("1 번째 codeKey: $workPhysicalActivityKey");
-        print("2 번째 codeKey: $workNonPhysicalActivityKey");
-        print("3 번째 codeKey: $watchingTVReadingKey");
-        print("4 번째 codeKey: $walkingKey");
-        print("5 번째 codeKey: $runningKey");
-        print("6 번째 codeKey: $houseworkKey");
-        print("7 번째 codeKey: $activityEtcKey");
-        print("------------------------");
-
-        return [
-          workPhysicalActivityKey,
-          workNonPhysicalActivityKey,
-          watchingTVReadingKey,
-          walkingKey,
-          runningKey,
-          houseworkKey,
-          activityEtcKey,
-        ];
-      } else {
-        print("응답이나 키가 null입니다.");
-        print("responseData => $responseData");
-      }
-    } else {
-      print("Activity else 진입");
-    }
-  } catch (e) {
-    // 예외 처리
-    print("ActivityCodes 에러 발생: $e");
-    return [];
-    // 에러에 대한 처리 로직 추가
-  }
-  return [];
-}
-
-
-// void postDataToServer(BuildContext context) async {
+// 서버로 데이터를 전송하는 함수
 void postDataToServer(BuildContext context) async {
-// Future<void> postDataToServer(BuildContext context) async {
   final localDatabase = GetIt.I<LocalDatabase>();
   // final allSchedules = await localDatabase.getAllSchedules();
   // print("모든 등록된 일정 프린트 : $allSchedules");
@@ -192,8 +196,9 @@ void postDataToServer(BuildContext context) async {
   await Future.delayed(Duration(seconds: 1));
 
   final List<int> symptomCodeKeys = await fetchKeySymptomCodesFromServer();
-  final List<int> activityCodeKeys = await fetchKeyActivityCodesFromServer();
-// -- 증상선택 공통 코드 변수--
+  // final List<int> activityCodeKeys = await fetchKeyActivityCodesFromServer();  // 활동 코드는 현재 사용하지 않음
+
+// 증상선택 공통 코드 변수
   print("symptomCodeKeys: $symptomCodeKeys");
   int chestDiscomfortKey = symptomCodeKeys[0]; //  가슴 불편함   //여기서 문제발생
   int discomfortArmsNeckChinetcKey = symptomCodeKeys[1]; // 팔, 목, 턱 등이 불편함
@@ -203,14 +208,14 @@ void postDataToServer(BuildContext context) async {
   int fatigueKey = symptomCodeKeys[5]; // 피로
   int symptomEtcKey = symptomCodeKeys[6]; // 기타
 
-  // -- 활동선택 공통 코드 변수--
-  int workPhysicalActivityKey = activityCodeKeys[0]; // 업무(육체활동)
-  int workNonPhysicalActivityKey = activityCodeKeys[1]; //업무(비 육체활동)
-  int watchingTVReadingKey = activityCodeKeys[2]; // TV 시청, 독서 등의 활동
-  int walkingKey = activityCodeKeys[3]; // 걷기
-  int runningKey = activityCodeKeys[4]; // 달리기
-  int houseworkKey = activityCodeKeys[5]; // 집안일
-  int activityEtcKey = activityCodeKeys[6]; // 기타
+  // // -- 활동선택 공통 코드 변수--
+  // int workPhysicalActivityKey = activityCodeKeys[0]; // 업무(육체활동)
+  // int workNonPhysicalActivityKey = activityCodeKeys[1]; //업무(비 육체활동)
+  // int watchingTVReadingKey = activityCodeKeys[2]; // TV 시청, 독서 등의 활동
+  // int walkingKey = activityCodeKeys[3]; // 걷기
+  // int runningKey = activityCodeKeys[4]; // 달리기
+  // int houseworkKey = activityCodeKeys[5]; // 집안일
+  // int activityEtcKey = activityCodeKeys[6]; // 기타
 
   // 증상발현시 활동
   // 17 : None
@@ -229,6 +234,7 @@ void postDataToServer(BuildContext context) async {
   // 15 : fatigueKey / 피로
   // 16 : Chest discomfort / 가슴 불편함
 
+  // 증상노트 데이터를 담을 리스트
   List<Map<String, dynamic>> postData = [];
   for (var schedule in symptomSchedules) {
     String mappedSymptom = ''; // 기본값 설정
@@ -253,24 +259,6 @@ void postDataToServer(BuildContext context) async {
       mappedSymptom = '';
     }
 
-    if (schedule['activity'] == 'TV 시청, 독서 등의 활동') {
-      mappedActivity = '$watchingTVReadingKey';
-    } else if (schedule['activity'] == '걷기') {
-      mappedActivity = '$walkingKey';
-    } else if (schedule['activity'] == '달리기') {
-      mappedActivity = '$runningKey';
-    } else if (schedule['activity'] == '업무(육체활동)') {
-      mappedActivity = '$workPhysicalActivityKey';
-    } else if (schedule['activity'] == '업무(비 육체활동)') {
-      mappedActivity = '$workNonPhysicalActivityKey';
-    } else if (schedule['activity'] == '집안일') {
-      mappedActivity = '$houseworkKey';
-    } else if (schedule['activity'] == '기타') {
-      mappedActivity = '$activityEtcKey'; // 기타
-    } else {
-      mappedActivity = ''; // null
-    }
-
     // 날짜 데이터 포맷 변경
     String formattedStartDate = DateFormat('yyyy-MM-dd HH:mm:ss')
         .format(schedule['date'].add(Duration(minutes: schedule['startTime'])));
@@ -283,7 +271,7 @@ void postDataToServer(BuildContext context) async {
     DateTime StartDate = DateTime.parse(formattedStartDate);
     DateTime endDate = DateTime.parse(formattedEndDate);
 
-    // 9시간을 뺀 시간 계산
+    // // 9시간을 뺀 시간 계산(한국시간으로 변경)
     DateTime adjustedStartTime = StartDate.subtract(Duration(hours: 9));
     DateTime adjustedEndTime = endDate.subtract(Duration(hours: 9));
 
@@ -293,7 +281,6 @@ void postDataToServer(BuildContext context) async {
     String adjustedEndString =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(adjustedEndTime);
 
-    print("patchSn --> serial_00001");
     print("handWritten --> $schedule['content'],타입: ${schedule['content'].runtimeType}, 길이: ${schedule['content'].length}");
     print("symptomActivity --> ${[mappedActivity]}, 타입: ${[mappedActivity].runtimeType}, 길이: ${[mappedActivity].length}");
     print("symptomStartDatetime --> $adjustedStartString, 타입: ${adjustedStartString.runtimeType}, 길이: ${adjustedStartString.length}");
@@ -304,37 +291,31 @@ void postDataToServer(BuildContext context) async {
     print('postData: $postData');
 
     postData.add({
-      "patchSn": "serial_00001",
+      // "patchSn": "serial_00001",
+      // "patchSn": "OQ240702002"
+      "patchSn": "sample1",
       "symptomNote": {
-        "handWritten": schedule['content'] ?? "",
+        // "handWritten": schedule['content'] ?? "",
+        "situation": schedule['content'] ?? "",
         // "symptomActivity": [mappedActivity], // activity 값을 사용
         "symptomActivity": mappedActivity.isEmpty ? [-1] : [int.parse(mappedActivity[0])],
-        "symptomEndDatetime": adjustedEndString,
-        "symptomStartDatetime": adjustedStartString,
+        "symptomEndDateTime": adjustedEndString,
+        "symptomStartDateTime": adjustedStartString,
         // "symptomType": [mappedSymptom],
-        "symptomType": mappedSymptom.isEmpty ? [-1] : [int.parse(mappedSymptom[0])],
-      }
-    });
-
-    postData.add({
-      "patchSn": "serial_00001",
-      "symptomNote": {
-        "handWritten": schedule['content'] ?? "",
-        "symptomActivity": [3], // activity 값을 사용
-        // "symptomActivity": [int.parse(mappedActivity)],
-        "symptomEndDatetime": adjustedEndString,
-        "symptomStartDatetime": adjustedStartString,
-        "symptomType": [10],
-        // "symptomType": [int.parse(mappedSymptom)],
+        // "symptomType": mappedSymptom.isEmpty ? [-1] : [int.parse(mappedSymptom[0])],
+        "symptomType": mappedSymptom.isEmpty ? [-1] : [mappedSymptom],
       }
     });
   }
-
   // 서버 URL
   // String url = "http://192.168.0.21:8080/"; // 엄팀장 서버
-  String url = "http://112.218.170.60:8083/"; // 테스트 서버
+  // String url = "http://112.218.170.60:8083/"; // 테스트 서버
+  String url = "https://dev.holmesai.co.kr/api/"; // 개발 서버
+  // String url = "https://report.holmesai.co.kr/api/"; // 운영 서버
   String path = "symptom-note/app";
   String symptomURL = url + path;
+
+
 
   // Dio 인스턴스 생성
   Dio dio = Dio();
@@ -347,6 +328,7 @@ void postDataToServer(BuildContext context) async {
     noDataToast();
     // showEmptyDataDialog(context);
   } else {
+    // 데이터 전송
     try {
       print('Sending data: $postData');
       final response = await dio.post(
@@ -384,8 +366,8 @@ void postDataToServer(BuildContext context) async {
     }
   } // POST 요청 보내기
 }
-
-void dataTransferSuccessToast() {
+// 데이터 전송 성공 토스트 메시지
+Future<void> dataTransferSuccessToast() async {
   Fluttertoast.showToast(
     msg: "데이터 업로드가 완료 되었습니다.",
     toastLength: Toast.LENGTH_SHORT,
@@ -395,7 +377,18 @@ void dataTransferSuccessToast() {
     // textColor: Colors.white,
     fontSize: 16.0,
   );
+  globalIsUploadComplete = true;
+  // print("isUploadComplete: $isUploadComplete");
+  // SharedPreferences 인스턴스를 가져옴
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  // isUploadComplete 값을 SharedPreferences에 저장합니다.
+  await prefs.setBool('isUploadComplete', true);
+  await prefs.setBool('isUploadCompleteFuture', true);
+
+  print("isUploadComplete: ${prefs.getBool('isUploadComplete')}");
 }
+// 데이터 전송 실패 토스트 메시지
 void dataTransferFailToast() {
   Fluttertoast.showToast(
     msg: "데이터 전송이 실패 하였습니다.",
@@ -407,6 +400,7 @@ void dataTransferFailToast() {
     fontSize: 16.0,
   );
 }
+// 전송할 데이터가 없을 때 토스트 메시지
 void noDataToast() {
   Fluttertoast.showToast(
     msg: "전송할 데이터가 없습니다.",

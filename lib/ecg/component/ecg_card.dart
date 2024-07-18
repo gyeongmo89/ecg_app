@@ -1,25 +1,9 @@
-// ECG 필요없는 부분 삭제 2023-12-05 16:01
-// 2024-04-12 18:29 device_screen.dart 코드 병합중 Connect Disconnected 상태관리 완료
-// 2024-04-12 18:45 화면에 Connected Disconnected 여부 적용 완료
-// 2024-04-15 13:44 ECG 차트 연계 시작 1
-// 2024-04-15 17:56 ECG 차트 연계 완료(다른 탭 이동 후 상태관리 완료, 하지만 Disconnect 후 다시 Connect 시 데이터가 빠르게 나오는 현상 해결해야함)
-// 2024-04-15 18:15 심박수 계산 코드 추가 시작 1, bpm 계산속도 너무빠름..
-// 2024-04-16 16:00 심박수 계산 코드 추가 시작 1, bpm 계산속도 너무빠른 것 수정 시작1
-// 2024-04-16 16:12 심박수 계산 코드 추가 완료 bpm 계산속도 너무빠른 것 수정 완료(MAX bpm 250 제한 추가)
-// 2024-04-16 16:13 수집 데이터 AVG, MIN, MAX bpm 출력 시작 1
-// 2024-04-16 18:45 수집 데이터 AVG, MIN, MAX bpm 출력 완료
-// 2024-04-16 18:46 avg 출력은 모두 완료했으나 정지후 AVG가 점점 줄어드는것을 막고, AVG 3자리수 일때 화면 넘어가므로 글씨크기 줄일것
-// 2024-05-02 12:54 HR 차트 적용 시작1
-// 2024-05-09 18:14 HR bpm hr_chart로 데이터 전달 시작1
-// 2024-05-09 20:10 HR bpm hr_chart로 데이터 전달하려고 Provider 적용했지만 아직 avgBpm 값이 전달되지 않음(빈배열)
-// 2024-05-10 14:45 avgBpm 전달완료
-// 2024-05-10 14:46 실시간 Bpm 전달시작
-// 2024-06-19 17:02 flutter_blue_plus library 업데이트 시작
+// ecg_card.dart: BLE 통신으로 부터 받은 값을 처리하며, 산출된 값을 ECG 화면으로 출력함(bpm, avg, min, max, ECG, HR)
 
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:ecg_app/bluetooth/screens/device_screen.dart';
+import 'package:ecg_app/ecg/component/ecg_chart_calibration.dart';
 import 'package:ecg_app/bluetooth/utils/bluetooth_manager.dart';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:ecg_app/ecg/component/hr_chart.dart';
@@ -215,7 +199,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
         // 버튼 상태 변경
         connectButtonText = 'Disconnect';
         ecgData.clear();
-        recordingTimer = Timer.periodic(Duration(seconds: 1),
+        recordingTimer = Timer.periodic(Duration(seconds: 5),
             (Timer t) => _getCurrentTime()); // 연결이 되면 다시 타이머를 시작
         break;
       case BluetoothConnectionState.connecting:
@@ -253,17 +237,17 @@ class _DeviceScreenState extends State<DeviceScreen> {
       });
       // 각 속성을 디버그에 출력
       for (BluetoothService service in bleServices) {
-        print('============================================');
-        print('Service UUID: ${service.uuid}');
+        // print('============================================');
+        // print('Service UUID: ${service.uuid}');
         for (BluetoothCharacteristic c in service.characteristics) {
-          print('\tcharacteristic UUID: ${c.uuid.toString()}');
-          print('\t\twrite: ${c.properties.write}');
-          print('\t\tread: ${c.properties.read}');
-          print('\t\tnotify: ${c.properties.notify}');
-          print('\t\tisNotifying: ${c.isNotifying}');
-          print(
-              '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
-          print('\t\tindicate: ${c.properties.indicate}');
+          // print('\tcharacteristic UUID: ${c.uuid.toString()}');
+          // print('\t\twrite: ${c.properties.write}');
+          // print('\t\tread: ${c.properties.read}');
+          // print('\t\tnotify: ${c.properties.notify}');
+          // print('\t\tisNotifying: ${c.isNotifying}');
+          // print(
+          //     '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
+          // print('\t\tindicate: ${c.properties.indicate}');
 
           // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
           // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스
@@ -291,11 +275,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   // int를 아스키 문자의 문자(String)으로 변환
                   // 변환된 문자열을 쉼표로 분할하여 각 부분을 별도의 문자열로 변환
                   // 각 문자열을 double로 변환
-                  print(
-                      "ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
+                  // print(
+                  //     "ecg_card_심전도 기기로부터 받는 value1: $value, Type: ${value.runtimeType}");
                   String asciiString = String.fromCharCodes(value);
-                  print(
-                      "ecg_card_심전도 기기로부터 받는 값을 asciiString로 변환한 값: $asciiString, Type: ${asciiString.runtimeType}");
+                  // print(
+                  //     "ecg_card_심전도 기기로부터 받는 값을 asciiString로 변환한 값: $asciiString, Type: ${asciiString.runtimeType}");
                   List<String> stringParts = asciiString.split(',');
                   print(
                       ",로 Split한 값: $stringParts,Tyep: ${stringParts.runtimeType}");
@@ -308,13 +292,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
                       try {
                         return double.parse(s);
                       } catch (e) {
-                        print('Unable to parse "$s" into a double.');
+                        // print('Unable to parse "$s" into a double.');
                         return null;
                       }
                     }));
                   }
-                  print(
-                      "dividedValue --------0> $dividedValue, Type: ${dividedValue.runtimeType}");
+                  // print(
+                  //     "dividedValue --------0> $dividedValue, Type: ${dividedValue.runtimeType}");
                   // HW 완료후 null 대신 EVENT 로 정의된 값을 넣으면 됨
                   // if (listEquals(dividedValue, [null])) {
                   // if (dividedValue.any((element) => element == null)) {
@@ -325,7 +309,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   } else {
                     // print("Event 버튼이 눌리지 않았을때");
                   }
-                  print('CLtime 으로 부터 수신되는 UUID와 Data 값 : ${c.uuid}: $dividedValue');
+                  // print('CLtime 으로 부터 수신되는 UUID와 Data 값 : ${c.uuid}: $dividedValue');
 
                   setState(() {
                     notifyDatas[c.uuid.toString()] = dividedValue
@@ -371,10 +355,19 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   void _onDataReceived(List<int> value) {
     Uint8List originalData = Uint8List.fromList(value);
-    String asciiString = String.fromCharCodes(originalData);
+    print("value: $value");
+    print("변경1 value: $originalData");
+
+    // String asciiString = String.fromCharCodes(originalData); // 원래코드
+    // 데이터 추출 하기위해 변경
+    String asciiString = String.fromCharCodes(
+        originalData.map((code) => code == 10 ? 44 : code).toList()
+    );
+    //-------------
+    print("변경2 value(asciiString): $asciiString");
     List<String> stringParts = asciiString.split(',');
-    print(
-        "In _onDataReceived() stringParts: $stringParts,Type: ${stringParts.runtimeType}");
+    // print(
+    //     "In _onDataReceived() stringParts: $stringParts,Type: ${stringParts.runtimeType}");
     List<String> lines = asciiString.split('\n');
     List<double?> dividedValue = [];
     for (var line in lines) {
@@ -383,12 +376,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
         try {
           return double.parse(s);
         } catch (e) {
-          print('Unable to parse "$s" into a double.');
+          // print('Unable to parse "$s" into a double.');
           return null;
         }
       }));
     }
-    print("dividedValue --------> $dividedValue");
+    // print("dividedValue --------> $dividedValue");
     dividedValue = dividedValue.where((item) => item != 0.0).toList();
 
     setState(() {
@@ -641,7 +634,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
             SizedBox(height: deviceHeight / 47),
             // BODY ECG
             Container(
-              height: deviceHeight / 3.9,
+              // height: deviceHeight / 3.9,
+              height: deviceHeight / 4.1,
               width: deviceWidth,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
@@ -684,7 +678,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
             ),
             // -------------------- BODY HR --------------------
             Container(
-              height: deviceHeight / 4.35,
+              // height: deviceHeight / 4.35,
+              height: deviceHeight / 4.55,
               width: deviceWidth,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),

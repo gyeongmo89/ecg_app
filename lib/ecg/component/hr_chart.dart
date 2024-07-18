@@ -1,5 +1,5 @@
-// 2024-05-02 12:55 HR 차트 수정 시작 1
-// 2024-05-09 16:49 HR 차트 수정 시작 2
+// hr_chart.dart: 심박수(HR)를 표시하는 차트를 구현
+
 import 'dart:async';
 import 'package:ecg_app/common/const/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -36,7 +36,7 @@ class _HrChartState extends State<HrChart> {
   void startEcgSimulation() {
     const ecgInterval = Duration(milliseconds: 500);
     ecgTimer = Timer.periodic(ecgInterval, (timer) {
-      print("정기적 업데이트");
+      // print("정기적 업데이트");
       updateEcgData();
     });
   }
@@ -70,7 +70,6 @@ class _HrChartState extends State<HrChart> {
 
   @override
   Widget build(BuildContext context) {
-    print('build bpm: ${widget.bpm}, ${widget.bpm.runtimeType}');
     return Stack(
       children: <Widget>[
         AspectRatio(
@@ -87,6 +86,7 @@ class _HrChartState extends State<HrChart> {
       color: Colors.black,
       fontSize: 10,
     );
+    // Y축 단위 설정
     String text;
     switch (value.toInt()) {
       case 1:
