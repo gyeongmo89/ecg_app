@@ -327,6 +327,8 @@ void postDataToServer(BuildContext context) async {
     // 전송할 데이터가 없습니다.
     noDataToast();
     // showEmptyDataDialog(context);
+
+
   } else {
     // 데이터 전송
     try {
